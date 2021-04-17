@@ -5,7 +5,6 @@ import json
 
 TEMPLATES = []
 STORES = []
-# TODO: walter semmel
 CONFIG_DICT = {}
 BILLS = []
 
