@@ -1,0 +1,16 @@
+{
+    "output_csv":               "output.csv",
+    "product_templates_json":    "product_templates.json",
+    "stores_json":              "stores.json",
+    "type_to_program":          "",
+    "font":                     "14",
+    "scaling":                  1.5,
+    "main_width":               1600,
+    "main_height":              500,
+    "canvas_width":             1280,
+    "canvas_height":            300,
+    "color_frame":              "light grey",
+    "color_label_fg":           "black",
+    "color_label_bg":           "light grey",
+    "tkinter_objects":          "tkinter_objects.json"
+}
