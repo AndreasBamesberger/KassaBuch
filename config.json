@@ -1,7 +1,7 @@
 {
-    "output_csv":               "../KassaBuch_data/output.csv",
-    "product_templates_json":    "../KassaBuch_data/product_templates.json",
-    "stores_json":              "../KassaBuch_data/stores.json",
+    "output_csv":               "F:\\pycharm_projects\\KassaBuch_data\\output.csv",
+    "product_templates_json":    "F:\\pycharm_projects\\KassaBuch_data\\product_templates.json",
+    "stores_json":              "F:\\pycharm_projects\\KassaBuch_data\\stores.json",
     "type_to_program":          "",
     "font":                     "14",
     "scaling":                  1.5,
@@ -12,5 +12,5 @@
     "color_frame":              "light grey",
     "color_label_fg":           "black",
     "color_label_bg":           "light grey",
-    "tkinter_objects":          "../KassaBuch_data/tkinter_objects.json"
+    "tkinter_objects":          "tkinter_objects.json"
 }
