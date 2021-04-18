@@ -210,6 +210,7 @@ class Application:
         self._func_dict_no_param: dict = {"save_bill": self._button_save,
                                           "write_bills": self._button_type,
                                           "trace_store": self._trace_store,
+                                          "trace_payment": self._trace_payment,
                                           "add_new_row":
                                               self._button_add_new_row}
         self._func_dict_one_param: dict = {"update": self._trace_update_entries,
@@ -486,9 +487,14 @@ class Application:
             backend.STORES.append(store)
             backend.update_stores()
 
+        payment = self._root_objects.combo_boxes["payment"].get()
+
+        if payment not in backend.PAYMENTS and payment != '':
+            backend.PAYMENTS.append(payment)
+            backend.update_payments()
+
         date = self._root_objects.entries["date"].get()
         time = self._root_objects.entries["time"].get()
-        payment = self._root_objects.entries["payment"].get()
         total = self._root_objects.entries["total"].get()
 
         print("store = ", store)
@@ -640,14 +646,27 @@ class Application:
     def _trace_store(self):
         store_input = self._root_objects.combo_boxes["store"].get().lower()
 
-        temp_list = list()
+        store_list = list()
         for store in backend.STORES:
             if store_input in store.lower():
-                temp_list.append(store)
+                store_list.append(store)
 
-        temp_list.sort()
-        print(temp_list)
-        self._root_objects.combo_boxes["store"]["values"] = temp_list
+        store_list.sort()
+
+        print(store_list)
+        self._root_objects.combo_boxes["store"]["values"] = store_list
+
+    def _trace_payment(self):
+        payment_input = self._root_objects.combo_boxes["payment"].get().lower()
+
+        payment_list = list()
+        for payment in backend.PAYMENTS:
+            if payment_input in payment.lower():
+                payment_list.append(payment)
+
+        payment_list.sort()
+        print(payment_list)
+        self._root_objects.combo_boxes["payment"]["values"] = payment_list
 
     def _trace_update_entries(self, row):
         # print("_trace_update_entries")
@@ -864,8 +883,10 @@ class Application:
             temp["values"] = sorted(self._template_names)
         if values == "stores":
             temp["values"] = sorted(backend.STORES)
+        if values == "payments":
+            temp["values"] = sorted(backend.PAYMENTS)
         temp["state"] = state
-        temp.grid(row=self._row_count, column=column, sticky=sticky)
+        temp.grid(row=row, column=column, sticky=sticky)
         return temp, trace_var
 
     def _create_check_button(self, frame_key, func_key, text, column, row,

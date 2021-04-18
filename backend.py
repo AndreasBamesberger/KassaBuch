@@ -7,6 +7,7 @@ TEMPLATES = []
 STORES = []
 CONFIG_DICT = {}
 BILLS = []
+PAYMENTS = []
 
 
 class Bill:
@@ -210,6 +211,14 @@ def update_stores():
         json.dump(out_dict, out_file, indent=2)
 
 
+def update_payments():
+    payments_json = CONFIG_DICT["payments_json"]
+    with open(payments_json, 'w', encoding='utf-8') as out_file:
+        out_list = sorted(PAYMENTS)
+        out_dict = {"payments": out_list}
+        json.dump(out_dict, out_file, indent=2)
+
+
 def read_product_templates():
     input_json = CONFIG_DICT["product_templates_json"]
     with open(input_json, 'r', encoding="utf-8") as in_file:
@@ -236,3 +245,12 @@ def read_stores():
         for item in data["stores"]:
             STORES.append(item)
     print(STORES)
+
+
+def read_payments():
+    input_json = CONFIG_DICT["payments_json"]
+    with open(input_json, 'r', encoding="utf-8") as in_file:
+        data = json.load(in_file)
+        for item in data["payments"]:
+            PAYMENTS.append(item)
+    print(PAYMENTS)
