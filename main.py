@@ -1,7 +1,6 @@
 import backend
 from gui import Application
 
-# TODO: Bindestrich für Uhrzeit
 # TODO: ausgerechnete Felder auch in gui
 # TODO: Rundungsfehler einbauen
 # TODO: differenz zwischen 2 total Feldern
