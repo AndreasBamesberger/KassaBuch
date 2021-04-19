@@ -33,8 +33,8 @@ class Bill:
 class Entry:
     def __init__(self, product='', price_single=0.0, quantity=1.0,
                  discount_class='', product_class='', unknown='',
-                 price_quantity=0.0, discount=0.0, quantity_discount=0.0,
-                 sale=0.0, price_final=0.0):
+                 price_quantity=0.0, discount=0.0, quantity_discount="0,0",
+                 sale="0,0", price_final=0.0):
         self.product = product
         self.price_single = price_single
         self.quantity = quantity
@@ -102,7 +102,7 @@ def save_to_csv(bill):
     store = bill.store
     date = bill.date
     time = bill.time
-    total = bill.total
+    total = str(bill.total).replace('.', ',')
 
     # quantity = 0.0
     # discount = 0.0
@@ -136,7 +136,7 @@ def save_to_csv(bill):
         #     sale = float(entry.sale)
 
         line = ['', '', '', '',
-                entry.product.replace(',', '.'),
+                entry.product,
                 entry.price_single,
                 entry.quantity,
                 entry.discount_class,
@@ -147,7 +147,13 @@ def save_to_csv(bill):
                 entry.quantity_discount,
                 entry.sale,
                 entry.price_final]
+
+        line = [str(item).replace('.', ',') for item in line]
+
         lines.append(line)
+
+        for item in line:
+            str(item).replace('.', ',')
 
         try:
             discount_sum += float(entry.discount)
@@ -172,9 +178,14 @@ def save_to_csv(bill):
                    '', '', '', total, discount_sum, quantity_discount_sum,
                    sale_sum, total_new]
 
-    with open(out_path, 'a', encoding="utf-8", newline='') as out_file:
-        file_writer = csv.writer(out_file, delimiter=",", quotechar='|',
-                                 quoting=csv.QUOTE_MINIMAL)
+    # for item in header_line:
+    #     item = str(item).replace('.', ',')
+
+    header_line = [str(item).replace('.', ',') for item in header_line]
+
+    with open(out_path, 'a', newline='', encoding="windows-1252") as out_file:
+        file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
+                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(header_line)
         for line in lines:
             file_writer.writerow(line)
@@ -182,22 +193,20 @@ def save_to_csv(bill):
         file_writer.writerow('')
 
 
+# encodings
+# utf-8, 16, 32
+# windows-1252
+# cp273 (german)
 def update_product_templates():
     templates_json = CONFIG_DICT["product_templates_json"]
-    with open(templates_json, 'w', encoding='utf-8') as out_file:
+    with open(templates_json, 'w', encoding="utf-16") as out_file:
         out_list = []
         for template in TEMPLATES:
             out_dict = {"product": template.product,
                         "price_single": template.price_single,
                         "quantity": template.quantity,
-                        "discount_class": template.discount_class,
                         "product_class": template.product_class,
-                        "unknown": template.unknown,
-                        "price_quantity": template.price_quantity,
-                        "discount": template.discount,
-                        "quantity_discount": template.quantity_discount,
-                        "sale": template.sale,
-                        "price_final": template.price_final}
+                        "unknown": template.unknown}
             out_list.append(out_dict)
         out_list = sorted(out_list, key=lambda item: item["product"])
         json.dump(out_list, out_file, indent=2)
@@ -205,7 +214,7 @@ def update_product_templates():
 
 def update_stores():
     stores_json = CONFIG_DICT["stores_json"]
-    with open(stores_json, 'w', encoding='utf-8') as out_file:
+    with open(stores_json, 'w', encoding="utf-16") as out_file:
         out_list = sorted(STORES)
         out_dict = {"stores": out_list}
         json.dump(out_dict, out_file, indent=2)
@@ -213,7 +222,7 @@ def update_stores():
 
 def update_payments():
     payments_json = CONFIG_DICT["payments_json"]
-    with open(payments_json, 'w', encoding='utf-8') as out_file:
+    with open(payments_json, 'w', encoding="utf-16") as out_file:
         out_list = sorted(PAYMENTS)
         out_dict = {"payments": out_list}
         json.dump(out_dict, out_file, indent=2)
@@ -221,26 +230,20 @@ def update_payments():
 
 def read_product_templates():
     input_json = CONFIG_DICT["product_templates_json"]
-    with open(input_json, 'r', encoding="utf-8") as in_file:
+    with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
         for item in data:
             temp = Entry(product=item["product"],
                          price_single=item["price_single"],
                          quantity=item["quantity"],
-                         discount_class=item["discount_class"],
                          product_class=item["product_class"],
-                         unknown=item["unknown"],
-                         price_quantity=item["price_quantity"],
-                         discount=item["discount"],
-                         quantity_discount=item["quantity_discount"],
-                         sale=item["sale"],
-                         price_final=item["price_final"])
+                         unknown=item["unknown"])
             TEMPLATES.append(temp)
 
 
 def read_stores():
     input_json = CONFIG_DICT["stores_json"]
-    with open(input_json, 'r', encoding="utf-8") as in_file:
+    with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
         for item in data["stores"]:
             STORES.append(item)
@@ -249,7 +252,7 @@ def read_stores():
 
 def read_payments():
     input_json = CONFIG_DICT["payments_json"]
-    with open(input_json, 'r', encoding="utf-8") as in_file:
+    with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
         for item in data["payments"]:
             PAYMENTS.append(item)

@@ -481,21 +481,22 @@ class Application:
         self._button_add_new_row()
 
     def _create_output(self):
-        store = self._root_objects.combo_boxes["store"].get()
+        store = self._read_entry(self._root_objects.combo_boxes["store"], "str")
 
         if store not in backend.STORES and store != '':
             backend.STORES.append(store)
             backend.update_stores()
 
-        payment = self._root_objects.combo_boxes["payment"].get()
+        payment = self._read_entry(self._root_objects.combo_boxes["payment"],
+                                   "str")
 
         if payment not in backend.PAYMENTS and payment != '':
             backend.PAYMENTS.append(payment)
             backend.update_payments()
 
-        date = self._root_objects.entries["date"].get()
-        time = self._root_objects.entries["time"].get()
-        total = self._root_objects.entries["total"].get()
+        date = self._read_entry(self._root_objects.entries["date"], "str")
+        time = self._read_entry(self._root_objects.entries["time"], "str")
+        total = self._read_entry(self._root_objects.entries["total"], "float")
 
         print("store = ", store)
         print("date = ", date)
@@ -515,26 +516,31 @@ class Application:
 
         return bill
 
-    @staticmethod
-    def _get_entry_from_line(line):
-        entry = backend.Entry(product=line.entries["product"].get(),
-                              price_single=line.entries[
-                                  "price_single"].get(),
-                              sale=line.entries["sale"].get(),
-                              quantity=line.entries["quantity"].get(),
-                              discount_class=line.entries[
-                                  "discount_class"].get(),
-                              product_class=line.entries[
-                                  "product_class"].get(),
-                              unknown=line.entries["unknown"].get(),
-                              price_quantity=line.entries[
-                                  "price_quantity"].get(),
-                              discount=line.entries["discount"].get(),
-                              quantity_discount=line.entries[
-                                  "quantity_discount"]
-                              .get(),
-                              price_final=line.entries["price_final"].get(),
-                              )
+    def _get_entry_from_line(self, line):
+        product = self._read_entry(line.entries["product"], "str")
+        price_single = self._read_entry(line.entries["price_single"], "float")
+        quantity = self._read_entry(line.entries["quantity"], "float")
+        discount_class = self._read_entry(line.entries["discount_class"], "str")
+        product_class = self._read_entry(line.entries["product_class"], "str")
+        unknown = self._read_entry(line.entries["unknown"], "str")
+        price_quantity = self._read_entry(line.entries["price_quantity"],
+                                          "float")
+        discount = self._read_entry(line.entries["discount"], "float")
+        quantity_discount = self._read_entry(line.entries["quantity_discount"],
+                                             "float")
+        sale = self._read_entry(line.entries["sale"], "str")
+        price_final = self._read_entry(line.entries["price_final"], "float")
+        entry = backend.Entry(product=product,
+                              price_single=price_single,
+                              quantity=quantity,
+                              discount_class=discount_class,
+                              product_class=product_class,
+                              unknown=unknown,
+                              price_quantity=price_quantity,
+                              discount=discount,
+                              quantity_discount=quantity_discount,
+                              sale=sale,
+                              price_final=price_final)
         return entry
 
     def _button_save_template(self, row):
@@ -574,7 +580,8 @@ class Application:
         index = None
         for index, line in enumerate(self._line_list):
             if line.row == row:
-                template_input = line.combo_boxes["template"].get().lower()
+                template_input = self._read_entry(line.combo_boxes["template"],
+                                                  "str").lower()
                 break
 
         if index is None:
@@ -592,7 +599,8 @@ class Application:
 
         if len(temp_list) == 0:
             curr_line = self._line_list[index]
-            template_name = curr_line.combo_boxes["template"].get()
+            template_name = self._read_entry(curr_line.combo_boxes["template"],
+                                             "str")
             curr_line.entries["product"].delete(0, "end")
             curr_line.entries["product"].insert(0, template_name)
             curr_line.entries["price_single"].delete(0, "end")
@@ -606,7 +614,7 @@ class Application:
             curr_line.entries["quantity_discount"].delete(0, "end")
             curr_line.entries["price_final"].delete(0, "end")
 
-        if len(temp_list) == 1:
+        elif len(temp_list) == 1:
             curr_temp = temp_list[0]
 
             self._line_list[index].entries["product"].delete(0, "end")
@@ -643,8 +651,72 @@ class Application:
             self._line_list[index].entries["price_final"]. \
                 insert(0, curr_temp.price_final)
 
+        else:
+            for index, suggestion in enumerate(temp_list):
+                if template_input == suggestion.product.lower():
+                    curr_temp = temp_list[index]
+
+                    self._line_list[index].entries["product"].delete(0, "end")
+                    self._line_list[index].entries["product"]. \
+                        insert(0, curr_temp.product)
+                    self._line_list[index].entries["price_single"].delete(0,
+                                                                          "end")
+                    self._line_list[index].entries["price_single"]. \
+                        insert(0, curr_temp.price_single)
+                    self._line_list[index].entries["sale"].delete(0, "end")
+                    self._line_list[index].entries["sale"]. \
+                        insert(0, curr_temp.sale)
+                    self._line_list[index].entries["quantity"].delete(0, "end")
+                    self._line_list[index].entries["quantity"]. \
+                        insert(0, curr_temp.quantity)
+                    self._line_list[index].entries["discount_class"].\
+                        delete(0, "end")
+                    self._line_list[index].entries["discount_class"]. \
+                        insert(0, curr_temp.discount_class)
+                    self._line_list[index].entries["product_class"].\
+                        delete(0, "end")
+                    self._line_list[index].entries["product_class"]. \
+                        insert(0, curr_temp.product_class)
+                    self._line_list[index].entries["unknown"].delete(0, "end")
+                    self._line_list[index].entries["unknown"]. \
+                        insert(0, curr_temp.unknown)
+                    self._line_list[index].entries["price_quantity"].\
+                        delete(0, "end")
+                    self._line_list[index].entries["price_quantity"]. \
+                        insert(0, curr_temp.price_quantity)
+                    self._line_list[index].entries["discount"].delete(0, "end")
+                    self._line_list[index].entries["discount"]. \
+                        insert(0, curr_temp.discount)
+                    self._line_list[index].entries["quantity_discount"].\
+                        delete(0, "end")
+                    self._line_list[index].entries["quantity_discount"]. \
+                        insert(0, curr_temp.quantity_discount)
+                    self._line_list[index].entries["price_final"].delete(0,
+                                                                         "end")
+                    self._line_list[index].entries["price_final"]. \
+                        insert(0, curr_temp.price_final)
+                else:
+
+                    curr_line = self._line_list[index]
+                    template_name = self._read_entry(
+                        curr_line.combo_boxes["template"],
+                        "str")
+                    curr_line.entries["product"].delete(0, "end")
+                    curr_line.entries["product"].insert(0, template_name)
+                    curr_line.entries["price_single"].delete(0, "end")
+                    curr_line.entries["sale"].delete(0, "end")
+                    curr_line.entries["quantity"].delete(0, "end")
+                    curr_line.entries["discount_class"].delete(0, "end")
+                    curr_line.entries["product_class"].delete(0, "end")
+                    curr_line.entries["unknown"].delete(0, "end")
+                    curr_line.entries["price_quantity"].delete(0, "end")
+                    curr_line.entries["discount"].delete(0, "end")
+                    curr_line.entries["quantity_discount"].delete(0, "end")
+                    curr_line.entries["price_final"].delete(0, "end")
+
     def _trace_store(self):
-        store_input = self._root_objects.combo_boxes["store"].get().lower()
+        store_input = self._read_entry(self._root_objects.combo_boxes["store"],
+                                       "str").lower()
 
         store_list = list()
         for store in backend.STORES:
@@ -657,7 +729,8 @@ class Application:
         self._root_objects.combo_boxes["store"]["values"] = store_list
 
     def _trace_payment(self):
-        payment_input = self._root_objects.combo_boxes["payment"].get().lower()
+        payment_input = self._read_entry(
+            self._root_objects.combo_boxes["payment"], "str").lower()
 
         payment_list = list()
         for payment in backend.PAYMENTS:
@@ -687,51 +760,36 @@ class Application:
         if current_line.row == self._row_count - 1:
             for line in self._line_list:
                 if line.row == self._row_count - 1:
-                    if line.entries["price_final"].get():
+                    if self._read_entry(line.entries["price_final"], "float"):
                         self._button_add_new_row()
 
                         # Set the canvas scrolling region
                         self._canvas.config(scrollregion=self.
                                             _canvas.bbox("all"))
 
-    @staticmethod
-    def _calculate_price_quantity(line):
+    def _calculate_price_quantity(self, line):
         # print("_calculate_price_quantity")
-        price_single = line.entries["price_single"].get()
-        quantity = line.entries["quantity"].get()
+        price_single = self._read_entry(line.entries["price_single"], "float")
+        quantity = self._read_entry(line.entries["quantity"], "float")
 
-        if price_single == '':
-            return
-
-        if quantity == '':
+        if not quantity:
             quantity = 1
 
-        try:
-            price_single = float(price_single)
-            quantity = float(quantity)
-        except ValueError:
-            return
         price_quantity = round(price_single * quantity, 2)
+        price_quantity = str(price_quantity).replace('.', ',')
 
         line.entries["price_quantity"].delete(0, "end")
         line.entries["price_quantity"].insert(0, price_quantity)
 
-    @staticmethod
-    def _calculate_discount(line):
+    def _calculate_discount(self, line):
         # print("_calculate_discount")
-        price_quantity = line.entries["price_quantity"].get()
-        if price_quantity == '':
-            return
-        else:
-            try:
-                price_quantity = float(price_quantity)
-            except ValueError:
-                return
+        price_quantity = self._read_entry(line.entries["price_quantity"],
+                                          "float")
 
-        discount_class = line.entries["discount_class"].get()
-        if discount_class == '':
-            discount_class = 0.0
-        elif discount_class.lower() == 'a':
+        discount_class = self._read_entry(line.entries["discount_class"], "str")
+        discount_class = discount_class.replace(',', '.')
+
+        if discount_class.lower() == 'a':
             discount_class = 25
         else:
             try:
@@ -741,16 +799,15 @@ class Application:
 
         discount = price_quantity * discount_class / 100
         discount = round(discount, 2)
+        discount = str(discount).replace('.', ',')
         line.entries["discount"].delete(0, "end")
         line.entries["discount"].insert(0, discount)
 
-    @staticmethod
-    def _calculate_price_final(line):
+    def _calculate_price_final(self, line):
         # print("_calculate_price_final")
-        discount_class = line.entries["discount_class"].get()
-        if discount_class == '':
-            discount_class = 0.0
-        elif discount_class.lower() == 'a':
+        discount_class = self._read_entry(line.entries["discount_class"], "str")
+        discount_class = discount_class.replace(',', '.')
+        if discount_class.lower() == 'a':
             discount_class = 25
         else:
             try:
@@ -758,34 +815,16 @@ class Application:
             except ValueError:
                 discount_class = 0.0
 
-        sale = line.entries["sale"].get()
-        if sale == '':
-            sale = 0.0
-        else:
-            try:
-                sale = float(sale)
-            except ValueError:
-                sale = 0.0
+        sale = self._read_entry(line.entries["sale"], "float")
 
-        quantity_discount = line.entries["quantity_discount"].get()
-        if quantity_discount == '':
-            quantity_discount = 0.0
-        else:
-            try:
-                quantity_discount = float(quantity_discount)
-            except ValueError:
-                quantity_discount = 0.0
+        quantity_discount = self._read_entry(line.entries["quantity_discount"],
+                                             "float")
 
-        price_quantity = line.entries["price_quantity"].get()
-        if price_quantity == '':
-            return
-        else:
-            try:
-                price_quantity = float(price_quantity)
-            except ValueError:
-                price_quantity = 0.0
+        price_quantity = self._read_entry(line.entries["price_quantity"],
+                                          "float")
 
-        discount_first = line.trace_vars["discount_check_button"].get()
+        discount_first = self._read_entry(
+            line.trace_vars["discount_check_button"], "float")
         # print("discount_first: ", discount_first)
         if discount_first:
             price_final = (price_quantity - sale - quantity_discount) * \
@@ -794,8 +833,7 @@ class Application:
             price_final = (price_quantity * (1 - (discount_class / 100)) -
                            sale - quantity_discount)
         price_final = round(price_final, 2)
-        if price_final < 0:
-            price_final = 0
+        price_final = str(price_final).replace('.', ',')
 
         line.entries["price_final"].delete(0, "end")
         line.entries["price_final"].insert(0, price_final)
@@ -804,17 +842,12 @@ class Application:
         # print("_calculate_total")
         total = 0.0
         for line in self._line_list:
-            price_final = line.entries["price_final"].get()
-            if price_final == '':
-                price_final = 0.0
-            try:
-                price_final = float(price_final)
-            except ValueError:
-                return
+            price_final = self._read_entry(line.entries["price_final"], "float")
 
             total += price_final
 
         total = round(total, 2)
+        total = str(total).replace('.', ',')
         self._root_objects.entries["total"].delete(0, "end")
         self._root_objects.entries["total"].insert(0, total)
 
@@ -905,3 +938,17 @@ class Application:
         check_box.grid(row=row, column=column, sticky=sticky)
 
         return check_box, trace_var
+
+    @staticmethod
+    def _read_entry(entry, data_type):
+        value = entry.get()
+        if data_type == "str":
+            return value
+        elif data_type == "float":
+            if isinstance(value, str):
+                value = value.replace(',', '.')
+            try:
+                value = float(value)
+            except ValueError:
+                value = 0.0
+            return value
