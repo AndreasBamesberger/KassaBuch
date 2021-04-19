@@ -12,13 +12,19 @@ PAYMENTS = []
 
 class Bill:
     def __init__(self, entries=(), date=datetime.date, time=datetime.time,
-                 store="", payment='', total=0.0):
+                 store="", payment='', total=0.0, discount_sum=0.0,
+                 quantity_discount_sum=0.0, sale_sum=0.0,
+                 price_quantity_sum=0.0):
         self.entries = entries
         self.date = date
         self.time = time
         self.store = store
         self.payment = payment
         self.total = total
+        self.discount_sum = discount_sum
+        self.quantity_discount_sum = quantity_discount_sum
+        self.sale_sum = sale_sum
+        self.price_quantity_sum = price_quantity_sum
 
     def __repr__(self):
         out_string = (f"Bill\n"
@@ -26,6 +32,9 @@ class Bill:
                       f"\tdate: {self.date}\n"
                       f"\ttime: {self.time}\n"
                       f"\tstore: {self.store}\n"
+                      f"\tdiscount_sum: {self.discount_sum}\n"
+                      f"\tquantity_discount_sum: {self.quantity_discount_sum}\n"
+                      f"\tsale_sum: {self.sale_sum}\n"
                       f"\ttotal: {self.total}\n")
         return out_string
 
@@ -102,26 +111,29 @@ def save_to_csv(bill):
     store = bill.store
     date = bill.date
     time = bill.time
-    total = str(bill.total).replace('.', ',')
+    total = bill.total
+    discount_sum = bill.discount_sum
+    quantity_discount_sum = bill.quantity_discount_sum
+    sale_sum = bill.sale_sum
 
     # quantity = 0.0
     # discount = 0.0
     # quantity_discount = 0.0
     # sale = 0.0
-
-    discount_sum: float = 0.0
-    quantity_discount_sum: float = 0.0
-    sale_sum: float = 0.0
+    #
+    # discount_sum: float = 0.0
+    # quantity_discount_sum: float = 0.0
+    # sale_sum: float = 0.0
 
     lines: list = list()
 
     for entry in bill.entries:
-        if not entry.product and not entry.quantity and not entry.price_final:
-            continue
-        if float(entry.quantity) == 1:
-            entry.quantity = ''
-        else:
-            entry.quantity = float(entry.quantity)
+        # if not entry.product and not entry.quantity and not entry.price_final:
+        #     continue
+        # if float(entry.quantity) == 1:
+        #     entry.quantity = ''
+        # else:
+        #     entry.quantity = float(entry.quantity)
         # if float(entry.discount) == 0:
         #     discount = ''
         # else:
@@ -152,31 +164,29 @@ def save_to_csv(bill):
 
         lines.append(line)
 
-        for item in line:
-            str(item).replace('.', ',')
+        # for item in line:
+        #     str(item).replace('.', ',')
 
-        try:
-            discount_sum += float(entry.discount)
-        except ValueError:
-            pass
-        try:
-            quantity_discount_sum += float(entry.quantity_discount)
-        except ValueError:
-            pass
-        try:
-            sale_sum += float(entry.sale)
-        except ValueError:
-            pass
+        # try:
+        #     discount_sum += float(entry.discount)
+        # except ValueError:
+        #     pass
+        # try:
+        #     quantity_discount_sum += float(entry.quantity_discount)
+        # except ValueError:
+        #     pass
+        # try:
+        #     sale_sum += float(entry.sale)
+        # except ValueError:
+        #     pass
 
-    try:
-        total = float(total)
-    except ValueError:
-        total = 0
-
-    total_new = float(total) - discount_sum - quantity_discount_sum - sale_sum
+    total_new = round(bill.price_quantity_sum - discount_sum -
+                      quantity_discount_sum - sale_sum, 2)
+    # total_new = total - discount_sum - quantity_discount_sum - sale_sum
+    # total = str(total).replace('.', ',')
     header_line = ['', date, time, store, bill.payment, len(bill.entries), '',
-                   '', '', '', total, discount_sum, quantity_discount_sum,
-                   sale_sum, total_new]
+                   '', '', '', bill.price_quantity_sum, discount_sum,
+                   quantity_discount_sum, sale_sum, total_new]
 
     # for item in header_line:
     #     item = str(item).replace('.', ',')

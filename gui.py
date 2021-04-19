@@ -334,7 +334,7 @@ class Application:
     def _setup_canvas_window(self):
         self._frame_main.grid(sticky="news")
 
-        self._frame_canvas.grid(row=5, column=0, padx=(5, 0), pady=(5, 0),
+        self._frame_canvas.grid(row=8, column=0, padx=(0, 0), pady=(5, 5),
                                 sticky='nw')
 
         self._frame_canvas.grid_rowconfigure(0, weight=1)
@@ -498,7 +498,14 @@ class Application:
         time = self._read_entry(self._root_objects.entries["time"], "str")
         # replacement so it's easier to type via numpad
         time = time.replace('-', ':')
+        discount_sum = self._read_entry(self._root_objects.
+                                        entries["discount_sum"], "float")
+        quantity_discount_sum = self._read_entry(
+            self._root_objects.entries["quantity_discount_sum"], "float")
+        sale_sum = self._read_entry(self._root_objects.entries["sale_sum"],
+                                    "float")
         total = self._read_entry(self._root_objects.entries["total"], "float")
+        price_quantity_sum = 0.0
 
         print("store = ", store)
         print("date = ", date)
@@ -512,8 +519,40 @@ class Application:
 
             entry_list.append(entry)
 
+        # discount_sum: float = 0.0
+        # quantity_discount_sum: float = 0.0
+        # sale_sum: float = 0.0
+
+        for entry in entry_list:
+            if not entry.product and not entry.quantity and \
+                    not entry.price_final:
+                continue
+            if float(entry.quantity) == 1:
+                entry.quantity = ''
+            else:
+                entry.quantity = float(entry.quantity)
+
+            price_quantity_sum += entry.price_quantity
+
+            # try:
+            #     discount_sum += float(entry.discount)
+            # except ValueError:
+            #     pass
+            # try:
+            #     quantity_discount_sum += float(entry.quantity_discount)
+            # except ValueError:
+            #     pass
+            # try:
+            #     sale_sum += float(entry.sale)
+            # except ValueError:
+            #     pass
+
         bill = backend.Bill(entries=entry_list, date=date, time=time,
-                            store=store, payment=payment, total=total)
+                            store=store, payment=payment, total=total,
+                            discount_sum=discount_sum,
+                            quantity_discount_sum=quantity_discount_sum,
+                            sale_sum=sale_sum,
+                            price_quantity_sum=price_quantity_sum)
         print("bill = ", bill)
 
         return bill
@@ -759,6 +798,27 @@ class Application:
         self._calculate_price_final(current_line)
         self._calculate_total()
 
+        discount_sum: float = 0.0
+        quantity_discount_sum: float = 0.0
+        sale_sum: float = 0.0
+
+        for line in self._line_list:
+            discount_sum += self._read_entry(line.entries["discount"], "float")
+            quantity_discount_sum += self._read_entry(line.entries
+                                                      ["quantity_discount"],
+                                                      "float")
+            sale_sum += self._read_entry(line.entries["sale"], "float")
+
+        self._root_objects.entries["discount_sum"].delete(0, "end")
+        self._root_objects.entries["discount_sum"].\
+            insert(0, str(round(discount_sum, 2)).replace('.', ','))
+        self._root_objects.entries["quantity_discount_sum"].delete(0, "end")
+        self._root_objects.entries["quantity_discount_sum"]. \
+            insert(0, str(round(quantity_discount_sum, 2)).replace('.', ','))
+        self._root_objects.entries["sale_sum"].delete(0, "end")
+        self._root_objects.entries["sale_sum"]. \
+            insert(0, str(round(sale_sum, 2)).replace('.', ','))
+
         if current_line.row == self._row_count - 1:
             for line in self._line_list:
                 if line.row == self._row_count - 1:
@@ -799,7 +859,22 @@ class Application:
             except ValueError:
                 discount_class = 0.0
 
-        discount = price_quantity * discount_class / 100
+        sale = self._read_entry(line.entries["sale"], "float")
+
+        quantity_discount = self._read_entry(line.entries["quantity_discount"],
+                                             "float")
+
+        minus_first = self._read_entry(
+            line.trace_vars["discount_check_button"], "float")
+
+        if minus_first:
+            discount = sale + quantity_discount - price_quantity
+            discount *= discount_class / 100
+        else:
+            discount = price_quantity * discount_class / 100
+            discount += sale + quantity_discount
+            discount *= -1
+
         discount = round(discount, 2)
         discount = str(discount).replace('.', ',')
         line.entries["discount"].delete(0, "end")
@@ -807,33 +882,35 @@ class Application:
 
     def _calculate_price_final(self, line):
         # print("_calculate_price_final")
-        discount_class = self._read_entry(line.entries["discount_class"], "str")
-        discount_class = discount_class.replace(',', '.')
-        if discount_class.lower() == 'a':
-            discount_class = 25
-        else:
-            try:
-                discount_class = float(discount_class)
-            except ValueError:
-                discount_class = 0.0
-
-        sale = self._read_entry(line.entries["sale"], "float")
-
-        quantity_discount = self._read_entry(line.entries["quantity_discount"],
-                                             "float")
+        # discount_class = self._read_entry(line.entries["discount_class"], "str")
+        # discount_class = discount_class.replace(',', '.')
+        # if discount_class.lower() == 'a':
+        #     discount_class = 25
+        # else:
+        #     try:
+        #         discount_class = float(discount_class)
+        #     except ValueError:
+        #         discount_class = 0.0
+        #
+        # sale = self._read_entry(line.entries["sale"], "float")
+        #
+        # quantity_discount = self._read_entry(line.entries["quantity_discount"],
+        #                                      "float")
 
         price_quantity = self._read_entry(line.entries["price_quantity"],
                                           "float")
 
-        discount_first = self._read_entry(
-            line.trace_vars["discount_check_button"], "float")
-        # print("discount_first: ", discount_first)
-        if discount_first:
-            price_final = (price_quantity - sale - quantity_discount) * \
-                          (1 - (discount_class / 100))
-        else:
-            price_final = (price_quantity * (1 - (discount_class / 100)) -
-                           sale - quantity_discount)
+        # discount_first = self._read_entry(
+        #     line.trace_vars["discount_check_button"], "float")
+        # # print("discount_first: ", discount_first)
+        # if discount_first:
+        #     price_final = (price_quantity - sale - quantity_discount) * \
+        #                   (1 - (discount_class / 100))
+        # else:
+        #     price_final = (price_quantity * (1 - (discount_class / 100)) -
+        #                    sale - quantity_discount)
+        discount = self._read_entry(line.entries["discount"], "float")
+        price_final = price_quantity + discount
         price_final = round(price_final, 2)
         price_final = str(price_final).replace('.', ',')
 
