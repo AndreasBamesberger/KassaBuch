@@ -496,6 +496,8 @@ class Application:
 
         date = self._read_entry(self._root_objects.entries["date"], "str")
         time = self._read_entry(self._root_objects.entries["time"], "str")
+        # replacement so it's easier to type via numpad
+        time = time.replace('-', ':')
         total = self._read_entry(self._root_objects.entries["total"], "float")
 
         print("store = ", store)
