@@ -110,8 +110,8 @@ def format_bill(bill):
     date = bill.date
     time = bill.time
     total = bill.total
-    discount_sum = bill.discount_sum * -1
-    quantity_discount_sum = bill.quantity_discount_sum * -1
+    discount_sum = bill.discount_sum
+    quantity_discount_sum = bill.quantity_discount_sum
     sale_sum = bill.sale_sum
 
     # quantity = 0.0

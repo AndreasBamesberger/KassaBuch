@@ -240,9 +240,14 @@ class Application:
         self._row_count: int = 0
         self._line_list: list = []
 
+        # self._return_pressed = False
+
         self._root = tk.Tk()
         style = ttk.Style(self._root)
         style.configure("TFrame", background="red", foreground="blue")
+
+        # self._root.bind_all('<KeyPress>', self._key_press)
+        self._root.bind_all('<KeyRelease>', self._key_release)
 
         try:
             self._label_list = self._objects["label_list"]
@@ -284,6 +289,8 @@ class Application:
 
         self._button_add_new_row()
 
+        self._root_objects.entries["date"].focus_set()
+
     def loop(self):
         self._root.mainloop()
 
@@ -294,16 +301,6 @@ class Application:
         self._root.configure(background=self._color_frame)
 
         trace_vars: dict = {}
-
-        combo_boxes: dict = {}
-        for frame_key, dict_key, func_key, values, state, column, row, width, \
-                sticky in self._combo_box_list:
-            if frame_key == "frame_main":
-                combo_box, trace_var_combo_box = self._create_combo_box(
-                    frame_key, func_key, values, state, column, row, width,
-                    sticky)
-                trace_vars.update({dict_key: trace_var_combo_box})
-                combo_boxes.update({dict_key: combo_box})
 
         entries: dict = {}
         for frame_key, dict_key, _, column, row, width in self._entry_list:
@@ -320,6 +317,16 @@ class Application:
                 label = self._create_label(frame_key, text, column, row, sticky,
                                            font)
                 labels.update({dict_key: label})
+
+        combo_boxes: dict = {}
+        for frame_key, dict_key, func_key, values, state, column, row, width, \
+            sticky in self._combo_box_list:
+            if frame_key == "frame_main":
+                combo_box, trace_var_combo_box = self._create_combo_box(
+                    frame_key, func_key, values, state, column, row, width,
+                    sticky)
+                trace_vars.update({dict_key: trace_var_combo_box})
+                combo_boxes.update({dict_key: combo_box})
 
         buttons: dict = {}
         for frame_key, dict_key, text, func_key, column, row, font in \
@@ -374,7 +381,9 @@ class Application:
             if key.endswith("var"):
                 field.config(text='')
 
-        for _, field in self._root_objects.entries.items():
+        for key, field in self._root_objects.entries.items():
+            if key == "date":
+                continue
             field.delete(0, "end")
 
         for _, field in self._root_objects.combo_boxes.items():
@@ -512,16 +521,25 @@ class Application:
         # replacement so it's easier to type via numpad
         time = time.replace('-', ':')
         discount_sum = self._read_label(self._root_objects.
-                                        labels["discount_sum"], "float")
+                                        labels["discount_sum_var"], "float")
         quantity_discount_sum = self._read_label(
-            self._root_objects.labels["quantity_discount_sum"], "float")
-        sale_sum = self._read_label(self._root_objects.labels["sale_sum"],
+            self._root_objects.labels["quantity_discount_sum_var"], "float")
+        sale_sum = self._read_label(self._root_objects.labels["sale_sum_var"],
                                     "float")
-        total = self._read_label(self._root_objects.labels["total"], "float")
+        total = self._read_label(self._root_objects.labels["total_var"], "float")
         price_quantity_sum = 0.0
+
+        discount_sum *= -1
+        quantity_discount_sum *= -1
+        sale_sum *= -1
 
         print("store = ", store)
         print("date = ", date)
+        print("time = ", time)
+        print("discount_sum = ", discount_sum)
+        print("quantity_discount_sum = ", quantity_discount_sum)
+        print("sale_sum = ", sale_sum)
+        print("total = ", total)
 
         print("self._row_count = ", self._row_count)
 
@@ -562,6 +580,8 @@ class Application:
             # except ValueError:
             #     pass
         price_quantity_sum = round(price_quantity_sum, 2)
+
+        print("price_quantity_sum = ", price_quantity_sum)
 
         bill = backend.Bill(entries=entry_list, date=date, time=time,
                             store=store, payment=payment, total=total,
@@ -784,16 +804,16 @@ class Application:
         print(payment_list)
         self._root_objects.combo_boxes["payment"]["values"] = payment_list
 
-    def _trace_update_entries(self, row):
+    def _trace_update_entries(self, current_line):
         print("_trace_update_entries")
-        current_line = None
-        for index, line in enumerate(self._line_list):
-            if line.row == row:
-                current_line = line
-                break
-
-        if not current_line:
-            return
+        # current_line = None
+        # for index, line in enumerate(self._line_list):
+        #     if line.row == row:
+        #         current_line = line
+        #         break
+        #
+        # if not current_line:
+        #     return
 
         self._calculate_price_quantity(current_line)
         self._calculate_discount(current_line)
@@ -834,15 +854,15 @@ class Application:
         text = str(round(price_quantity_sum, 2)).replace('.', ',')
         self._root_objects.labels["price_quantity_sum_var"].config(text=text)
 
-        if current_line.row == self._row_count - 1:
-            for line in self._line_list:
-                if line.row == self._row_count - 1:
-                    if self._read_entry(line.entries["price_final"], "float"):
-                        self._button_add_new_row()
-
-                        # Set the canvas scrolling region
-                        self._canvas.config(scrollregion=self.
-                                            _canvas.bbox("all"))
+        # if current_line.row == self._row_count - 1:
+        #     for line in self._line_list:
+        #         if line.row == self._row_count - 1:
+        #             if self._read_entry(line.entries["price_final"], "float"):
+        #                 self._button_add_new_row()
+        #
+        #                 # Set the canvas scrolling region
+        #                 self._canvas.config(scrollregion=self.
+        #                                     _canvas.bbox("all"))
 
     def _calculate_price_quantity(self, line):
         print("_calculate_price_quantity")
@@ -1029,7 +1049,7 @@ class Application:
         def command():
             if func_key in self._func_dict_one_param.keys():
                 self._func_dict_one_param[func_key](row)
-            else:
+            elif func_key in self._func_dict_no_param.keys():
                 self._func_dict_no_param[func_key]()
 
         check_box = tk.Checkbutton(frame, text=text, variable=trace_var,
@@ -1065,3 +1085,33 @@ class Application:
             except ValueError:
                 value = 0.0
             return value
+
+    # def _key_press(self, event):
+    #     print("event.keysym: ", event.keysym)
+    #     if event.keysym == "Return":
+    #         print("Enter Key pressed")
+    #         self._return_pressed = True
+
+    def _key_release(self, event):
+        print("event.keysym: ", event.keysym)
+        if event.keysym == "F1":
+            # print("Enter Key released")
+            # print("focus_get(): ", self._root.focus_get())
+            # self._return_pressed = False
+            # print(self._row_count)
+            for line in self._line_list:
+                self._trace_update_entries(line)
+            self._button_add_new_row()
+            self._line_list[-1].combo_boxes["template"].focus_set()
+        elif event.keysym == "F2":
+            self._button_add_new_row()
+            self._line_list[-1].combo_boxes["template"].focus_set()
+        elif event.keysym == "F3":
+            self._root_objects.entries["date"].focus_set()
+        elif event.keysym == "F4":
+            self._line_list[-1].combo_boxes["template"].focus_set()
+        elif event.keysym == "F5":
+            for line in self._line_list:
+                self._trace_update_entries(line)
+
+
