@@ -1,10 +1,7 @@
 import backend
 from gui import Application
 
-# TODO: ausgerechnete Felder auch in gui
-# TODO: Rundungsfehler einbauen
 # TODO: differenz zwischen 2 total Feldern
-# TODO: wenn combobox input leer dann alles löschen
 
 # TODO: improve gui grid
 # TODO: ctrl-s

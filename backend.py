@@ -112,8 +112,8 @@ def save_to_csv(bill):
     date = bill.date
     time = bill.time
     total = bill.total
-    discount_sum = bill.discount_sum
-    quantity_discount_sum = bill.quantity_discount_sum
+    discount_sum = bill.discount_sum * -1
+    quantity_discount_sum = bill.quantity_discount_sum * -1
     sale_sum = bill.sale_sum
 
     # quantity = 0.0
@@ -180,13 +180,13 @@ def save_to_csv(bill):
         # except ValueError:
         #     pass
 
-    total_new = round(bill.price_quantity_sum - discount_sum -
-                      quantity_discount_sum - sale_sum, 2)
+    # total_new = round(bill.price_quantity_sum - discount_sum -
+    #                   quantity_discount_sum - sale_sum, 2)
     # total_new = total - discount_sum - quantity_discount_sum - sale_sum
     # total = str(total).replace('.', ',')
     header_line = ['', date, time, store, bill.payment, len(bill.entries), '',
                    '', '', '', bill.price_quantity_sum, discount_sum,
-                   quantity_discount_sum, sale_sum, total_new]
+                   quantity_discount_sum, sale_sum, total]
 
     # for item in header_line:
     #     item = str(item).replace('.', ',')

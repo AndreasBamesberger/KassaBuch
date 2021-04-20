@@ -516,6 +516,8 @@ class Application:
         for line in self._line_list:
             # template = line.template_input
             entry = self._get_entry_from_line(line)
+            if entry.product == '' and entry.price_final == 0:
+                continue
 
             entry_list.append(entry)
 
@@ -597,6 +599,11 @@ class Application:
         entry = self._get_entry_from_line(curr_line)
         if entry.product == '':
             return
+        if entry.quantity == 0:
+            entry.quantity = 1
+
+        entry.price_single = str(entry.price_single).replace('.', ',')
+        entry.quantity = str(entry.quantity).replace('.', ',')
 
         for index, template in enumerate(backend.TEMPLATES):
             if template.product == entry.product:
@@ -617,16 +624,17 @@ class Application:
                                                                    STORES)
 
     def _trace_template(self, row):
-        template_input = None
-        index = None
+        curr_line = None
         for index, line in enumerate(self._line_list):
             if line.row == row:
-                template_input = self._read_entry(line.combo_boxes["template"],
-                                                  "str").lower()
+                curr_line = self._line_list[index]
                 break
 
-        if index is None:
+        if curr_line is None:
             raise SystemError
+
+        template_input = self._read_entry(curr_line.combo_boxes["template"],
+                                          "str").lower()
 
         temp_list = list()
         for template in backend.TEMPLATES:
@@ -636,10 +644,9 @@ class Application:
         name_list = [template.product for template in temp_list]
         name_list.sort()
         print(name_list)
-        self._line_list[index].combo_boxes["template"]["values"] = name_list
+        curr_line.combo_boxes["template"]["values"] = name_list
 
         if len(temp_list) == 0:
-            curr_line = self._line_list[index]
             template_name = self._read_entry(curr_line.combo_boxes["template"],
                                              "str")
             curr_line.entries["product"].delete(0, "end")
@@ -658,92 +665,73 @@ class Application:
         elif len(temp_list) == 1:
             curr_temp = temp_list[0]
 
-            self._line_list[index].entries["product"].delete(0, "end")
-            self._line_list[index].entries["product"]. \
-                insert(0, curr_temp.product)
-            self._line_list[index].entries["price_single"].delete(0, "end")
-            self._line_list[index].entries["price_single"]. \
-                insert(0, curr_temp.price_single)
-            self._line_list[index].entries["sale"].delete(0, "end")
-            self._line_list[index].entries["sale"]. \
-                insert(0, curr_temp.sale)
-            self._line_list[index].entries["quantity"].delete(0, "end")
-            self._line_list[index].entries["quantity"]. \
-                insert(0, curr_temp.quantity)
-            self._line_list[index].entries["discount_class"].delete(0, "end")
-            self._line_list[index].entries["discount_class"]. \
-                insert(0, curr_temp.discount_class)
-            self._line_list[index].entries["product_class"].delete(0, "end")
-            self._line_list[index].entries["product_class"]. \
-                insert(0, curr_temp.product_class)
-            self._line_list[index].entries["unknown"].delete(0, "end")
-            self._line_list[index].entries["unknown"]. \
-                insert(0, curr_temp.unknown)
-            self._line_list[index].entries["price_quantity"].delete(0, "end")
-            self._line_list[index].entries["price_quantity"]. \
-                insert(0, curr_temp.price_quantity)
-            self._line_list[index].entries["discount"].delete(0, "end")
-            self._line_list[index].entries["discount"]. \
-                insert(0, curr_temp.discount)
-            self._line_list[index].entries["quantity_discount"].delete(0, "end")
-            self._line_list[index].entries["quantity_discount"]. \
+            curr_line.entries["product"].delete(0, "end")
+            curr_line.entries["product"].insert(0, curr_temp.product)
+            curr_line.entries["price_single"].delete(0, "end")
+            curr_line.entries["price_single"].insert(0, curr_temp.price_single)
+            curr_line.entries["sale"].delete(0, "end")
+            curr_line.entries["sale"].insert(0, curr_temp.sale)
+            curr_line.entries["quantity"].delete(0, "end")
+            curr_line.entries["quantity"].insert(0, curr_temp.quantity)
+            curr_line.entries["discount_class"].delete(0, "end")
+            curr_line.entries["discount_class"].insert(0,
+                                                       curr_temp.discount_class)
+            curr_line.entries["product_class"].delete(0, "end")
+            curr_line.entries["product_class"].insert(0,
+                                                      curr_temp.product_class)
+            curr_line.entries["unknown"].delete(0, "end")
+            curr_line.entries["unknown"].insert(0, curr_temp.unknown)
+            curr_line.entries["price_quantity"].delete(0, "end")
+            curr_line.entries["price_quantity"].insert(0,
+                                                       curr_temp.price_quantity)
+            curr_line.entries["discount"].delete(0, "end")
+            curr_line.entries["discount"].insert(0, curr_temp.discount)
+            curr_line.entries["quantity_discount"].delete(0, "end")
+            curr_line.entries["quantity_discount"].\
                 insert(0, curr_temp.quantity_discount)
-            self._line_list[index].entries["price_final"].delete(0, "end")
-            self._line_list[index].entries["price_final"]. \
-                insert(0, curr_temp.price_final)
+            curr_line.entries["price_final"].delete(0, "end")
+            curr_line.entries["price_final"].insert(0, curr_temp.price_final)
 
         else:
             for index, suggestion in enumerate(temp_list):
                 if template_input == suggestion.product.lower():
                     curr_temp = temp_list[index]
 
-                    self._line_list[index].entries["product"].delete(0, "end")
-                    self._line_list[index].entries["product"]. \
-                        insert(0, curr_temp.product)
-                    self._line_list[index].entries["price_single"].delete(0,
-                                                                          "end")
-                    self._line_list[index].entries["price_single"]. \
-                        insert(0, curr_temp.price_single)
-                    self._line_list[index].entries["sale"].delete(0, "end")
-                    self._line_list[index].entries["sale"]. \
-                        insert(0, curr_temp.sale)
-                    self._line_list[index].entries["quantity"].delete(0, "end")
-                    self._line_list[index].entries["quantity"]. \
-                        insert(0, curr_temp.quantity)
-                    self._line_list[index].entries["discount_class"].\
-                        delete(0, "end")
-                    self._line_list[index].entries["discount_class"]. \
-                        insert(0, curr_temp.discount_class)
-                    self._line_list[index].entries["product_class"].\
-                        delete(0, "end")
-                    self._line_list[index].entries["product_class"]. \
-                        insert(0, curr_temp.product_class)
-                    self._line_list[index].entries["unknown"].delete(0, "end")
-                    self._line_list[index].entries["unknown"]. \
-                        insert(0, curr_temp.unknown)
-                    self._line_list[index].entries["price_quantity"].\
-                        delete(0, "end")
-                    self._line_list[index].entries["price_quantity"]. \
-                        insert(0, curr_temp.price_quantity)
-                    self._line_list[index].entries["discount"].delete(0, "end")
-                    self._line_list[index].entries["discount"]. \
-                        insert(0, curr_temp.discount)
-                    self._line_list[index].entries["quantity_discount"].\
-                        delete(0, "end")
-                    self._line_list[index].entries["quantity_discount"]. \
-                        insert(0, curr_temp.quantity_discount)
-                    self._line_list[index].entries["price_final"].delete(0,
-                                                                         "end")
-                    self._line_list[index].entries["price_final"]. \
-                        insert(0, curr_temp.price_final)
-                else:
-
-                    curr_line = self._line_list[index]
-                    template_name = self._read_entry(
-                        curr_line.combo_boxes["template"],
-                        "str")
                     curr_line.entries["product"].delete(0, "end")
-                    curr_line.entries["product"].insert(0, template_name)
+                    curr_line.entries["product"].insert(0, curr_temp.product)
+                    curr_line.entries["price_single"].delete(0, "end")
+                    curr_line.entries["price_single"].\
+                        insert(0, curr_temp.price_single)
+                    curr_line.entries["sale"].delete(0, "end")
+                    curr_line.entries["sale"].insert(0, curr_temp.sale)
+                    curr_line.entries["quantity"].delete(0, "end")
+                    curr_line.entries["quantity"].insert(0, curr_temp.quantity)
+                    curr_line.entries["discount_class"].delete(0, "end")
+                    curr_line.entries["discount_class"].\
+                        insert(0, curr_temp.discount_class)
+                    curr_line.entries["product_class"].delete(0, "end")
+                    curr_line.entries["product_class"].\
+                        insert(0, curr_temp.product_class)
+                    curr_line.entries["unknown"].delete(0, "end")
+                    curr_line.entries["unknown"].insert(0, curr_temp.unknown)
+                    curr_line.entries["price_quantity"].delete(0, "end")
+                    curr_line.entries["price_quantity"].\
+                        insert(0, curr_temp.price_quantity)
+                    curr_line.entries["discount"].delete(0, "end")
+                    curr_line.entries["discount"].insert(0, curr_temp.discount)
+                    curr_line.entries["quantity_discount"].delete(0, "end")
+                    curr_line.entries["quantity_discount"].\
+                        insert(0, curr_temp.quantity_discount)
+                    curr_line.entries["price_final"].delete(0, "end")
+                    curr_line.entries["price_final"]. \
+                        insert(0, curr_temp.price_final)
+                    break
+                else:
+                    # template_name = self._read_entry(
+                    #     curr_line.combo_boxes["template"],
+                    #     "str")
+                    curr_line.entries["product"].delete(0, "end")
+                    # curr_line.entries["product"].insert(0, template_name)
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["sale"].delete(0, "end")
                     curr_line.entries["quantity"].delete(0, "end")
@@ -868,13 +856,12 @@ class Application:
             line.trace_vars["discount_check_button"], "float")
 
         if minus_first:
-            discount = sale + quantity_discount - price_quantity
+            discount = sale + quantity_discount + price_quantity
             discount *= discount_class / 100
         else:
             discount = price_quantity * discount_class / 100
-            discount += sale + quantity_discount
-            discount *= -1
 
+        discount *= -1
         discount = round(discount, 2)
         discount = str(discount).replace('.', ',')
         line.entries["discount"].delete(0, "end")
@@ -882,7 +869,8 @@ class Application:
 
     def _calculate_price_final(self, line):
         # print("_calculate_price_final")
-        # discount_class = self._read_entry(line.entries["discount_class"], "str")
+        # discount_class = self._read_entry(line.entries["discount_class"],
+        #                                   "str")
         # discount_class = discount_class.replace(',', '.')
         # if discount_class.lower() == 'a':
         #     discount_class = 25
@@ -894,8 +882,8 @@ class Application:
         #
         # sale = self._read_entry(line.entries["sale"], "float")
         #
-        # quantity_discount = self._read_entry(line.entries["quantity_discount"],
-        #                                      "float")
+        # quantity_discount = self._read_entry(
+        #     line.entries["quantity_discount"], "float")
 
         price_quantity = self._read_entry(line.entries["price_quantity"],
                                           "float")
@@ -910,7 +898,11 @@ class Application:
         #     price_final = (price_quantity * (1 - (discount_class / 100)) -
         #                    sale - quantity_discount)
         discount = self._read_entry(line.entries["discount"], "float")
-        price_final = price_quantity + discount
+        sale = self._read_entry(line.entries["sale"], "float")
+
+        quantity_discount = self._read_entry(line.entries["quantity_discount"],
+                                             "float")
+        price_final = price_quantity + discount + quantity_discount + sale
         price_final = round(price_final, 2)
         price_final = str(price_final).replace('.', ',')
 
