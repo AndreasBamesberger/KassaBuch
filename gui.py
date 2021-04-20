@@ -334,7 +334,7 @@ class Application:
     def _setup_canvas_window(self):
         self._frame_main.grid(sticky="news")
 
-        self._frame_canvas.grid(row=8, column=0, padx=(0, 0), pady=(5, 5),
+        self._frame_canvas.grid(row=9, column=0, padx=(0, 0), pady=(5, 5),
                                 sticky='nw')
 
         self._frame_canvas.grid_rowconfigure(0, weight=1)
@@ -797,15 +797,28 @@ class Application:
                                                       "float")
             sale_sum += self._read_entry(line.entries["sale"], "float")
 
-        self._root_objects.entries["discount_sum"].delete(0, "end")
-        self._root_objects.entries["discount_sum"].\
-            insert(0, str(round(discount_sum, 2)).replace('.', ','))
-        self._root_objects.entries["quantity_discount_sum"].delete(0, "end")
-        self._root_objects.entries["quantity_discount_sum"]. \
-            insert(0, str(round(quantity_discount_sum, 2)).replace('.', ','))
-        self._root_objects.entries["sale_sum"].delete(0, "end")
-        self._root_objects.entries["sale_sum"]. \
-            insert(0, str(round(sale_sum, 2)).replace('.', ','))
+        # self._root_objects.entries["discount_sum"].delete(0, "end")
+        # self._root_objects.entries["discount_sum"].\
+        #     insert(0, str(round(discount_sum, 2)).replace('.', ','))
+        # self._root_objects.entries["quantity_discount_sum"].delete(0, "end")
+        # self._root_objects.entries["quantity_discount_sum"]. \
+        #     insert(0, str(round(quantity_discount_sum, 2)).replace('.', ','))
+        # self._root_objects.entries["sale_sum"].delete(0, "end")
+        # self._root_objects.entries["sale_sum"]. \
+        #     insert(0, str(round(sale_sum, 2)).replace('.', ','))
+        text = str(round(discount_sum, 2)).replace('.', ',')
+        self._root_objects.labels["discount_sum_var"].config(text=text)
+        text = str(round(quantity_discount_sum, 2)).replace('.', ',')
+        self._root_objects.labels["quantity_discount_sum_var"].config(text=text)
+        text = str(round(sale_sum, 2)).replace('.', ',')
+        self._root_objects.labels["sale_sum_var"].config(text=text)
+
+        price_quantity_sum = 0.0
+        for line in self._line_list:
+            price_quantity_sum += self._read_entry(
+                line.entries["price_quantity"], "float")
+        text = str(round(price_quantity_sum, 2)).replace('.', ',')
+        self._root_objects.labels["price_quantity_sum_var"].config(text=text)
 
         if current_line.row == self._row_count - 1:
             for line in self._line_list:
@@ -919,8 +932,9 @@ class Application:
 
         total = round(total, 2)
         total = str(total).replace('.', ',')
-        self._root_objects.entries["total"].delete(0, "end")
-        self._root_objects.entries["total"].insert(0, total)
+        self._root_objects.labels["total_var"].config(text=total)
+        # self._root_objects.entries["total"].delete(0, "end")
+        # self._root_objects.entries["total"].insert(0, total)
 
     def _create_label(self, frame_key, text, column, row, sticky, font):
         frame = self._frame_dict[frame_key]
