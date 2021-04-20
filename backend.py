@@ -149,7 +149,7 @@ def format_bill(bill):
                 entry.product,
                 entry.price_single,
                 entry.quantity,
-                entry.discount_class,
+                float(entry.discount_class) / 100,
                 entry.product_class,
                 entry.unknown,
                 entry.price_quantity,
