@@ -3,6 +3,7 @@ from gui import Application
 
 # TODO: differenz zwischen 2 total Feldern
 
+# TODO: try place method
 # TODO: improve gui grid
 # TODO: ctrl-s
 # TODO: enter -> move cursor to next row combobox
@@ -12,5 +13,6 @@ if __name__ == '__main__':
     backend.read_product_templates()
     backend.read_stores()
     backend.read_payments()
+    backend.reset_backup()
     interface = Application()
     interface.loop()

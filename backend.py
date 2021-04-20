@@ -194,7 +194,7 @@ def format_bill(bill):
     return header_line, lines
 
 
-def save_to_csv(bill):
+def backup_bill(bill):
     out_path = CONFIG_DICT["output_csv"]
 
     header_line, lines = format_bill(bill)
@@ -205,6 +205,15 @@ def save_to_csv(bill):
         file_writer.writerow(header_line)
         for line in lines:
             file_writer.writerow(line)
+
+        file_writer.writerow('')
+
+
+def reset_backup():
+    out_path = CONFIG_DICT["output_csv"]
+    with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
+        file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
+                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         file_writer.writerow('')
 

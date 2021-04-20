@@ -469,7 +469,7 @@ class Application:
         bill = self._create_output()
 
         backend.BILLS.append(bill)
-        backend.save_to_csv(bill)
+        backend.backup_bill(bill)
 
         self._clear_screen()
         self._reset()
