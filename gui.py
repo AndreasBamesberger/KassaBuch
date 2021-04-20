@@ -856,7 +856,7 @@ class Application:
         discount_class = self._read_entry(line.entries["discount_class"], "str")
         discount_class = discount_class.replace(',', '.')
 
-        if discount_class.lower() == 'a':
+        if discount_class.lower() in ['a', 'f']:
             discount_class = 25
         else:
             try:
