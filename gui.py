@@ -552,6 +552,7 @@ class Application:
             #     sale_sum += float(entry.sale)
             # except ValueError:
             #     pass
+        price_quantity_sum = round(price_quantity_sum, 2)
 
         bill = backend.Bill(entries=entry_list, date=date, time=time,
                             store=store, payment=payment, total=total,
