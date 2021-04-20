@@ -105,9 +105,7 @@ def read_config(config_path):
 #     return False
 
 
-def save_to_csv(bill):
-    out_path = CONFIG_DICT["output_csv"]
-
+def format_bill(bill):
     store = bill.store
     date = bill.date
     time = bill.time
@@ -193,6 +191,14 @@ def save_to_csv(bill):
 
     header_line = [str(item).replace('.', ',') for item in header_line]
 
+    return header_line, lines
+
+
+def save_to_csv(bill):
+    out_path = CONFIG_DICT["output_csv"]
+
+    header_line, lines = format_bill(bill)
+
     with open(out_path, 'a', newline='', encoding="windows-1252") as out_file:
         file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -201,6 +207,29 @@ def save_to_csv(bill):
             file_writer.writerow(line)
 
         file_writer.writerow('')
+
+
+def export_bills():
+    out_path = CONFIG_DICT["final_csv"]
+    line_count = 0
+    for bill in BILLS:
+        line_count += len(bill.entries) + 2
+
+    with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
+        file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
+                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        file_writer.writerow([line_count])
+        for bill in BILLS:
+            line_count += len(bill.entries)
+            line_count += 2
+
+            header_line, lines = format_bill(bill)
+            file_writer.writerow(header_line)
+            for line in lines:
+                file_writer.writerow(line)
+
+            file_writer.writerow('')
+        print("line_count: ", line_count)
 
 
 # encodings

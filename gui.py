@@ -208,6 +208,8 @@ class Application:
 
     def __init__(self):
         self._func_dict_no_param: dict = {"save_bill": self._button_save,
+                                          "export_bills":
+                                              self._button_export_bills,
                                           "write_bills": self._button_type,
                                           "trace_store": self._trace_store,
                                           "trace_payment": self._trace_payment,
@@ -218,7 +220,8 @@ class Application:
                                            "trace_template":
                                                self._trace_template,
                                            "save_template":
-                                               self._button_save_template}
+                                               self._button_save_template,
+                                           }
 
         self._objects: dict = backend.read_config(
             backend.CONFIG_DICT["tkinter_objects"])
@@ -472,6 +475,12 @@ class Application:
         self._reset()
 
         self._button_add_new_row()
+
+    def _button_export_bills(self):
+        print("_button_export_bills")
+        self._button_save()
+        backend.export_bills()
+        raise SystemExit
 
     def _button_type(self):
         print("_button_type")
@@ -776,7 +785,7 @@ class Application:
         self._root_objects.combo_boxes["payment"]["values"] = payment_list
 
     def _trace_update_entries(self, row):
-        # print("_trace_update_entries")
+        print("_trace_update_entries")
         current_line = None
         for index, line in enumerate(self._line_list):
             if line.row == row:
@@ -836,7 +845,7 @@ class Application:
                                             _canvas.bbox("all"))
 
     def _calculate_price_quantity(self, line):
-        # print("_calculate_price_quantity")
+        print("_calculate_price_quantity")
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
 
@@ -850,7 +859,7 @@ class Application:
         line.entries["price_quantity"].insert(0, price_quantity)
 
     def _calculate_discount(self, line):
-        # print("_calculate_discount")
+        print("_calculate_discount")
         price_quantity = self._read_entry(line.entries["price_quantity"],
                                           "float")
 
@@ -886,7 +895,7 @@ class Application:
         line.entries["discount"].insert(0, discount)
 
     def _calculate_price_final(self, line):
-        # print("_calculate_price_final")
+        print("_calculate_price_final")
         # discount_class = self._read_entry(line.entries["discount_class"],
         #                                   "str")
         # discount_class = discount_class.replace(',', '.')
@@ -928,7 +937,7 @@ class Application:
         line.entries["price_final"].insert(0, price_final)
 
     def _calculate_total(self):
-        # print("_calculate_total")
+        print("_calculate_total")
         total = 0.0
         for line in self._line_list:
             price_final = self._read_entry(line.entries["price_final"], "float")
