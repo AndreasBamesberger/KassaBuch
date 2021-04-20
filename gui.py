@@ -367,6 +367,10 @@ class Application:
         self._line_list = list()
 
     def _clear_screen(self):
+        for key, field in self._root_objects.labels.items():
+            if key.endswith("var"):
+                field.config(text='')
+
         for _, field in self._root_objects.entries.items():
             field.delete(0, "end")
 
@@ -498,13 +502,13 @@ class Application:
         time = self._read_entry(self._root_objects.entries["time"], "str")
         # replacement so it's easier to type via numpad
         time = time.replace('-', ':')
-        discount_sum = self._read_entry(self._root_objects.
-                                        entries["discount_sum"], "float")
-        quantity_discount_sum = self._read_entry(
-            self._root_objects.entries["quantity_discount_sum"], "float")
-        sale_sum = self._read_entry(self._root_objects.entries["sale_sum"],
+        discount_sum = self._read_label(self._root_objects.
+                                        labels["discount_sum"], "float")
+        quantity_discount_sum = self._read_label(
+            self._root_objects.labels["quantity_discount_sum"], "float")
+        sale_sum = self._read_label(self._root_objects.labels["sale_sum"],
                                     "float")
-        total = self._read_entry(self._root_objects.entries["total"], "float")
+        total = self._read_label(self._root_objects.labels["total"], "float")
         price_quantity_sum = 0.0
 
         print("store = ", store)
@@ -1027,6 +1031,20 @@ class Application:
     @staticmethod
     def _read_entry(entry, data_type):
         value = entry.get()
+        if data_type == "str":
+            return value
+        elif data_type == "float":
+            if isinstance(value, str):
+                value = value.replace(',', '.')
+            try:
+                value = float(value)
+            except ValueError:
+                value = 0.0
+            return value
+
+    @staticmethod
+    def _read_label(label, data_type):
+        value = label["text"]
         if data_type == "str":
             return value
         elif data_type == "float":
