@@ -8,7 +8,7 @@ STORES = []
 CONFIG_DICT = {}
 BILLS = []
 PAYMENTS = []
-DISCOUNT_CLASSES = []
+DISCOUNT_CLASSES = {}
 
 
 class Bill:
@@ -303,8 +303,8 @@ def read_discount_classes():
     input_json = CONFIG_DICT["discount_classes_json"]
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
-        for item in data:
-            DISCOUNT_CLASSES.append(item)
+        for key, field in data.items():
+            DISCOUNT_CLASSES.update({key: field})
     print(DISCOUNT_CLASSES)
 
 

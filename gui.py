@@ -887,9 +887,9 @@ class Application:
         discount_class = self._read_entry(line.entries["discount_class"], "str")
         discount_class = discount_class.replace(',', '.')
 
-        for discount in backend.DISCOUNT_CLASSES:
-            if discount_class == discount["letter"]:
-                discount_class = discount["discount"]
+        for key, field in backend.DISCOUNT_CLASSES.items():
+            if discount_class == key:
+                discount_class = field["discount"]
                 break
 
         if not isinstance(discount_class, float):
