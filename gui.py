@@ -320,7 +320,7 @@ class Application:
 
         combo_boxes: dict = {}
         for frame_key, dict_key, func_key, values, state, column, row, width, \
-            sticky in self._combo_box_list:
+                sticky in self._combo_box_list:
             if frame_key == "frame_main":
                 combo_box, trace_var_combo_box = self._create_combo_box(
                     frame_key, func_key, values, state, column, row, width,
@@ -526,7 +526,8 @@ class Application:
             self._root_objects.labels["quantity_discount_sum_var"], "float")
         sale_sum = self._read_label(self._root_objects.labels["sale_sum_var"],
                                     "float")
-        total = self._read_label(self._root_objects.labels["total_var"], "float")
+        total = self._read_label(self._root_objects.labels["total_var"],
+                                 "float")
         price_quantity_sum = 0.0
 
         discount_sum *= -1
@@ -721,7 +722,7 @@ class Application:
             curr_line.entries["discount"].delete(0, "end")
             curr_line.entries["discount"].insert(0, curr_temp.discount)
             curr_line.entries["quantity_discount"].delete(0, "end")
-            curr_line.entries["quantity_discount"].\
+            curr_line.entries["quantity_discount"]. \
                 insert(0, curr_temp.quantity_discount)
             curr_line.entries["price_final"].delete(0, "end")
             curr_line.entries["price_final"].insert(0, curr_temp.price_final)
@@ -734,27 +735,27 @@ class Application:
                     curr_line.entries["product"].delete(0, "end")
                     curr_line.entries["product"].insert(0, curr_temp.product)
                     curr_line.entries["price_single"].delete(0, "end")
-                    curr_line.entries["price_single"].\
+                    curr_line.entries["price_single"]. \
                         insert(0, curr_temp.price_single)
                     curr_line.entries["sale"].delete(0, "end")
                     curr_line.entries["sale"].insert(0, curr_temp.sale)
                     curr_line.entries["quantity"].delete(0, "end")
                     curr_line.entries["quantity"].insert(0, curr_temp.quantity)
                     curr_line.entries["discount_class"].delete(0, "end")
-                    curr_line.entries["discount_class"].\
+                    curr_line.entries["discount_class"]. \
                         insert(0, curr_temp.discount_class)
                     curr_line.entries["product_class"].delete(0, "end")
-                    curr_line.entries["product_class"].\
+                    curr_line.entries["product_class"]. \
                         insert(0, curr_temp.product_class)
                     curr_line.entries["unknown"].delete(0, "end")
                     curr_line.entries["unknown"].insert(0, curr_temp.unknown)
                     curr_line.entries["price_quantity"].delete(0, "end")
-                    curr_line.entries["price_quantity"].\
+                    curr_line.entries["price_quantity"]. \
                         insert(0, curr_temp.price_quantity)
                     curr_line.entries["discount"].delete(0, "end")
                     curr_line.entries["discount"].insert(0, curr_temp.discount)
                     curr_line.entries["quantity_discount"].delete(0, "end")
-                    curr_line.entries["quantity_discount"].\
+                    curr_line.entries["quantity_discount"]. \
                         insert(0, curr_temp.quantity_discount)
                     curr_line.entries["price_final"].delete(0, "end")
                     curr_line.entries["price_final"]. \
@@ -886,13 +887,18 @@ class Application:
         discount_class = self._read_entry(line.entries["discount_class"], "str")
         discount_class = discount_class.replace(',', '.')
 
-        if discount_class.lower() in ['a', 'f']:
-            discount_class = 25
-        else:
+        for discount in backend.DISCOUNT_CLASSES:
+            if discount_class == discount["letter"]:
+                discount_class = discount["discount"]
+                break
+
+        if not isinstance(discount_class, float):
             try:
                 discount_class = float(discount_class)
             except ValueError:
                 discount_class = 0.0
+
+        print("discount_class: ", discount_class)
 
         sale = self._read_entry(line.entries["sale"], "float")
 
@@ -1093,7 +1099,6 @@ class Application:
     #         self._return_pressed = True
 
     def _key_release(self, event):
-        print("event.keysym: ", event.keysym)
         if event.keysym == "F1":
             # print("Enter Key released")
             # print("focus_get(): ", self._root.focus_get())
@@ -1113,5 +1118,3 @@ class Application:
         elif event.keysym == "F5":
             for line in self._line_list:
                 self._trace_update_entries(line)
-
-

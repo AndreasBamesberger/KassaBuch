@@ -1,9 +1,10 @@
 {
     "output_csv":               "F:\\pycharm_projects\\KassaBuch_data\\output.csv",
-    "final_csv":               "F:\\pycharm_projects\\KassaBuch_data\\final.csv",
-    "product_templates_json":    "F:\\pycharm_projects\\KassaBuch_data\\product_templates.json",
+    "final_csv":                "F:\\pycharm_projects\\KassaBuch_data\\final.csv",
+    "product_templates_json":   "F:\\pycharm_projects\\KassaBuch_data\\product_templates.json",
     "stores_json":              "F:\\pycharm_projects\\KassaBuch_data\\stores.json",
-    "payments_json":              "F:\\pycharm_projects\\KassaBuch_data\\payments.json",
+    "payments_json":            "F:\\pycharm_projects\\KassaBuch_data\\payments.json",
+    "discount_classes_json":    "F:\\pycharm_projects\\KassaBuch_data\\discount_classes.json",
     "type_to_program":          "",
     "font":                     "14",
     "scaling":                  1.5,
