@@ -1,6 +1,8 @@
 import backend
 from gui import Application
 
+# TODO: check if sum of all entries is the same in gui and in csv
+
 # TODO: differenz zwischen 2 total Feldern
 
 # TODO: try place method
