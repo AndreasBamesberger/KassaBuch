@@ -1064,6 +1064,7 @@ class Application:
                              sticky):
         frame = self._frame_dict[frame_key]
         trace_var = tk.IntVar()
+        trace_var.set(1)  # requested to be on by default
 
         def command():
             if func_key in self._func_dict_one_param.keys():
