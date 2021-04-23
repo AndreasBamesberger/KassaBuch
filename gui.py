@@ -119,9 +119,6 @@ class Application:
     _button_list: list
         list of the parameters with which the buttons inside the scrollable
         lines are created
-    _template_names: list
-        list which gets displayed in the line combo_boxes, this list holds all
-        names of previously saved products
     _frame_main: tkinter.Frame
         frame inside the main root window
     _frame_canvas: tkinter.Frame
@@ -270,8 +267,8 @@ class Application:
         except KeyError:
             self._check_button_list = []
 
-        self._template_names = [template.product for template in
-                                backend.TEMPLATES]
+        # self._template_names = [template.product for template in
+        #                         backend.TEMPLATES]
 
         self._frame_main = tk.Frame(self._root, bg=self._color_frame)
         self._frame_canvas = tk.Frame(self._frame_main)
@@ -640,20 +637,26 @@ class Application:
         entry.price_single = str(entry.price_single).replace('.', ',')
         entry.quantity = str(entry.quantity).replace('.', ',')
 
-        for index, template in enumerate(backend.TEMPLATES):
-            if template.product == entry.product:
-                backend.TEMPLATES.pop(index)
-                break
+        # for index, template in enumerate(backend.TEMPLATES):
+        #     if template.product == entry.product:
+        #         backend.TEMPLATES.pop(index)
+        #         break
 
-        backend.TEMPLATES.append(entry)
+        try:
+            backend.TEMPLATES.pop(entry.product)
+        except KeyError:
+            pass
+
+        backend.TEMPLATES.update({entry.product: entry})
         backend.update_product_templates()
 
-        self._template_names = [template.product for template in
-                                backend.TEMPLATES]
-        sorted(self._template_names)
+        # self._template_names = [template.product for template in
+        #                         backend.TEMPLATES]
+        name_list = sorted([key for key, _ in backend.TEMPLATES.items()])
+        # sorted(self._template_names)
 
         for line in self._line_list:
-            line.combo_boxes["template"]["values"] = self._template_names
+            line.combo_boxes["template"]["values"] = name_list
 
         self._root_objects.combo_boxes["store"]["values"] = sorted(backend.
                                                                    STORES)
@@ -671,17 +674,18 @@ class Application:
         template_input = self._read_entry(curr_line.combo_boxes["template"],
                                           "str").lower()
 
-        temp_list = list()
-        for template in backend.TEMPLATES:
-            if template_input in template.product.lower():
-                temp_list.append(template)
+        temp_dict = dict()
+        # print("backend.TEMPLATES: ")
+        # print(backend.TEMPLATES)
+        for key, field in backend.TEMPLATES.items():
+            if template_input in key.lower():
+                temp_dict.update({key: field})
 
-        name_list = [template.product for template in temp_list]
+        name_list = [key for key, _ in temp_dict.items()]
         name_list.sort()
-        print(name_list)
         curr_line.combo_boxes["template"]["values"] = name_list
 
-        if len(temp_list) == 0:
+        if len(temp_dict) == 0:
             template_name = self._read_entry(curr_line.combo_boxes["template"],
                                              "str")
             curr_line.entries["product"].delete(0, "end")
@@ -697,11 +701,16 @@ class Application:
             curr_line.entries["quantity_discount"].delete(0, "end")
             curr_line.entries["price_final"].delete(0, "end")
 
-        elif len(temp_list) == 1:
-            curr_temp = temp_list[0]
+        elif len(temp_dict) == 1:
+            # print(temp_dict)
+            product = None
+            curr_temp = None
+            for key, field in temp_dict.items():
+                product = key
+                curr_temp = field
 
             curr_line.entries["product"].delete(0, "end")
-            curr_line.entries["product"].insert(0, curr_temp.product)
+            curr_line.entries["product"].insert(0, product)
             curr_line.entries["price_single"].delete(0, "end")
             curr_line.entries["price_single"].insert(0, curr_temp.price_single)
             curr_line.entries["sale"].delete(0, "end")
@@ -728,12 +737,14 @@ class Application:
             curr_line.entries["price_final"].insert(0, curr_temp.price_final)
 
         else:
-            for index, suggestion in enumerate(temp_list):
-                if template_input == suggestion.product.lower():
-                    curr_temp = temp_list[index]
+            # for index, suggestion in enumerate(temp_list):
+            for key, field in temp_dict.items():
+                if template_input == key.lower():
+                    product = key
+                    curr_temp = field
 
                     curr_line.entries["product"].delete(0, "end")
-                    curr_line.entries["product"].insert(0, curr_temp.product)
+                    curr_line.entries["product"].insert(0, product)
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["price_single"]. \
                         insert(0, curr_temp.price_single)
@@ -1037,12 +1048,14 @@ class Application:
 
         temp = ttk.Combobox(frame, width=width, textvariable=trace_var)
         # temp["values"] = sorted(self._template_names)
+        box_list = None
         if values == "templates":
-            temp["values"] = sorted(self._template_names)
+            box_list = sorted([key for key, _ in backend.TEMPLATES.items()])
         if values == "stores":
-            temp["values"] = sorted(backend.STORES)
+            box_list = sorted(backend.STORES)
         if values == "payments":
-            temp["values"] = sorted(backend.PAYMENTS)
+            box_list = sorted(backend.PAYMENTS)
+        temp["values"] = box_list
         temp["state"] = state
         temp.grid(row=row, column=column, sticky=sticky)
         return temp, trace_var

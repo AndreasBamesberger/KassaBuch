@@ -20,7 +20,6 @@ from gui import Application
 # TODO: save if this is the lowest price, save this in product_templates?
 
 
-
 if __name__ == '__main__':
     backend.CONFIG_DICT = backend.read_config("config.json")
     backend.read_product_templates()

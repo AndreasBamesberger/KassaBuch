@@ -1,9 +1,10 @@
 ﻿import csv
 import datetime
 import json
+from collections import OrderedDict
 
 
-TEMPLATES = []
+TEMPLATES = {}
 STORES = []
 CONFIG_DICT = {}
 BILLS = []
@@ -146,11 +147,16 @@ def format_bill(bill):
         # else:
         #     sale = float(entry.sale)
 
+        try:
+            discount_class = float(entry.discount_class)
+        except ValueError:
+            discount_class = 0.0
+
         line = ['', '', '', '',
                 entry.product,
                 entry.price_single,
                 entry.quantity,
-                float(entry.discount_class) / 100,
+                discount_class,
                 entry.product_class,
                 entry.unknown,
                 entry.price_quantity,
@@ -249,16 +255,16 @@ def export_bills():
 def update_product_templates():
     templates_json = CONFIG_DICT["product_templates_json"]
     with open(templates_json, 'w', encoding="utf-16") as out_file:
-        out_list = []
-        for template in TEMPLATES:
-            out_dict = {"product": template.product,
-                        "price_single": template.price_single,
-                        "quantity": template.quantity,
-                        "product_class": template.product_class,
-                        "unknown": template.unknown}
-            out_list.append(out_dict)
-        out_list = sorted(out_list, key=lambda item: item["product"])
-        json.dump(out_list, out_file, indent=2)
+        out_dict = {}
+        for key, field in TEMPLATES.items():
+            temp = {"price_single": field.price_single,
+                    "quantity": field.quantity,
+                    "product_class": field.product_class,
+                    "unknown": field.unknown}
+            out_dict.update({key: temp})
+        out_dict = OrderedDict(sorted(out_dict.items()))
+        # print(out_dict)
+        json.dump(out_dict, out_file, indent=2)
 
 
 def update_stores():
@@ -281,13 +287,13 @@ def read_product_templates():
     input_json = CONFIG_DICT["product_templates_json"]
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
-        for item in data:
-            temp = Entry(product=item["product"],
-                         price_single=item["price_single"],
-                         quantity=item["quantity"],
-                         product_class=item["product_class"],
-                         unknown=item["unknown"])
-            TEMPLATES.append(temp)
+        for key, field in data.items():
+            temp = Entry(product=key,
+                         price_single=field["price_single"],
+                         quantity=field["quantity"],
+                         product_class=field["product_class"],
+                         unknown=field["unknown"])
+            TEMPLATES.update({key: temp})
 
 
 def read_stores():
@@ -309,9 +315,9 @@ def read_discount_classes():
 
 
 def read_payments():
+    global PAYMENTS
     input_json = CONFIG_DICT["payments_json"]
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
-        for item in data["payments"]:
-            PAYMENTS.append(item)
+        PAYMENTS = data
     print(PAYMENTS)
