@@ -15,9 +15,11 @@ from gui import Application
 # TODO: in config variable to choose if quantity_discount and sale input with
 #       minus
 # TODO: rework config file into txt
-# TODO: minus zuerst as standard
 # TODO: navigate with arrow keys
 # TODO: save if this is the lowest price, save this in product_templates?
+
+# TODO: in product_templates, make new key "cheapest" to store best price
+# TODO: maybe also make key for date and store?
 
 
 if __name__ == '__main__':

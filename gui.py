@@ -803,6 +803,16 @@ class Application:
         print(store_list)
         self._root_objects.combo_boxes["store"]["values"] = store_list
 
+        # if store is Billa, Billa Plus or Merkur: change payment to Karte
+        if len(store_list) == 1:
+            if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
+                self._root_objects.combo_boxes["payment"].set("Karte")
+        # special case for Billa: if "Billa" is typed in,
+        # it still matches "Billa" and "Billa Plus"
+        if len(store_list) == 2:
+            if store_list[0] == "Billa" and store_list[1] == "Billa Plus":
+                self._root_objects.combo_boxes["payment"].set("Karte")
+
     def _trace_payment(self):
         payment_input = self._read_entry(
             self._root_objects.combo_boxes["payment"], "str").lower()
