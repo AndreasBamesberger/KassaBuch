@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 
 TEMPLATES = {}
-STORES = []
+STORES = {}
 CONFIG_DICT = {}
 BILLS = []
 PAYMENTS = []
@@ -267,11 +267,22 @@ def update_product_templates():
         json.dump(out_dict, out_file, indent=2)
 
 
+# def update_stores():
+#     stores_json = CONFIG_DICT["stores_json"]
+#     with open(stores_json, 'w', encoding="utf-16") as out_file:
+#         out_list = sorted(STORES)
+#         out_dict = {"stores": out_list}
+#         json.dump(out_dict, out_file, indent=2)
+
+
 def update_stores():
     stores_json = CONFIG_DICT["stores_json"]
     with open(stores_json, 'w', encoding="utf-16") as out_file:
-        out_list = sorted(STORES)
-        out_dict = {"stores": out_list}
+        out_dict = {}
+        for store in sorted(STORES):
+            temp = {"default_payment": ""}
+            out_dict.update({store: temp})
+        out_dict = OrderedDict(sorted(out_dict.items()))
         json.dump(out_dict, out_file, indent=2)
 
 
@@ -296,12 +307,20 @@ def read_product_templates():
             TEMPLATES.update({key: temp})
 
 
+# def read_stores():
+#     input_json = CONFIG_DICT["stores_json"]
+#     with open(input_json, 'r', encoding="utf-16") as in_file:
+#         data = json.load(in_file)
+#         for item in data["stores"]:
+#             STORES.append(item)
+#     print(STORES)
+
 def read_stores():
     input_json = CONFIG_DICT["stores_json"]
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
-        for item in data["stores"]:
-            STORES.append(item)
+        for key, field in data.items():
+            STORES.update({key: field})
     print(STORES)
 
 

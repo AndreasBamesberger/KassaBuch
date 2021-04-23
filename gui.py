@@ -773,6 +773,9 @@ class Application:
                         insert(0, curr_temp.price_final)
                     break
                 else:
+                    # TODO: this gets called way too often
+                    #  if there is a match, store that match in variable
+                    #  and just set/delete after the loop?
                     # template_name = self._read_entry(
                     #     curr_line.combo_boxes["template"],
                     #     "str")
@@ -794,24 +797,35 @@ class Application:
                                        "str").lower()
 
         store_list = list()
-        for store in backend.STORES:
-            if store_input in store.lower():
-                store_list.append(store)
+        for key in backend.STORES:
+            if store_input in key.lower():
+                store_list.append(key)
 
         store_list.sort()
 
         print(store_list)
         self._root_objects.combo_boxes["store"]["values"] = store_list
 
+        if len(store_list) == 0:
+            self._root_objects.combo_boxes["payment"].set('')
         # if store is Billa, Billa Plus or Merkur: change payment to Karte
         if len(store_list) == 1:
-            if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
-                self._root_objects.combo_boxes["payment"].set("Karte")
+            payment = backend.STORES[store_list[0]]["default_payment"]
+            # if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
+            self._root_objects.combo_boxes["payment"].set(payment)
         # special case for Billa: if "Billa" is typed in,
         # it still matches "Billa" and "Billa Plus"
-        if len(store_list) == 2:
-            if store_list[0] == "Billa" and store_list[1] == "Billa Plus":
-                self._root_objects.combo_boxes["payment"].set("Karte")
+        else:
+            for key, field in backend.STORES.items():
+                if store_input == key.lower():
+                    payment = field["default_payment"]
+                    self._root_objects.combo_boxes["payment"].set(payment)
+                    break
+                else:
+                    # TODO: this gets called way too often
+                    #  if there is a match, store that match in variable
+                    #  and just set/delete after the loop?
+                    self._root_objects.combo_boxes["payment"].set('')
 
     def _trace_payment(self):
         payment_input = self._read_entry(
@@ -825,6 +839,18 @@ class Application:
         payment_list.sort()
         print(payment_list)
         self._root_objects.combo_boxes["payment"]["values"] = payment_list
+
+        # if len(payment_list) == 1:
+        #     payment = payment_list[0]
+        #     # if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
+        #     self._root_objects.combo_boxes["payment"].set(payment)
+        # # special case for Billa: if "Billa" is typed in,
+        # # it still matches "Billa" and "Billa Plus"
+        # elif len(payment_list) > 1:
+        #     for payment in backend.PAYMENTS:
+        #         if payment_input == payment.lower():
+        #             self._root_objects.combo_boxes["payment"].set(payment)
+        #             break
 
     def _trace_update_entries(self, current_line):
         print("_trace_update_entries")
