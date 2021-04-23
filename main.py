@@ -6,8 +6,6 @@ from gui import Application
 # TODO: try place method
 # TODO: improve gui grid
 
-# TODO: billa, billa plus, merkur: payment default to karte
-# TODO: don't save empty bill
 # TODO: suppress 0,0 in gui
 # TODO: when F1, check if last row has changed template,
 #       show message box to ask if save changes

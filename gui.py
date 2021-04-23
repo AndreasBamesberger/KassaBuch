@@ -474,8 +474,9 @@ class Application:
         print("_button_save")
         bill = self._create_output()
 
-        backend.BILLS.append(bill)
-        backend.backup_bill(bill)
+        if bill.entries:
+            backend.BILLS.append(bill)
+            backend.backup_bill(bill)
 
         self._clear_screen()
         self._reset()

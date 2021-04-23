@@ -231,6 +231,10 @@ def export_bills():
     for bill in BILLS:
         line_count += len(bill.entries) + 2
 
+    if not line_count:
+        print("no bills")
+        return
+
     with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
         file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
