@@ -859,9 +859,9 @@ class Application:
         self._calculate_price_final(current_line)
         self._calculate_total()
 
-        discount_sum: float = 0.0
-        quantity_discount_sum: float = 0.0
-        sale_sum: float = 0.0
+        discount_sum = 0.0
+        quantity_discount_sum = 0.0
+        sale_sum = 0.0
 
         for line in self._line_list:
             discount_sum += self._read_entry(line.entries["discount"], "float")
@@ -869,6 +869,10 @@ class Application:
                                                       ["quantity_discount"],
                                                       "float")
             sale_sum += self._read_entry(line.entries["sale"], "float")
+
+        discount_sum = self._float2str(discount_sum)
+        quantity_discount_sum = self._float2str(quantity_discount_sum)
+        sale_sum = self._float2str(sale_sum)
 
         # self._root_objects.entries["discount_sum"].delete(0, "end")
         # self._root_objects.entries["discount_sum"].\
@@ -879,19 +883,18 @@ class Application:
         # self._root_objects.entries["sale_sum"].delete(0, "end")
         # self._root_objects.entries["sale_sum"]. \
         #     insert(0, str(round(sale_sum, 2)).replace('.', ','))
-        text = str(round(discount_sum, 2)).replace('.', ',')
-        self._root_objects.labels["discount_sum_var"].config(text=text)
-        text = str(round(quantity_discount_sum, 2)).replace('.', ',')
-        self._root_objects.labels["quantity_discount_sum_var"].config(text=text)
-        text = str(round(sale_sum, 2)).replace('.', ',')
-        self._root_objects.labels["sale_sum_var"].config(text=text)
+        self._root_objects.labels["discount_sum_var"].config(text=discount_sum)
+        self._root_objects.labels["quantity_discount_sum_var"].\
+            config(text=quantity_discount_sum)
+        self._root_objects.labels["sale_sum_var"].config(text=sale_sum)
 
         price_quantity_sum = 0.0
         for line in self._line_list:
             price_quantity_sum += self._read_entry(
                 line.entries["price_quantity"], "float")
-        text = str(round(price_quantity_sum, 2)).replace('.', ',')
-        self._root_objects.labels["price_quantity_sum_var"].config(text=text)
+        price_quantity_sum = self._float2str(price_quantity_sum)
+        self._root_objects.labels["price_quantity_sum_var"].\
+            config(text=price_quantity_sum)
 
         # if current_line.row == self._row_count - 1:
         #     for line in self._line_list:
@@ -1008,8 +1011,7 @@ class Application:
 
             total += price_final
 
-        total = round(total, 2)
-        total = str(total).replace('.', ',')
+        total = self._float2str(total)
         self._root_objects.labels["total_var"].config(text=total)
         # self._root_objects.entries["total"].delete(0, "end")
         # self._root_objects.entries["total"].insert(0, total)
@@ -1159,3 +1161,17 @@ class Application:
         elif event.keysym == "F5":
             for line in self._line_list:
                 self._trace_update_entries(line)
+
+    @staticmethod
+    def _float2str(in_float):
+        """
+        Round float to 2 decimals
+        Force number to have 2 decimal places
+        Replace '.' with ','
+        Input: in_float: float
+        Output: out_str: str
+        """
+        in_float = round(in_float, 2)
+        in_float = f'{in_float:.2f}'
+        out_str = str(in_float).replace('.', ',')
+        return out_str

@@ -147,10 +147,18 @@ def format_bill(bill):
         # else:
         #     sale = float(entry.sale)
 
+        # If entry.discount_class is a number, divide it so it looks like the
+        # percentage and format it to 2 decimal places
         try:
-            discount_class = float(entry.discount_class)
+            discount_class = f'{float(entry.discount_class) / 100:.2f}'
         except ValueError:
-            discount_class = 0.0
+            # If entry.discount is one of the stored discounts, keep it as the
+            # letter
+            if entry.discount_class in DISCOUNT_CLASSES:
+                discount_class = entry.discount_class
+            else:
+                # Otherwise it becomes 0, reduced to an empty field
+                discount_class = ''
 
         line = ['', '', '', '',
                 entry.product,
@@ -166,6 +174,9 @@ def format_bill(bill):
                 entry.price_final]
 
         for index, item in enumerate(line):
+            # Skip formatting on quantity and discount_class
+            if index in [6, 7]:
+                continue
             # Replace 0 with ''
             if item == 0:
                 line[index] = ''
@@ -246,18 +257,23 @@ def export_bills():
     line_count = 0
     for bill in BILLS:
         line_count += len(bill.entries) + 2
+    print("line_count: ", line_count)
 
     if not line_count:
         print("no bills")
         return
 
+    first_line = [line_count, "Datum", "Zeit", "Händler", "Bezeichnung",
+                  "Preis", "Menge", "RK", "WK", "", "Preis", "Rabatt",
+                  "Mengenrab", "Aktion", "Preis"]
+
     with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
         file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        file_writer.writerow([line_count])
+        file_writer.writerow(first_line)
         for bill in BILLS:
-            line_count += len(bill.entries)
-            line_count += 2
+            # line_count += len(bill.entries)
+            # line_count += 2
 
             header_line, lines = format_bill(bill)
             file_writer.writerow(header_line)
@@ -265,7 +281,6 @@ def export_bills():
                 file_writer.writerow(line)
 
             file_writer.writerow('')
-        print("line_count: ", line_count)
 
 
 # encodings
