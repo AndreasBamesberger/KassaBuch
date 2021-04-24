@@ -165,6 +165,14 @@ def format_bill(bill):
                 entry.sale,
                 entry.price_final]
 
+        for index, item in enumerate(line):
+            # Replace 0 with ''
+            if item == 0:
+                line[index] = ''
+            # Format numbers to have 2 decimal places
+            elif isinstance(item, float):
+                line[index] = f'{item:.2f}'
+
         line = [str(item).replace('.', ',') for item in line]
 
         lines.append(line)
@@ -192,6 +200,14 @@ def format_bill(bill):
     header_line = ['', date, time, store, bill.payment, len(bill.entries), '',
                    '', '', '', bill.price_quantity_sum, discount_sum,
                    quantity_discount_sum, sale_sum, total]
+
+    # Replace 0 with ''
+    for index, item in enumerate(header_line):
+        if item == 0:
+            header_line[index] = ''
+        # Format numbers to have 2 decimal places
+        elif isinstance(item, float):
+            header_line[index] = f'{item:.2f}'
 
     # for item in header_line:
     #     item = str(item).replace('.', ',')

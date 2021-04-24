@@ -600,7 +600,7 @@ class Application:
         discount = self._read_entry(line.entries["discount"], "float")
         quantity_discount = self._read_entry(line.entries["quantity_discount"],
                                              "float")
-        sale = self._read_entry(line.entries["sale"], "str")
+        sale = self._read_entry(line.entries["sale"], "float")
         price_final = self._read_entry(line.entries["price_final"], "float")
         entry = backend.Entry(product=product,
                               price_single=price_single,
