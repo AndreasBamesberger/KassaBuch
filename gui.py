@@ -4,11 +4,8 @@ from tkinter import ttk
 
 import backend
 
-# TODO: add label with line number
-
 
 class Line:
-    # TODO: update
     """
     Creates a line in the scroll region of the GUI
 
@@ -77,7 +74,6 @@ class Line:
 
 
 class Application:
-    # TODO: update
     """
     Creates window using tkinter
 
@@ -528,9 +524,9 @@ class Application:
                                  "float")
         price_quantity_sum = 0.0
 
-        discount_sum *= -1
-        quantity_discount_sum *= -1
-        sale_sum *= -1
+        # discount_sum *= -1
+        # quantity_discount_sum *= -1
+        # sale_sum *= -1
 
         print("store = ", store)
         print("date = ", date)
@@ -774,9 +770,6 @@ class Application:
                         insert(0, curr_temp.price_final)
                     break
                 else:
-                    # TODO: this gets called way too often
-                    #  if there is a match, store that match in variable
-                    #  and just set/delete after the loop?
                     # template_name = self._read_entry(
                     #     curr_line.combo_boxes["template"],
                     #     "str")
@@ -823,9 +816,6 @@ class Application:
                     self._root_objects.combo_boxes["payment"].set(payment)
                     break
                 else:
-                    # TODO: this gets called way too often
-                    #  if there is a match, store that match in variable
-                    #  and just set/delete after the loop?
                     self._root_objects.combo_boxes["payment"].set('')
 
     def _trace_payment(self):
