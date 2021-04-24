@@ -562,6 +562,24 @@ class Application:
 
             price_quantity_sum += entry.price_quantity
 
+            # update entry history with this purchase
+            date_time = str(date) + 'T' + str(time)
+
+            print(entry.price_final)
+            print(entry.quantity)
+
+            price_per_unit = 0
+            if isinstance(entry.quantity, str) or entry.quantity == 0:
+                # if quantity is '' then it is 1
+                price_per_unit = entry.price_final
+            elif isinstance(entry.quantity, float):
+                price_per_unit = entry.price_final / entry.quantity
+            round(price_per_unit, 2)
+            entry.history.update({date_time: [store, price_per_unit]})
+
+            backend.TEMPLATES.update({entry.product: entry})
+            backend.update_product_templates()
+
             # try:
             #     discount_sum += float(entry.discount)
             # except ValueError:
@@ -677,6 +695,7 @@ class Application:
         for key, field in backend.TEMPLATES.items():
             if template_input in key.lower():
                 temp_dict.update({key: field})
+        # print(temp_dict)
 
         name_list = [key for key, _ in temp_dict.items()]
         name_list.sort()

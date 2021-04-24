@@ -45,7 +45,9 @@ class Entry:
     def __init__(self, product='', price_single=0.0, quantity=1.0,
                  discount_class='', product_class='', unknown='',
                  price_quantity=0.0, discount=0.0, quantity_discount="0,0",
-                 sale="0,0", price_final=0.0):
+                 sale="0,0", price_final=0.0, history=None):
+        if history is None:
+            history = dict()
         self.product = product
         self.price_single = price_single
         self.quantity = quantity
@@ -57,6 +59,7 @@ class Entry:
         self.quantity_discount = quantity_discount
         self.sale = sale
         self.price_final = price_final
+        self.history = history
 
     def __repr__(self):
         out_string = (f"\n---\nEntry\n"
@@ -71,6 +74,7 @@ class Entry:
                       f"\tquantity_discount: {self.quantity_discount}\n"
                       f"\tsale: {self.sale}\n"
                       f"\tprice_final: {self.price_final}\n"
+                      f"\thistory: {self.history}\n"
                       f"---\n"
                       )
         return out_string
@@ -295,11 +299,16 @@ def update_product_templates():
             temp = {"price_single": field.price_single,
                     "quantity": field.quantity,
                     "product_class": field.product_class,
-                    "unknown": field.unknown}
+                    "unknown": field.unknown,
+                    "history": field.history}
             out_dict.update({key: temp})
-        out_dict = OrderedDict(sorted(out_dict.items()))
+        # out_dict = OrderedDict(sorted(out_dict.keys()))
         # print(out_dict)
         json.dump(out_dict, out_file, indent=2)
+
+    # key_path = "F:\\pycharm_projects\\KassaBuch_data\\product_keys.json"
+    # with open(key_path, 'w', encoding="utf-16") as out_file:
+    #     json.dump(product_name_key, out_file, indent=2)
 
 
 # def update_stores():
@@ -338,8 +347,13 @@ def read_product_templates():
                          price_single=field["price_single"],
                          quantity=field["quantity"],
                          product_class=field["product_class"],
-                         unknown=field["unknown"])
+                         unknown=field["unknown"],
+                         history=field["history"])
             TEMPLATES.update({key: temp})
+    print("TEMPLATES.keys(): ", TEMPLATES.keys())
+    print("first TEMPLATES entry: ")
+    for x in list(TEMPLATES)[0:1]:
+        print(x, TEMPLATES[x])
 
 
 # def read_stores():
@@ -350,13 +364,23 @@ def read_product_templates():
 #             STORES.append(item)
 #     print(STORES)
 
+
+# def read_product_keys():
+#     input_json = CONFIG_DICT["product_keys_json"]
+#     with open(input_json, 'r', encoding="utf-16") as in_file:
+#         data = json.load(in_file)
+#         for product in data:
+#             PRODUCT_KEYS.append(product)
+#     print("PRODUCT_KEYS: ", PRODUCT_KEYS)
+
+
 def read_stores():
     input_json = CONFIG_DICT["stores_json"]
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
         for key, field in data.items():
             STORES.update({key: field})
-    print(STORES)
+    print("STORES: ", STORES)
 
 
 def read_discount_classes():
@@ -365,7 +389,7 @@ def read_discount_classes():
         data = json.load(in_file)
         for key, field in data.items():
             DISCOUNT_CLASSES.update({key: field})
-    print(DISCOUNT_CLASSES)
+    print("DISCOUNT_CLASSES: ", DISCOUNT_CLASSES)
 
 
 def read_payments():
@@ -374,4 +398,4 @@ def read_payments():
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
         PAYMENTS = data
-    print(PAYMENTS)
+    print("PAYMENTS: ", PAYMENTS)
