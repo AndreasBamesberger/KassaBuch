@@ -906,6 +906,12 @@ class Application:
         #                 self._canvas.config(scrollregion=self.
         #                                     _canvas.bbox("all"))
 
+        # in "time" label, replace '-' with ':'
+        time = self._read_entry(self._root_objects.entries["time"], "str")
+        time = time.replace('-', ':')
+        self._root_objects.entries["time"].delete(0, "end")
+        self._root_objects.entries["time"].insert(0, time)
+
     def _calculate_price_quantity(self, line):
         print("_calculate_price_quantity")
         price_single = self._read_entry(line.entries["price_single"], "float")
