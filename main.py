@@ -1,3 +1,4 @@
+""" Reads config file, json files and starts interface """
 import backend
 from gui import Application
 

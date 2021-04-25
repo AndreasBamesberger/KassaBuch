@@ -1,37 +1,40 @@
-﻿"""" file that holds Line and GUI classes"""
+﻿"""
+Classes to create and run the GUI
+"""
+import sys  # For exit()
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk  # For style and combo_box
 
 import backend
 
 
 class Line:
     """
-    Creates a line in the scroll region of the GUI
+    Creates a line in the scrollable region of the GUI. This represents one
+    category of item in the bill.
 
     ...
 
     Attributes
     ----------
-    row: int
-        in which row this line is placed
-    labels: dict
-        all tkinter Label objects of this line
-    entries: dict
-        all tkinter Entry objects of this line
     buttons: dict
-        all tkinter Button objects of this line
+        All tkinter Button objects of this line
+    check_buttons: dict
+        All tkinter Checkbutton objects of this line
     combo_boxes: dict
-        all tkinter Combobox objects of this line
-    check_buttons: list of tkinter.Checkbutton
-        the tkinter Checkbutton object of this line
-    trace_vars: list
-        list that holds all tkinter.StringVar variables of the entry fields and
-        the combo box
+        All tkinter Combobox objects of this line
+    entries: dict
+        All tkinter Entry objects of this line
+    labels: dict
+        All tkinter Label objects of this line
+    row: int
+        In which row of the scroll region this line is placed
+    trace_vars: dict
+        Dict that holds all tkinter StringVar and IntVar variables of the
+        tkinter objects of this line
 
     Methods
     -------
-
     delete():
         Destroy all tkinter objects of this line
     """
@@ -47,21 +50,21 @@ class Line:
         self.trace_vars: dict = trace_vars
 
     def delete(self):
-        """ Destroy all tkinter objects of this line """
+        """
+        Destroy all tkinter objects of this line
+        """
         print("deleting row ", self.row)
-        print(self.labels)
-        for key, field in self.labels.items():
+        for _, field in self.labels.items():
             field.destroy()
-        # for key, field in self.labels.items():
-        #     field.destroy()
-        for key, field in self.entries.items():
+        for _, field in self.entries.items():
             field.destroy()
-        for key, field in self.buttons.items():
+        for _, field in self.buttons.items():
             field.destroy()
-        for key, field in self.combo_boxes.items():
+        for _, field in self.combo_boxes.items():
             field.destroy()
-        for key, field in self.check_buttons.items():
+        for _, field in self.check_buttons.items():
             field.destroy()
+        # TODO: also delete trace_vars?
 
     def __repr__(self):
         out_string = (f"Line object:\n"
@@ -69,65 +72,119 @@ class Line:
                       f"\tlabels: \n{self.labels}\n"
                       f"\tentries: \n{self.entries}\n"
                       f"\tbuttons: \n{self.buttons}\n"
-                      f"\tcombo_boxes: \n{self.combo_boxes}\n")
+                      f"\tcombo_boxes: \n{self.combo_boxes}\n"
+                      f"\tcheck_buttons: \n{self.check_buttons}")
         return out_string
 
 
 class Application:
     """
-    Creates window using tkinter
+    Creates window using tkinter and handles input/output of the created
+    graphical objects
 
     ...
 
     Attributes
     ----------
-    _font: str
-        font of texts
-    _scaling: float/double
-        scaling factor of the tkinter window, for different screen resolutions
-    _width: int
-        horizontal tkinter window resolution
-    _height: int
-        vertical tkinter window resolution
-    _canvas_width: int
-        horizontal resolution of the scrollable region
-    _canvas_height: int
-        vertical resolution of the scrollable region
-    _color_frame: str
-        color of the background
-    _color_label_fg: str
-        color of the tkinter label foreground
-    _color_label_bg: str
-        color of the tkinter label background
-    _row_count: int
-        number of rows generated in the scrollable region. this value never
-        decreases, even when a line is deleted
-    _line_list: list
-        list of all currently active lines in the scrollable region
-    _root: tkinter.Tk
-        the main tkinter window object
-    _label_list: list
-        list of the parameters with which the labels inside the scrollable lines
-        are created
-    _entry_list: list
-        list of the parameters with which the entries inside the scrollable
-        lines are created
     _button_list: list
-        list of the parameters with which the buttons inside the scrollable
-        lines are created
-    _frame_main: tkinter.Frame
-        frame inside the main root window
-    _frame_canvas: tkinter.Frame
-        frame to create the scrollable region
+        List of the parameters with which the tkinter Button objects are created
     _canvas: tkinter.Canvas
-        the scrollable region
+        The scrollable region
+    _canvas_height: int
+        Vertical resolution of the scrollable region
+    _canvas_width: int
+        Horizontal resolution of the scrollable region
+    _check_button_list: list
+        List of the parameters with which the tkinter Checkbutton objects are
+        created
+    _color_frame: str
+        Color of the background
+    _color_label_bg: str
+        Color of the tkinter Label object background
+    _color_label_fg: str
+        Color of the tkinter Label text/foreground
+    _combo_box_list: list
+        List of the parameters with which the tkinter Combobox objects are
+        created
+    _entry_list: list
+        List of the parameters with which the tkinter Entry objects are created
+    _font: str
+        Font of the texts
+    _frame_canvas: tkinter.Frame
+        Frame to create the scrollable region
+    _frame_dict: dict
+        Dictionary that holds the available frames.
     _frame_fields: tk.Frame
-        frame that holds the lines inside the scrollable region
+        Frame that holds the lines inside the scrollable region
+    _frame_main: tk.Frame
+        Frame inside the main root window
+    _height: int
+        Vertical tkinter window resolution
+    _label_list: list
+        List of the parameters with which the tkinter Label objects are created
+    _line_list: list
+        List of all currently active Line objects in the scrollable region
+    _method_dict_no_param: dict
+        Dictionary that holds references to GUI methods without parameters.
+        This is used to bind a method to a tkinter object
+    _method_dict_one_param: dict
+        Dictionary that holds references to GUI methods with 2 parameters.
+        This is used to bind a method to a tkinter object
+    _objects: dict
+        Dictionary of all values in the tkinter_objects json
+    _root: tkinter.Tk
+        The main window object
+    _root_objects: Line
+        All tkinter objects of the root window
+    _row_count: int
+        Number of rows generated in the scrollable region. This value never
+        decreases, even when a line is deleted
+    _scaling: float
+        Scaling factor of the tkinter window, for different screen resolutions
     _vsb: tkinter.Scrollbar
-        vertical scrollbar for the scrollable region
+        Vertical tkinter Scrollbar for the scrollable region
+    _width: int
+        Horizontal tkinter window resolution
 
     Methods
     -------
+    # TODO: don't forget to update this
+    loop(self):
+    _setup_root_window(self):
+    _setup_canvas_window(self):
+    _reset(self):
+    _clear_screen(self):
+    _button_add_new_row(self):
+    _button_del_row(self, row):
+    _button_save(self):
+    _button_export_bills(self):
+    _button_type(self):
+    _create_output(self):
+    _get_entry_from_line(self, line):
+    _button_save_template(self, row):
+    _trace_template(self, row):
+    _trace_store(self):
+    _trace_payment(self):
+    _trace_update_entries(self, current_line):
+    _calculate_price_quantity(self, line):
+    _calculate_discount(self, line):
+    _calculate_price_final(self, line):
+    _calculate_total(self):
+    _create_label(self, frame_key, text, column, row, sticky, font):
+    _create_entry(self, frame_key, column, row, width, func_key):
+    _create_button(self, frame_key, text, column, row, font, func_key):
+    _create_combo_box(self, frame_key, func_key, values, state, column, row,
+                      width, sticky):
+    _create_check_button(self, frame_key, func_key, text, column, row, sticky):
+    _read_entry(entry, data_type):
+    _read_label(label, data_type):
+    _key_released(self, event):
+    _float2str(in_float):
+
+
+
+
+
     loop():
         gets executed by main.py
     _setup_root_window():
@@ -200,26 +257,29 @@ class Application:
     """
 
     def __init__(self):
-        self._func_dict_no_param: dict = {"save_bill": self._button_save,
-                                          "export_bills":
-                                              self._button_export_bills,
-                                          "write_bills": self._button_type,
-                                          "trace_store": self._trace_store,
-                                          "trace_payment": self._trace_payment,
-                                          "add_new_row":
-                                              self._button_add_new_row}
-        self._func_dict_one_param: dict = {"update": self._trace_update_entries,
-                                           "delete_row": self._button_del_row,
-                                           "trace_template":
-                                               self._trace_template,
-                                           "save_template":
-                                               self._button_save_template,
-                                           }
+        # In the tkinter_objects json file the entry, button, combo_box and
+        # check_button objects have a value "command" which corresponds to the
+        # keys in these method dictionaries. This is used to bind method calls
+        # to these tkinter objects
+        self._method_dict_no_param: dict = \
+            {"save_bill": self._button_save,
+             "export_bills": self._button_export_bills,
+             "write_bills": self._button_type,
+             "trace_store": self._trace_store,
+             "trace_payment": self._trace_payment,
+             "add_new_row": self._button_add_new_row}
+        self._method_dict_one_param: dict = \
+            {"update": self._trace_update_entries,
+             "delete_row": self._button_del_row,
+             "trace_template": self._trace_template,
+             "save_template": self._button_save_template}
 
+        # Store all parameters for the tkinter objects in this dictionary
         self._objects: dict = backend.read_config(
             backend.CONFIG_DICT["tkinter_objects"])
 
-        self._font: str = "none " + backend.CONFIG_DICT["font"] + " bold"
+        # Read parameters from the config file
+        self._font: str = "none " + backend.CONFIG_DICT["font_size"] + " bold"
         self._scaling: float = backend.CONFIG_DICT["scaling"]
         self._width: float = backend.CONFIG_DICT["main_width"]
         self._height: float = backend.CONFIG_DICT["main_height"]
@@ -233,66 +293,71 @@ class Application:
         self._row_count: int = 0
         self._line_list: list = []
 
-        # self._return_pressed = False
-
+        # Create root window
         self._root = tk.Tk()
         style = ttk.Style(self._root)
+        # Background and foreground are never visible so flashy colours are
+        # chosen to highlight an error
         style.configure("TFrame", background="red", foreground="blue")
 
-        # self._root.bind_all('<KeyPress>', self._key_press)
+        # Bind all key releases to a callback method
         self._root.bind_all('<KeyRelease>', self._key_release)
 
+        # Split up the _objects dict into the different object types
         try:
             self._label_list = self._objects["label_list"]
-        except KeyError:
-            self._label_list = []
-        try:
             self._entry_list = self._objects["entry_list"]
-        except KeyError:
-            self._entry_list = []
-        try:
             self._button_list = self._objects["button_list"]
-        except KeyError:
-            self._button_list = []
-        try:
             self._combo_box_list = self._objects["combo_box_list"]
-        except KeyError:
-            self._combo_box_list = []
-        try:
             self._check_button_list = self._objects["check_button_list"]
         except KeyError:
-            self._check_button_list = []
+            print("Error while reading tkinter objects from file")
+            raise SystemError
 
-        # self._template_names = [template.product for template in
-        #                         backend.TEMPLATES]
-
+        # Create the different frames and canvasses
+        # All this is done so that _vsb can scroll the _canvas
         self._frame_main = tk.Frame(self._root, bg=self._color_frame)
         self._frame_canvas = tk.Frame(self._frame_main)
         self._canvas = tk.Canvas(self._frame_canvas, bg=self._color_frame)
         self._frame_fields = tk.Frame(self._canvas, bg=self._color_frame)
+        # Create the scrollbar
         self._vsb = tk.Scrollbar(self._frame_canvas, orient="vertical",
                                  command=self._canvas.yview)
 
+        # In the tkinter_objects json file all objects have a value "frame"
+        # which corresponds to the keys in these method dictionaries. This is
+        # used to declare the target tkinter frame in the json file
         self._frame_dict = {"frame_fields": self._frame_fields,
                             "frame_main": self._frame_main}
 
         self._setup_root_window()
-
         self._setup_canvas_window()
 
+        # Create an initial item row so the scrollable region is not empty at
+        # program start
         self._button_add_new_row()
 
+        # User input starts with date so the cursor is set there
         self._root_objects.entries["date"].focus_set()
 
     def loop(self):
+        """
+        This method is called by the main function, it runs the mainloop()
+        method of the root window
+        """
         self._root.mainloop()
 
     def _setup_root_window(self):
+        """
+        Configures the root window, creates all necessary tkinter objects
+        """
+        # The geometry() method needs a string like "800x600"
         self._root.geometry(str(self._width) + 'x' + str(self._height))
         self._root.tk.call('tk', 'scaling', self._scaling)
-        self._root.title("Kassabuch v05")
+        self._root.title("Kassabuch")
         self._root.configure(background=self._color_frame)
 
+        # Create all tkinter objects with frame_key "frame_main"
         trace_vars: dict = {}
 
         entries: dict = {}
@@ -331,54 +396,72 @@ class Application:
 
         check_buttons: dict = {}
 
+        # Create a Line object which stores all created tkinter objects
         self._root_objects = Line(-1, labels, entries, buttons, combo_boxes,
                                   check_buttons, trace_vars)
 
     def _setup_canvas_window(self):
+        """
+        Configures the root window, creates all necessary tkinter objects
+        """
         self._frame_main.grid(sticky="news")
 
+        # Place _frame_canvas inside the _root grid
         self._frame_canvas.grid(row=9, column=0, padx=(0, 0), pady=(5, 5),
                                 sticky='nw')
 
         self._frame_canvas.grid_rowconfigure(0, weight=1)
-
         self._frame_canvas.grid_columnconfigure(0, weight=1)
-
         self._frame_canvas.grid_propagate(False)
 
+        # Place _canvas inside the grid of _frame_canvas
         self._canvas.grid(row=0, column=0, sticky="news")
 
+        # Place _vsb inside the grid of _frame_canvas, right of _canvas
         self._vsb.grid(row=0, column=1, sticky="ns")
+        # Link _vsb to _canvas scrolling
         self._canvas.configure(yscrollcommand=self._vsb.set)
 
+        # Create the _frame_fields (where the rows will be placed) inside
+        # _canvas
         self._canvas.create_window((0, 0), window=self._frame_fields,
                                    anchor="nw")
 
-        # # Update buttons frames idle tasks to let tkinter calculate buttons
-        # # sizes
+        # # Update frames idle tasks to let tkinter calculate tkinter object
+        # sizes
         self._frame_fields.update_idletasks()
 
-        self._frame_canvas.config(width=self._canvas_width +
-                                  self._vsb.winfo_width(),
+        self._frame_canvas.config(width=self._canvas_width,
                                   height=self._canvas_height)
 
-        # Set the canvas scrolling region
+        # Set the _canvas scrolling region
         self._canvas.config(scrollregion=self._canvas.bbox("all"))
 
     def _reset(self):
+        """
+        _row_count is reset to 0 and _line_list is emptied
+        """
         self._row_count = 0
         self._line_list = list()
 
     def _clear_screen(self):
+        """
+        All objects in the _root window are deleted and all lines inside the
+        scrollable region are deleted
+        """
+        # Clear the text of all Label objects that display information of the
+        # current bill
         for key, field in self._root_objects.labels.items():
-            if key.endswith("var"):
+            if key.endswith("_var"):
                 field.config(text='')
 
+        # TODO: do these actually need to be deleted?
         for key, field in self._root_objects.entries.items():
             if key == "date":
                 continue
             field.delete(0, "end")
 
+        # TODO: do these actually need to be deleted?
         for _, field in self._root_objects.combo_boxes.items():
             field.delete(0, "end")
 
@@ -386,6 +469,11 @@ class Application:
             line.delete()
 
     def _button_add_new_row(self):
+        """
+        Iterate through all lists holding tkinter object information and create
+        a new line in the scrollable region with the necessary objects. Then
+        append this Line object to _line_list
+        """
         print("_button_add_new_row")
         row: int = self._row_count
         trace_vars = {}
@@ -439,37 +527,50 @@ class Application:
                      check_buttons, trace_vars)
         self._line_list.append(entry)
 
-        # self._setup_canvas_window()
-
         self._root.update()
+
         # Set the canvas scrolling region
         self._canvas.config(scrollregion=self._canvas.bbox("all"))
 
         self._row_count += 1
         print("self._row_count = ", self._row_count)
 
+        # Scroll down so the new line is visible
         self._canvas.yview_scroll(2, "units")
 
     def _button_del_row(self, row):
+        """
+        Search _line_list for a Line object with Line.row = row, call its
+        delete() method and remove it from _line_lists. Then, recalculate the
+        bill's total price
+
+        Parameters:
+            row: int
+                The index of the row that will be deleted
+        """
         print("_button_del_row")
         for index, line in enumerate(self._line_list):
             if line.row == row:
                 line.delete()
                 self._line_list.pop(index)
-                if self._row_count < 0:
-                    raise SystemError
                 break
         print("self._row_count = ", self._row_count)
         self._calculate_total()
 
         self._root.update()
-        # Set the canvas scrolling region
+        # Set the canvas scrolling region again
         self._canvas.config(scrollregion=self._canvas.bbox("all"))
 
     def _button_save(self):
+        """
+        Create a backend.Bill from the user input, append this Bill to
+        backend.BILLS and save it to the backup csv file. Then, reset and clear
+        the screen to accept a new bill
+        """
         print("_button_save")
         bill = self._create_output()
 
+        # Don't save an empty bill
         if bill.entries:
             backend.BILLS.append(bill)
             backend.backup_bill(bill)
@@ -477,15 +578,25 @@ class Application:
         self._clear_screen()
         self._reset()
 
+        # Don't leave the scrollable region empty
         self._button_add_new_row()
 
     def _button_export_bills(self):
+        """
+        Save the current bill, then write all bills of this session to the
+        output csv and close the program
+        """
         print("_button_export_bills")
         self._button_save()
         backend.export_bills()
-        raise SystemExit
+        sys.exit()
 
     def _button_type(self):
+        """
+        Saves the current bill. Then, uses the keyboard module to take control
+        of the keyboard and directly types the bills into a specified program.
+        Afterwards, the screen is reset to accept another bill
+        """
         print("_button_type")
         self._button_save()
 
@@ -494,11 +605,21 @@ class Application:
         self._clear_screen()
         self._reset()
 
+        # Don't leave the scrollable region empty
         self._button_add_new_row()
 
     def _create_output(self):
+        """
+        Read the user input from the tkinter objects and create a backend.Bill
+        object which is then returned
+        Returns:
+            bill: backend.Bill
+                The Bill object created from user input
+        """
         store = self._read_entry(self._root_objects.combo_boxes["store"], "str")
 
+        # TODO: As soon as message windows are a thing, make one to ask the user
+        #  for default payment string
         if store not in backend.STORES and store != '':
             backend.STORES.update({store: {"default_payment": ''}})
             backend.update_stores()
@@ -506,14 +627,17 @@ class Application:
         payment = self._read_entry(self._root_objects.combo_boxes["payment"],
                                    "str")
 
+        # If payment method is new, store it and update the payments json
         if payment not in backend.PAYMENTS and payment != '':
             backend.PAYMENTS.append(payment)
             backend.update_payments()
 
         date: str = self._read_entry(self._root_objects.entries["date"], "str")
+
         time: str = self._read_entry(self._root_objects.entries["time"], "str")
-        # replacement so it's easier to type via numpad
+        # Replacement so it's easier to type via numpad
         time = time.replace('-', ':')
+
         discount_sum = self._read_label(self._root_objects.
                                         labels["discount_sum_var"], "float")
         quantity_discount_sum = self._read_label(
@@ -525,40 +649,29 @@ class Application:
         price_quantity_sum = 0.0
 
         # Add year to date if len(date) fits the "dd-mm" input
-        if len(date) < 6:
+        # TODO: maybe check this using regex
+        if len(date) == 5:
             date = date + '-' + backend.CONFIG_DICT["year"]
 
-        # discount_sum *= -1
-        # quantity_discount_sum *= -1
-        # sale_sum *= -1
-
-        print("store = ", store)
-        print("date = ", date)
-        print("time = ", time)
-        print("discount_sum = ", discount_sum)
-        print("quantity_discount_sum = ", quantity_discount_sum)
-        print("sale_sum = ", sale_sum)
-        print("total = ", total)
-
-        print("self._row_count = ", self._row_count)
-
+        # Get the item data from _line_list
+        # TODO: combine this and the next for-loop
         entry_list = list()
         for line in self._line_list:
-            # template = line.template_input
             entry = self._get_entry_from_line(line)
+            # Skip empty line
             if entry.product == '' and entry.price_final == 0:
                 continue
 
             entry_list.append(entry)
 
-        # discount_sum: float = 0.0
-        # quantity_discount_sum: float = 0.0
-        # sale_sum: float = 0.0
-
         for entry in entry_list:
+            # Skip empty line
             if not entry.product and not entry.quantity and \
                     not entry.price_final:
                 continue
+            # TODO: don't do this formatting here, do this only in the
+            #  backend.format_bill
+            # Quantity = 1 should not be shown in final excel file
             if float(entry.quantity) == 1:
                 entry.quantity = ''
             else:
@@ -568,10 +681,7 @@ class Application:
 
             # update entry history with this purchase
             date_time = date + 'T' + time
-
-            print(entry.price_final)
-            print(entry.quantity)
-
+            # price_per_unit includes discounts
             price_per_unit = 0
             if isinstance(entry.quantity, str) or entry.quantity == 0:
                 # if quantity is '' then it is 1
@@ -579,26 +689,13 @@ class Application:
             elif isinstance(entry.quantity, float):
                 price_per_unit = entry.price_final / entry.quantity
             round(price_per_unit, 2)
+            # TODO: history dict instead of list would be better
             entry.history.update({date_time: [store, price_per_unit]})
 
             backend.TEMPLATES.update({entry.product: entry})
             backend.update_product_templates()
 
-            # try:
-            #     discount_sum += float(entry.discount)
-            # except ValueError:
-            #     pass
-            # try:
-            #     quantity_discount_sum += float(entry.quantity_discount)
-            # except ValueError:
-            #     pass
-            # try:
-            #     sale_sum += float(entry.sale)
-            # except ValueError:
-            #     pass
         price_quantity_sum = round(price_quantity_sum, 2)
-
-        print("price_quantity_sum = ", price_quantity_sum)
 
         bill = backend.Bill(entries=entry_list, date=date, time=time,
                             store=store, payment=payment, total=total,
@@ -611,6 +708,21 @@ class Application:
         return bill
 
     def _get_entry_from_line(self, line):
+        """
+        Read all Entry objects of a given line in the scrollable region and save
+        their information as a backend.Entry object, then return it
+
+        Parameters:
+            line: Line
+                The Line object from which information will be read
+
+        Returns:
+            entry: backend.Entry
+                Information of all tkinter Entry objects of the given line
+
+        """
+        # TODO: make a list or something through which we can loop to reduce
+        #  repetition
         product = self._read_entry(line.entries["product"], "str")
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
@@ -637,7 +749,15 @@ class Application:
                               price_final=price_final)
         return entry
 
+    # TODO: use Line instead of row
     def _button_save_template(self, row):
+        """
+        Called when the "save" button in a line is pressed.
+
+        Parameters:
+            row: int
+        """
+
         print("_button_save_template")
         curr_line = None
         for line in self._line_list:
@@ -1058,10 +1178,10 @@ class Application:
 
         if func_key != '':
             def command(*_):
-                if func_key in self._func_dict_one_param.keys():
-                    self._func_dict_one_param[func_key](row)
+                if func_key in self._method_dict_one_param.keys():
+                    self._method_dict_one_param[func_key](row)
                 else:
-                    self._func_dict_no_param[func_key]()
+                    self._method_dict_no_param[func_key]()
 
             trace_var = tk.StringVar()
             trace_var.set('')
@@ -1077,10 +1197,10 @@ class Application:
         frame = self._frame_dict[frame_key]
 
         def command():
-            if func_key in self._func_dict_one_param.keys():
-                self._func_dict_one_param[func_key](row)
+            if func_key in self._method_dict_one_param.keys():
+                self._method_dict_one_param[func_key](row)
             else:
-                self._func_dict_no_param[func_key]()
+                self._method_dict_no_param[func_key]()
 
         temp = tk.Button(frame, text=text, width=len(text),
                          command=command, font=font)
@@ -1093,10 +1213,10 @@ class Application:
 
         if func_key:
             def command(*_):
-                if func_key in self._func_dict_one_param.keys():
-                    self._func_dict_one_param[func_key](row)
+                if func_key in self._method_dict_one_param.keys():
+                    self._method_dict_one_param[func_key](row)
                 else:
-                    self._func_dict_no_param[func_key]()
+                    self._method_dict_no_param[func_key]()
 
             trace_var = tk.StringVar()
             trace_var.set('')
@@ -1125,10 +1245,10 @@ class Application:
         trace_var.set(1)  # requested to be on by default
 
         def command():
-            if func_key in self._func_dict_one_param.keys():
-                self._func_dict_one_param[func_key](row)
-            elif func_key in self._func_dict_no_param.keys():
-                self._func_dict_no_param[func_key]()
+            if func_key in self._method_dict_one_param.keys():
+                self._method_dict_one_param[func_key](row)
+            elif func_key in self._method_dict_no_param.keys():
+                self._method_dict_no_param[func_key]()
 
         check_box = tk.Checkbutton(frame, text=text, variable=trace_var,
                                    onvalue=1, offvalue=0, command=command)
