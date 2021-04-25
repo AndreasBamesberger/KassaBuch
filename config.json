@@ -16,5 +16,6 @@
     "color_label_fg":           "black",
     "color_label_bg":           "light grey",
     "tkinter_objects":          "tkinter_objects.json",
-    "delimiter":                ";"
+    "delimiter":                ";",
+    "year":             "2021"
 }

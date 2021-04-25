@@ -164,7 +164,7 @@ def format_bill(bill):
                 # Otherwise it becomes 0, reduced to an empty field
                 discount_class = ''
 
-        line = ['', '', '', '',
+        line = ['', '', '',
                 entry.product,
                 entry.price_single,
                 entry.quantity,
@@ -212,7 +212,7 @@ def format_bill(bill):
     #                   quantity_discount_sum - sale_sum, 2)
     # total_new = total - discount_sum - quantity_discount_sum - sale_sum
     # total = str(total).replace('.', ',')
-    header_line = ['', date, time, store, bill.payment, len(bill.entries), '',
+    header_line = [date, time, store, bill.payment, len(bill.entries), '',
                    '', '', '', bill.price_quantity_sum, discount_sum,
                    quantity_discount_sum, sale_sum, total]
 
@@ -267,7 +267,7 @@ def export_bills():
         print("no bills")
         return
 
-    first_line = [line_count, "Datum", "Zeit", "Händler", "Bezeichnung",
+    first_line = [line_count, "Zeit", "Händler", "Bezeichnung",
                   "Preis", "Menge", "RK", "WK", "", "Preis", "Rabatt",
                   "Mengenrab", "Aktion", "Preis"]
 

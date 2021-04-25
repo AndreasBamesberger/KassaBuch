@@ -500,7 +500,7 @@ class Application:
         store = self._read_entry(self._root_objects.combo_boxes["store"], "str")
 
         if store not in backend.STORES and store != '':
-            backend.STORES.append(store)
+            backend.STORES.update({store: {"default_payment": ''}})
             backend.update_stores()
 
         payment = self._read_entry(self._root_objects.combo_boxes["payment"],
@@ -510,8 +510,8 @@ class Application:
             backend.PAYMENTS.append(payment)
             backend.update_payments()
 
-        date = self._read_entry(self._root_objects.entries["date"], "str")
-        time = self._read_entry(self._root_objects.entries["time"], "str")
+        date: str = self._read_entry(self._root_objects.entries["date"], "str")
+        time: str = self._read_entry(self._root_objects.entries["time"], "str")
         # replacement so it's easier to type via numpad
         time = time.replace('-', ':')
         discount_sum = self._read_label(self._root_objects.
@@ -523,6 +523,10 @@ class Application:
         total = self._read_label(self._root_objects.labels["total_var"],
                                  "float")
         price_quantity_sum = 0.0
+
+        # Add year to date if len(date) fits the "dd-mm" input
+        if len(date) < 6:
+            date = date + '-' + backend.CONFIG_DICT["year"]
 
         # discount_sum *= -1
         # quantity_discount_sum *= -1
@@ -563,7 +567,7 @@ class Application:
             price_quantity_sum += entry.price_quantity
 
             # update entry history with this purchase
-            date_time = str(date) + 'T' + str(time)
+            date_time = date + 'T' + time
 
             print(entry.price_final)
             print(entry.quantity)
