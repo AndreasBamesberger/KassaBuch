@@ -148,112 +148,103 @@ class Application:
 
     Methods
     -------
-    # TODO: don't forget to update this
     loop(self):
+        This method is called by the main function, it runs the mainloop()
+        method of the root window
     _setup_root_window(self):
+        Configures the root window, creates all necessary tkinter objects
     _setup_canvas_window(self):
+        Configures the root window, creates all necessary tkinter objects
     _reset(self):
+        _row_count is reset to 0 and _line_list is emptied
     _clear_screen(self):
+        All objects in the _root window are deleted and all lines inside the
+        scrollable region are deleted
     _button_add_new_row(self):
+        Iterate through all lists holding tkinter object information and create
+        a new line in the scrollable region with the necessary objects. Then
+        append this Line object to _line_list
     _button_del_row(self, row):
+        Search _line_list for a Line object with Line.row = row, call its
+        delete() method and remove it from _line_lists. Then, recalculate the
+        bill's total price
     _button_save(self):
+        Create a backend.Bill from the user input, append this Bill to
+        backend.BILLS and save it to the backup csv file. Then, reset and clear
+        the screen to accept a new bill
     _button_export_bills(self):
+        Save the current bill, then write all bills of this session to the
+        output csv and close the program
     _button_type(self):
+        Saves the current bill. Then, uses the keyboard module to take control
+        of the keyboard and directly types the bills into a specified program.
+        Afterwards, the screen is reset to accept another bill
     _create_output(self):
+        Read the user input from the tkinter objects and create a backend.Bill
+        object which is then returned
     _get_entry_from_line(self, line):
+        Read all Entry objects of a given line in the scrollable region and save
+        their information as a backend.Entry object, then return it
     _button_save_template(self, row):
+        Called when the "save" button in a line is pressed. Take the input of a
+        line in the scrollable region, create a new product template, add it to
+        the dictionary of product templates and update the json holding these
+        templates
     _trace_template(self, row):
+        Gets called when the StringVar of a Combobox in the scrollable region
+        changes. Searches the dictionary of templates for a match with the
+        user input. If a match is found, its contents are displayed in the GUI.
     _trace_store(self):
+        Gets called when the StringVar of the "store" Combobox changes. Searches
+        the dictionary of stores for a match with the user input. If a match is
+        found, the payment method may be changed based on the dictionary entry
     _trace_payment(self):
+        Gets called when the StringVar of the "payment" Combobox changes.
+        Searches the payment list for a match
     _trace_update_entries(self, current_line):
+        Calls all "calculate" methods for a given Line in the scrollable region.
+        Then calculates the sums that are displayed in the main frame and
+        changes the format of the time input
     _calculate_price_quantity(self, line):
+        Calculates "price_quantity" from the "price_single" and "quantity" of
+        the given Line in the scrollable region. This value is then displayed
     _calculate_discount(self, line):
+        Calculates "discount" based on "quantity_discount", "sale" and
+        "discount_class" of the given Line in the scrollable region. This value
+        is then displayed
     _calculate_price_final(self, line):
+        Calculates "price_final" based on "price_quantity", "discount",
+        "quantity_discount" and "sale" of the given Line in the scrollable
+        region. This value is then displayed
     _calculate_total(self):
+        Add all "price_final" from all items and display the result in the main
+        frame
     _create_label(self, frame_key, text, column, row, sticky, font):
+        Create a tkinter Label object based on the given parameters and return
+        the created object
     _create_entry(self, frame_key, column, row, width, func_key):
+        Create a tkinter Entry object based on the given parameters and return
+        the created object
     _create_button(self, frame_key, text, column, row, font, func_key):
+        Create a tkinter Button object based on the given parameters and return
+        the created object
     _create_combo_box(self, frame_key, func_key, values, state, column, row,
                       width, sticky):
+        Create a tkinter Combobox object based on the given parameters and
+        return the created object
     _create_check_button(self, frame_key, func_key, text, column, row, sticky):
+        Create a tkinter Checkbutton object based on the given parameters and
+        return the created object
     _read_entry(entry, data_type):
+        Read user input from the given Entry object
     _read_label(label, data_type):
+        Read user input from the given Label object
     _key_released(self, event):
+        Gets called when a keyboard key is released. Based on the key, calls a
+        method
     _float2str(in_float):
-
-
-
-
-
-    loop():
-        gets executed by main.py
-    _setup_root_window():
-        configures the root window, creates tkinter objects inside this window
-    _setup_canvas_window():
-        configures the canvas window and the scrollbar within
-    _reset():
-        _row_count and _line_list are reset
-    _clear_screen():
-        text in the entry fields of the root window are deleted and all lines
-        are deleted
-    _button_add_new_row():
-        creates the tkinter objects of a new line in the scrollable region and
-        stores them in a Line object which is appended to _line_list
-    _button_del_row(row):
-        searches the _line_list for the correct row number and calls the delete
-        method of this Line object
-    _button_save():
-        creates a Bill object from the text inside all combo_boxes and entry
-        fields. this Bill is appended to the backend.BILLS list and written to
-        the output csv file. afterwards, the screen is cleared
-    _button_type():
-        saves the current inputs as a new Bill. then writes all Bill objects to
-        the program specified in the config file
-    _create_output(): backend.Bill
-        creates a Bill object from the inputs in the root window and from every
-        Line
-    _get_entry_from_line(line): backend.Entry
-        takes all input from entry and combo_box fields of a given line and
-        creates a new Entry object
-    _button_save_template(row):
-        called by the "save" button in every row of the scrollable region. takes
-        the input of the Line with the specified row and creates a new Template.
-        if there is already a Template with the same name then the old one is
-        deleted. the new template is then stored in backend.TEMPLATES. all
-        active combo_boxes in the scrollable region are then updated to display
-        this new template
-    _trace_template(row):
-        called when something is written in a combo_box in the scrollable
-        region. the input is compared to existing Template objects in the
-        backend.TEMPLATES list. if there is a match with one template, the
-        contents of this template are displayed in the according entry fields
-        of the row
-    _trace_update_entries(row):
-        called when something is written in the entry fields in the scrollable
-        region. in the specified row, all outputs are recalculated. the total
-        sum which is displayed in the root window is also updated
-    _calculate_price_quantity(line):
-        called by _trace_update_entries(row). multiplies price_single with
-        quantity and writes the result in the according entry field
-    _calculate_price_discount(line):
-        called by _trace_update_entries(row). calculates the price after
-        discounts based on the given discounts and the order of operation which
-        is specified by using the checkbox
-    _calculate_total():
-        calculates the sum of all discount-prices and writes it in the
-        according entry field in the root window
-    _create_label(frame:tkinter.Frame, text:str,
-                  column:int, row:int): tkinter.Label
-        creates and returns a tkinter Label
-    _create_entry(frame:tkinter.Frame, column:int,
-                  width:int, text_var:tkinter.StringVar): tkinter.Entry
-        creates and returns a tkinter Entry
-    _create_button(frame:tkinter.Frame, text:str, row:int, column:int,
-                   func:function, font:str): tkinter.Button
-        creates and returns a tkinter Button
-    _create_combo_box(frame:tkinter.Frame,
-                      text_var:tkinter.StringVar): ttk.Combobox
-        creates and returns a tkinter Combobox
+        Format a float value into a str. Round to 2 decimal places, replace '.'
+        with ','
     """
 
     def __init__(self):
@@ -612,6 +603,7 @@ class Application:
         """
         Read the user input from the tkinter objects and create a backend.Bill
         object which is then returned
+
         Returns:
             bill: backend.Bill
                 The Bill object created from user input
