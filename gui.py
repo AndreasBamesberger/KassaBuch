@@ -3,7 +3,7 @@ Classes to create and run the GUI
 """
 import sys  # For exit()
 import tkinter as tk
-from tkinter import ttk  # For style and combo_box
+from tkinter import ttk  # For style and Combobox
 
 import backend
 
