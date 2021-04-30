@@ -752,13 +752,19 @@ class Application:
     # TODO: use Line instead of row
     def _button_save_template(self, row):
         """
-        Called when the "save" button in a line is pressed.
+        Called when the "save" button in a line is pressed. Take the input of a
+        line in the scrollable region, create a new product template, add it to
+        the dictionary of product templates and update the json holding these
+        templates
 
         Parameters:
             row: int
+                Which row in the scrollable region should be saved as a new
+                product template
         """
 
         print("_button_save_template")
+        # Search for the Line object with the correct row number
         curr_line = None
         for line in self._line_list:
             if line.row == row:
@@ -773,34 +779,45 @@ class Application:
         if entry.quantity == 0:
             entry.quantity = 1
 
+        # German format, decimal sign is comma
         entry.price_single = str(entry.price_single).replace('.', ',')
         entry.quantity = str(entry.quantity).replace('.', ',')
 
-        # for index, template in enumerate(backend.TEMPLATES):
-        #     if template.product == entry.product:
-        #         backend.TEMPLATES.pop(index)
-        #         break
-
+        # If template already exists, delete the old entry
         try:
             backend.TEMPLATES.pop(entry.product)
         except KeyError:
             pass
 
+        # Add new template to dictionary
         backend.TEMPLATES.update({entry.product: entry})
+
+        # Update the product json file
         backend.update_product_templates()
 
-        # self._template_names = [template.product for template in
-        #                         backend.TEMPLATES]
+        # Alphabetically sort the list that is passed to the Combobox
         name_list = sorted([key for key, _ in backend.TEMPLATES.items()])
-        # sorted(self._template_names)
 
+        # Update all Comboboxes so they show this new template
         for line in self._line_list:
             line.combo_boxes["template"]["values"] = name_list
 
+        # TODO: why is this here?
         self._root_objects.combo_boxes["store"]["values"] = sorted(backend.
                                                                    STORES)
 
     def _trace_template(self, row):
+        """
+        Gets called when the StringVar of a Combobox in the scrollable region
+        changes. Searches the dictionary of templates for a match with the
+        user input. If a match is found, its contents are displayed in the GUI.
+
+        Parameters:
+            row: int
+                The user input of the Combobox in this row should be compared to
+                the product template dictionary
+        """
+        # Search for the Line object with the correct row number
         curr_line = None
         for index, line in enumerate(self._line_list):
             if line.row == row:
@@ -810,21 +827,22 @@ class Application:
         if curr_line is None:
             raise SystemError
 
+        # Read user input from the Combobox
         template_input = self._read_entry(curr_line.combo_boxes["template"],
                                           "str").lower()
 
+        # Add all template entries who contain the user input
         temp_dict = dict()
-        # print("backend.TEMPLATES: ")
-        # print(backend.TEMPLATES)
         for key, field in backend.TEMPLATES.items():
             if template_input in key.lower():
                 temp_dict.update({key: field})
-        # print(temp_dict)
 
+        # Show the matching entries in the dropdown of the current Combobox
         name_list = [key for key, _ in temp_dict.items()]
         name_list.sort()
         curr_line.combo_boxes["template"]["values"] = name_list
 
+        # If no matches, clear all values in this row
         if len(temp_dict) == 0:
             template_name = self._read_entry(curr_line.combo_boxes["template"],
                                              "str")
@@ -841,8 +859,8 @@ class Application:
             curr_line.entries["quantity_discount"].delete(0, "end")
             curr_line.entries["price_final"].delete(0, "end")
 
+        # If 1 match, display the template values in the current row
         elif len(temp_dict) == 1:
-            # print(temp_dict)
             product = None
             curr_temp = None
             for key, field in temp_dict.items():
@@ -876,8 +894,10 @@ class Application:
             curr_line.entries["price_final"].delete(0, "end")
             curr_line.entries["price_final"].insert(0, curr_temp.price_final)
 
+        # If there are multiple matches, there are 2 options
         else:
-            # for index, suggestion in enumerate(temp_list):
+            # If one match doesn't just contain the user input but is equal to
+            # it, treat it like a single match occurred
             for key, field in temp_dict.items():
                 if template_input == key.lower():
                     product = key
@@ -912,12 +932,10 @@ class Application:
                     curr_line.entries["price_final"]. \
                         insert(0, curr_temp.price_final)
                     break
+                # If there are multiple matches and no exact match, treat it
+                # like no match occurred
                 else:
-                    # template_name = self._read_entry(
-                    #     curr_line.combo_boxes["template"],
-                    #     "str")
                     curr_line.entries["product"].delete(0, "end")
-                    # curr_line.entries["product"].insert(0, template_name)
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["sale"].delete(0, "end")
                     curr_line.entries["quantity"].delete(0, "end")
@@ -930,9 +948,16 @@ class Application:
                     curr_line.entries["price_final"].delete(0, "end")
 
     def _trace_store(self):
+        """
+        Gets called when the StringVar of the "store" Combobox changes. Searches
+        the dictionary of stores for a match with the user input. If a match is
+        found, the payment method may be changed based on the dictionary entry
+        """
+        # Read user input from store Combobox
         store_input = self._read_entry(self._root_objects.combo_boxes["store"],
                                        "str").lower()
 
+        # Find matching entries in the stores dictionary
         store_list = list()
         for key in backend.STORES:
             if store_input in key.lower():
@@ -940,7 +965,9 @@ class Application:
 
         store_list.sort()
 
-        print(store_list)
+        print("Matching stores: ", store_list)
+
+        # Show the matching entries in the dropdown of the current Combobox
         self._root_objects.combo_boxes["store"]["values"] = store_list
 
         if len(store_list) == 0:
@@ -962,46 +989,43 @@ class Application:
                     self._root_objects.combo_boxes["payment"].set('')
 
     def _trace_payment(self):
+        """
+        Gets called when the StringVar of the "payment" Combobox changes.
+        Searches the payment list for a match
+        """
+        # Read user input from the Combobox
         payment_input = self._read_entry(
             self._root_objects.combo_boxes["payment"], "str").lower()
 
+        # Find all matching payment methods
         payment_list = list()
         for payment in backend.PAYMENTS:
             if payment_input in payment.lower():
                 payment_list.append(payment)
 
         payment_list.sort()
-        print(payment_list)
+        print("Payment methods: ", payment_list)
         self._root_objects.combo_boxes["payment"]["values"] = payment_list
 
-        # if len(payment_list) == 1:
-        #     payment = payment_list[0]
-        #     # if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
-        #     self._root_objects.combo_boxes["payment"].set(payment)
-        # # special case for Billa: if "Billa" is typed in,
-        # # it still matches "Billa" and "Billa Plus"
-        # elif len(payment_list) > 1:
-        #     for payment in backend.PAYMENTS:
-        #         if payment_input == payment.lower():
-        #             self._root_objects.combo_boxes["payment"].set(payment)
-        #             break
-
     def _trace_update_entries(self, current_line):
+        """
+        Calls all "calculate" methods for a given Line in the scrollable region.
+        Then calculates the sums that are displayed in the main frame and
+        changes the format of the time input
+
+        Parameters:
+            current_line: Line
+                Which Line object should be calculated
+        """
         print("_trace_update_entries")
-        # current_line = None
-        # for index, line in enumerate(self._line_list):
-        #     if line.row == row:
-        #         current_line = line
-        #         break
-        #
-        # if not current_line:
-        #     return
 
         self._calculate_price_quantity(current_line)
         self._calculate_discount(current_line)
         self._calculate_price_final(current_line)
         self._calculate_total()
 
+        # Add values of "price_quantity", "discount", "quantity_discount" and
+        # "sale" from all Line objects in the scrollable region
         discount_sum = 0.0
         quantity_discount_sum = 0.0
         sale_sum = 0.0
@@ -1013,24 +1037,17 @@ class Application:
                                                       "float")
             sale_sum += self._read_entry(line.entries["sale"], "float")
 
+        # Display the calculated values in the root window
         discount_sum = self._float2str(discount_sum)
         quantity_discount_sum = self._float2str(quantity_discount_sum)
         sale_sum = self._float2str(sale_sum)
 
-        # self._root_objects.entries["discount_sum"].delete(0, "end")
-        # self._root_objects.entries["discount_sum"].\
-        #     insert(0, str(round(discount_sum, 2)).replace('.', ','))
-        # self._root_objects.entries["quantity_discount_sum"].delete(0, "end")
-        # self._root_objects.entries["quantity_discount_sum"]. \
-        #     insert(0, str(round(quantity_discount_sum, 2)).replace('.', ','))
-        # self._root_objects.entries["sale_sum"].delete(0, "end")
-        # self._root_objects.entries["sale_sum"]. \
-        #     insert(0, str(round(sale_sum, 2)).replace('.', ','))
         self._root_objects.labels["discount_sum_var"].config(text=discount_sum)
         self._root_objects.labels["quantity_discount_sum_var"].\
             config(text=quantity_discount_sum)
         self._root_objects.labels["sale_sum_var"].config(text=sale_sum)
 
+        # TODO: integrate this into the loop above
         price_quantity_sum = 0.0
         for line in self._line_list:
             price_quantity_sum += self._read_entry(
@@ -1039,16 +1056,6 @@ class Application:
         self._root_objects.labels["price_quantity_sum_var"].\
             config(text=price_quantity_sum)
 
-        # if current_line.row == self._row_count - 1:
-        #     for line in self._line_list:
-        #         if line.row == self._row_count - 1:
-        #             if self._read_entry(line.entries["price_final"], "float"):
-        #                 self._button_add_new_row()
-        #
-        #                 # Set the canvas scrolling region
-        #                 self._canvas.config(scrollregion=self.
-        #                                     _canvas.bbox("all"))
-
         # in "time" label, replace '-' with ':'
         time = self._read_entry(self._root_objects.entries["time"], "str")
         time = time.replace('-', ':')
@@ -1056,6 +1063,14 @@ class Application:
         self._root_objects.entries["time"].insert(0, time)
 
     def _calculate_price_quantity(self, line):
+        """
+        Calculates "price_quantity" from the "price_single" and "quantity" of
+        the given Line in the scrollable region. This value is then displayed
+
+        Parameters:
+            line: Line
+                Which Line object should be calculated
+        """
         print("_calculate_price_quantity")
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
@@ -1064,12 +1079,23 @@ class Application:
             quantity = 1
 
         price_quantity = round(price_single * quantity, 2)
+
+        # German format, decimal sign is comma
         price_quantity = str(price_quantity).replace('.', ',')
 
         line.entries["price_quantity"].delete(0, "end")
         line.entries["price_quantity"].insert(0, price_quantity)
 
     def _calculate_discount(self, line):
+        """
+        Calculates "discount" based on "quantity_discount", "sale" and
+        "discount_class" of the given Line in the scrollable region. This value
+        is then displayed
+
+        Parameters:
+            line: Line
+                Which Line object should be calculated
+        """
         print("_calculate_discount")
         price_quantity = self._read_entry(line.entries["price_quantity"],
                                           "float")
@@ -1077,11 +1103,14 @@ class Application:
         discount_class = self._read_entry(line.entries["discount_class"], "str")
         discount_class = discount_class.replace(',', '.')
 
+        # Search the DISCOUNT_CLASSES dict for an entry matching the user input
         for key, field in backend.DISCOUNT_CLASSES.items():
             if discount_class == key:
                 discount_class = field["discount"]
                 break
 
+        # If no match was found, try to convert the user input to a float.
+        # If it fails, set it to 0
         if not isinstance(discount_class, float):
             try:
                 discount_class = float(discount_class)
@@ -1095,6 +1124,11 @@ class Application:
         quantity_discount = self._read_entry(line.entries["quantity_discount"],
                                              "float")
 
+        # For some items, first quantity_discount and sale are subtracted from
+        # the price and then the result is multiplied with the discount_class
+        # (minus_first = True).
+        # For other items, multiplication is the first step
+        # (minus_first = False)
         minus_first = self._read_entry(
             line.trace_vars["discount_check_button"], "float")
 
@@ -1104,42 +1138,31 @@ class Application:
         else:
             discount = price_quantity * discount_class / 100
 
+        # TODO: change this into 1 line
         discount *= -1
         discount = round(discount, 2)
+
+        # German format, decimal sign is comma
         discount = str(discount).replace('.', ',')
+
         line.entries["discount"].delete(0, "end")
         line.entries["discount"].insert(0, discount)
 
     def _calculate_price_final(self, line):
+        """
+        Calculates "price_final" based on "price_quantity", "discount",
+        "quantity_discount" and "sale" of the given Line in the scrollable
+        region. This value is then displayed
+
+        Parameters:
+            line: Line
+                Which Line object should be calculated
+        """
         print("_calculate_price_final")
-        # discount_class = self._read_entry(line.entries["discount_class"],
-        #                                   "str")
-        # discount_class = discount_class.replace(',', '.')
-        # if discount_class.lower() == 'a':
-        #     discount_class = 25
-        # else:
-        #     try:
-        #         discount_class = float(discount_class)
-        #     except ValueError:
-        #         discount_class = 0.0
-        #
-        # sale = self._read_entry(line.entries["sale"], "float")
-        #
-        # quantity_discount = self._read_entry(
-        #     line.entries["quantity_discount"], "float")
 
         price_quantity = self._read_entry(line.entries["price_quantity"],
                                           "float")
 
-        # discount_first = self._read_entry(
-        #     line.trace_vars["discount_check_button"], "float")
-        # # print("discount_first: ", discount_first)
-        # if discount_first:
-        #     price_final = (price_quantity - sale - quantity_discount) * \
-        #                   (1 - (discount_class / 100))
-        # else:
-        #     price_final = (price_quantity * (1 - (discount_class / 100)) -
-        #                    sale - quantity_discount)
         discount = self._read_entry(line.entries["discount"], "float")
         sale = self._read_entry(line.entries["sale"], "float")
 
@@ -1147,25 +1170,53 @@ class Application:
                                              "float")
         price_final = price_quantity + discount + quantity_discount + sale
         price_final = round(price_final, 2)
+
+        # German format, decimal sign is comma
         price_final = str(price_final).replace('.', ',')
 
         line.entries["price_final"].delete(0, "end")
         line.entries["price_final"].insert(0, price_final)
 
     def _calculate_total(self):
+        """
+        Add all "price_final" from all items and display the result in the main
+        frame
+        """
         print("_calculate_total")
         total = 0.0
         for line in self._line_list:
+            # TODO: turn this into 1 line
             price_final = self._read_entry(line.entries["price_final"], "float")
 
             total += price_final
 
         total = self._float2str(total)
         self._root_objects.labels["total_var"].config(text=total)
-        # self._root_objects.entries["total"].delete(0, "end")
-        # self._root_objects.entries["total"].insert(0, total)
 
     def _create_label(self, frame_key, text, column, row, sticky, font):
+        """
+        Create a tkinter Label object based on the given parameters and return
+        the created object
+
+        Parameters:
+            frame_key:str
+                Key for the _frame_dict dictionary
+            text: str
+                Text to be displayed in this Label
+            column: int
+                Horizontal position value for the grid system
+            row: int
+                Vertical position value for the grid system
+            sticky: str
+                In which direction should the created object stick to the grid.
+                Combination of letters 'n', 'e', 's', 'w'
+            font: str
+                Font of the text to be displayed in this Label
+
+        Returns:
+            temp: tkinter.Label
+                The created Label object
+        """
         frame = self._frame_dict[frame_key]
         temp = tk.Label(frame, text=text, bg=self._color_label_bg,
                         fg=self._color_label_fg,
@@ -1173,9 +1224,37 @@ class Application:
         temp.grid(row=row, column=column, sticky=sticky)
         return temp
 
+    # TODO: change func_key into method_key everywhere
     def _create_entry(self, frame_key, column, row: int, width, func_key):
+        """
+        Create a tkinter Entry object based on the given parameters and return
+        the created object
+
+        Parameters:
+            frame_key:str
+                Key for the _frame_dict dictionary
+            column: int
+                Horizontal position value for the grid system
+            row: int
+                Vertical position value for the grid system
+            width: int
+                Horizontal size of the object
+            func_key: str
+                Key for the _method_dict_one_param and _method_dict_on_param
+                dictionaries
+
+        Returns:
+            temp: tkinter.Label
+                The created Label object
+            trace_var: tkinter.StringVar
+                Variable that traces user input in this object and calls the
+                command function
+        """
         frame = self._frame_dict[frame_key]
 
+        # If the user has specified a method to be executed, search both method
+        # dictionaries for a matching entry and define a function that calls the
+        # method with the correct parameter
         if func_key != '':
             def command(*_):
                 if func_key in self._method_dict_one_param.keys():
@@ -1194,23 +1273,82 @@ class Application:
         return temp, trace_var
 
     def _create_button(self, frame_key, text, column, row: int, font, func_key):
+        """
+        Create a tkinter Button object based on the given parameters and return
+        the created object
+
+        Parameters:
+            frame_key:str
+                Key for the _frame_dict dictionary
+            text: str
+                Text to be displayed in this Button
+            column: int
+                Horizontal position value for the grid system
+            row: int
+                Vertical position value for the grid system
+            font: str
+                Font of the text to be displayed in this Button
+            func_key: str
+                Key for the _method_dict_one_param and _method_dict_on_param
+                dictionaries
+
+        Returns:
+            temp: tkinter.Button
+                The created Button object
+        """
         frame = self._frame_dict[frame_key]
 
+        # Search both method dictionaries for a matching entry and define a
+        # function that calls the method with the correct parameter
         def command():
             if func_key in self._method_dict_one_param.keys():
                 self._method_dict_one_param[func_key](row)
             else:
                 self._method_dict_no_param[func_key]()
 
-        temp = tk.Button(frame, text=text, width=len(text),
-                         command=command, font=font)
+        temp = tk.Button(frame, text=text, width=len(text), command=command,
+                         font=font)
         temp.grid(row=row, column=column, sticky="news")
         return temp
 
     def _create_combo_box(self, frame_key, func_key, values, state, column, row,
                           width, sticky):
+        """
+        Create a tkinter Combobox object based on the given parameters and
+        return the created object
+
+        Parameters:
+            frame_key:str
+                Key for the _frame_dict dictionary
+            func_key: str
+                Key for the _method_dict_one_param and _method_dict_on_param
+                dictionaries
+            values: str
+                What kind of information the dropdown menu should display
+            state: str
+                Behaviour of the Combobox, e.g. readonly
+            column: int
+                Horizontal position value for the grid system
+            row: int
+                Vertical position value for the grid system
+            width: int
+                Horizontal size of the object
+            sticky: str
+                In which direction should the created object stick to the grid.
+                Combination of letters 'n', 'e', 's', 'w'
+
+        Returns:
+            temp: tkinter.ttk.Combobox
+                The created Combobox object
+            trace_var: tkinter.StringVar
+                Variable that traces user input in this object and calls the
+                command function
+        """
         frame = self._frame_dict[frame_key]
 
+        # If the user has specified a method to be executed, search both method
+        # dictionaries for a matching entry and define a function that calls the
+        # method with the correct parameter
         if func_key:
             def command(*_):
                 if func_key in self._method_dict_one_param.keys():
@@ -1225,8 +1363,9 @@ class Application:
             trace_var = ''
 
         temp = ttk.Combobox(frame, width=width, textvariable=trace_var)
-        # temp["values"] = sorted(self._template_names)
         box_list = None
+
+        # Connect the values of the Combobox to a list of values
         if values == "templates":
             box_list = sorted([key for key, _ in backend.TEMPLATES.items()])
         if values == "stores":
@@ -1240,10 +1379,39 @@ class Application:
 
     def _create_check_button(self, frame_key, func_key, text, column, row,
                              sticky):
+        """
+        Create a tkinter Checkbutton object based on the given parameters and
+        return the created object
+
+        Parameters:
+            frame_key:str
+                Key for the _frame_dict dictionary
+            func_key: str
+                Key for the _method_dict_one_param and _method_dict_on_param
+                dictionaries
+            text: str
+                Text to be displayed in this Button
+            column: int
+                Horizontal position value for the grid system
+            row: int
+                Vertical position value for the grid system
+            sticky: str
+                In which direction should the created object stick to the grid.
+                Combination of letters 'n', 'e', 's', 'w'
+
+        Returns:
+            temp: tkinter.Checkbutton
+                The created Checkbutton object
+            trace_var: tkinter.IntVar
+                Variable that traces user input in this object
+        """
         frame = self._frame_dict[frame_key]
         trace_var = tk.IntVar()
         trace_var.set(1)  # requested to be on by default
 
+        # TODO: change command from "" to update all
+        # Search both method dictionaries for a matching entry and define a
+        # function that calls the method with the correct parameter
         def command():
             if func_key in self._method_dict_one_param.keys():
                 self._method_dict_one_param[func_key](row)
@@ -1256,13 +1424,27 @@ class Application:
 
         return check_box, trace_var
 
+    # TODO: split into 2 methods entry2str and entry2float
     @staticmethod
     def _read_entry(entry, data_type):
+        """
+        Read user input from the given Entry object
+
+        Parameters:
+            entry: tkinter.Entry
+                Entry object to read text from
+            data_type: str
+                What data type should be returned
+        Returns:
+            value: float or str
+                Text of the Entry object,
+        """
         value = entry.get()
         if data_type == "str":
             return value
         elif data_type == "float":
             if isinstance(value, str):
+                # German format, decimal sign is comma
                 value = value.replace(',', '.')
             try:
                 value = float(value)
@@ -1272,11 +1454,24 @@ class Application:
 
     @staticmethod
     def _read_label(label, data_type):
+        """
+        Read user input from the given Label object
+
+        Parameters:
+            label: tkinter.Label
+                Label object to read text from
+            data_type: str
+                What data type should be returned
+        Returns:
+            value: float or str
+                Text of the Label object,
+        """
         value = label["text"]
         if data_type == "str":
             return value
         elif data_type == "float":
             if isinstance(value, str):
+                # German format, decimal sign is comma
                 value = value.replace(',', '.')
             try:
                 value = float(value)
@@ -1284,29 +1479,35 @@ class Application:
                 value = 0.0
             return value
 
-    # def _key_press(self, event):
-    #     print("event.keysym: ", event.keysym)
-    #     if event.keysym == "Return":
-    #         print("Enter Key pressed")
-    #         self._return_pressed = True
-
     def _key_release(self, event):
+        """
+        Gets called when a keyboard key is released. Based on the key, calls a
+        method
+
+        Parameters:
+            event: tkinter.Event
+                Event triggered by a key release
+        """
+        # F1: Calculate all, create a new Line object in the scrollable region
+        #     and move the cursor to its Combobox
         if event.keysym == "F1":
-            # print("Enter Key released")
-            # print("focus_get(): ", self._root.focus_get())
-            # self._return_pressed = False
-            # print(self._row_count)
             for line in self._line_list:
                 self._trace_update_entries(line)
             self._button_add_new_row()
             self._line_list[-1].combo_boxes["template"].focus_set()
+        # F2: Create a new Line object in the scrollable region and move the
+        #     cursor to its Combobox
         elif event.keysym == "F2":
             self._button_add_new_row()
             self._line_list[-1].combo_boxes["template"].focus_set()
+        # F3: Move the cursor to the "date" Entry field
         elif event.keysym == "F3":
             self._root_objects.entries["date"].focus_set()
+        # F4: Move the cursor to the Combobox of the Line at the very bottom of
+        #     the scrollable region
         elif event.keysym == "F4":
             self._line_list[-1].combo_boxes["template"].focus_set()
+        # F5: Calculate all
         elif event.keysym == "F5":
             for line in self._line_list:
                 self._trace_update_entries(line)
@@ -1314,11 +1515,15 @@ class Application:
     @staticmethod
     def _float2str(in_float):
         """
-        Round float to 2 decimals
-        Force number to have 2 decimal places
-        Replace '.' with ','
-        Input: in_float: float
-        Output: out_str: str
+        Format a float value into a str. Round to 2 decimal places, replace '.'
+        with ','
+
+        Parameters:
+            in_float: float
+                Float value to be formatted
+        Returns:
+            out_str: str
+                Formatted float
         """
         in_float = round(in_float, 2)
         in_float = f'{in_float:.2f}'

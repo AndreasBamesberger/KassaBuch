@@ -6,7 +6,7 @@
     "payments_json":            "..\\KassaBuch_data\\payments.json",
     "discount_classes_json":    "..\\KassaBuch_data\\discount_classes.json",
     "type_to_program":          "",
-    "font_size":                     "14",
+    "font_size":                "14",
     "scaling":                  1.5,
     "main_width":               1860,
     "main_height":              620,
@@ -17,5 +17,5 @@
     "color_label_bg":           "light grey",
     "tkinter_objects":          "tkinter_objects.json",
     "delimiter":                ";",
-    "year":             "2021"
+    "year":                     "2021"
 }
