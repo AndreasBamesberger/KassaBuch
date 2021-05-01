@@ -652,7 +652,7 @@ class Application:
         # TODO: combine this and the next for-loop
         entry_list = list()
         for line in self._line_list:
-            entry = self._get_entry_from_line(line)
+            entry = self._get_entry_from_line(line, False)
             # Skip empty line
             if entry.product == '' and entry.price_final == 0:
                 continue
@@ -702,7 +702,7 @@ class Application:
 
         return bill
 
-    def _get_entry_from_line(self, line):
+    def _get_entry_from_line(self, line, new_entry):
         """
         Read all Entry objects of a given line in the scrollable region and save
         their information as a backend.Entry object, then return it
@@ -733,7 +733,13 @@ class Application:
         price_final = self._read_entry(line.entries["price_final"], "float")
 
         # Get history from backend.TEMPLATES
-        history = backend.TEMPLATES[product].history
+        if new_entry:
+            history = {}
+        else:
+            if product == '':
+                history = {}
+            else:
+                history = backend.TEMPLATES[product].history
 
         entry = backend.Entry(product=product,
                               price_single=price_single,
@@ -773,7 +779,7 @@ class Application:
         if not curr_line:
             raise SystemError
 
-        entry = self._get_entry_from_line(curr_line)
+        entry = self._get_entry_from_line(curr_line, True)
         if entry.product == '':
             return
         if entry.quantity == 0:
