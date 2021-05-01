@@ -981,6 +981,8 @@ class Application:
             self._root_objects.combo_boxes["payment"].set('')
         # if store is Billa, Billa Plus or Merkur: change payment to Karte
         if len(store_list) == 1:
+            # Set text in Combobox to matching store
+            self._root_objects.trace_vars["store"].set(store_list[0])
             payment = backend.STORES[store_list[0]]["default_payment"]
             print("payment: ", payment)
             # if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
@@ -990,6 +992,8 @@ class Application:
         else:
             for key, field in backend.STORES.items():
                 if store_input == key.lower():
+                    # Set text in Combobox to matching store
+                    self._root_objects.trace_vars["store"].set(key)
                     payment = field["default_payment"]
                     print("payment: ", payment)
                     self._root_objects.combo_boxes["payment"].set(payment)
