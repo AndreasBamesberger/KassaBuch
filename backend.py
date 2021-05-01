@@ -451,5 +451,5 @@ def read_payments():
     input_json = CONFIG_DICT["payments_json"]
     with open(input_json, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
-        PAYMENTS = data
+        PAYMENTS = data["payments"]
     print("PAYMENTS: ", PAYMENTS)

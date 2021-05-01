@@ -559,6 +559,9 @@ class Application:
         the screen to accept a new bill
         """
         print("_button_save")
+        # Update all fields
+        for line in self._line_list:
+            self._trace_update_entries(line)
         bill = self._create_output()
 
         # Don't save an empty bill
@@ -728,6 +731,10 @@ class Application:
                                              "float")
         sale = self._read_entry(line.entries["sale"], "float")
         price_final = self._read_entry(line.entries["price_final"], "float")
+
+        # Get history from backend.TEMPLATES
+        history = backend.TEMPLATES[product].history
+
         entry = backend.Entry(product=product,
                               price_single=price_single,
                               quantity=quantity,
@@ -738,7 +745,8 @@ class Application:
                               discount=discount,
                               quantity_discount=quantity_discount,
                               sale=sale,
-                              price_final=price_final)
+                              price_final=price_final,
+                              history=history)
         return entry
 
     # TODO: use Line instead of row
@@ -962,11 +970,13 @@ class Application:
         # Show the matching entries in the dropdown of the current Combobox
         self._root_objects.combo_boxes["store"]["values"] = store_list
 
+        print("STORES: ", backend.STORES)
         if len(store_list) == 0:
             self._root_objects.combo_boxes["payment"].set('')
         # if store is Billa, Billa Plus or Merkur: change payment to Karte
         if len(store_list) == 1:
             payment = backend.STORES[store_list[0]]["default_payment"]
+            print("payment: ", payment)
             # if store_list[0] in ["Billa", "Billa Plus", "Merkur"]:
             self._root_objects.combo_boxes["payment"].set(payment)
         # special case for Billa: if "Billa" is typed in,
@@ -975,6 +985,7 @@ class Application:
             for key, field in backend.STORES.items():
                 if store_input == key.lower():
                     payment = field["default_payment"]
+                    print("payment: ", payment)
                     self._root_objects.combo_boxes["payment"].set(payment)
                     break
                 else:
