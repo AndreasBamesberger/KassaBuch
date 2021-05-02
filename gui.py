@@ -631,8 +631,15 @@ class Application:
         date: str = self._read_entry(self._root_objects.entries["date"], "str")
 
         time: str = self._read_entry(self._root_objects.entries["time"], "str")
-        # Replacement so it's easier to type via numpad
-        time = time.replace('-', ':')
+        # Time is written with '-' as a separator because it's easier to type in
+        # on the numpad
+        hours, minutes = time.split(':')
+        # If user wrote hours or minutes as one digit, add the leading zero
+        if len(hours) == 1:
+            hours = '0' + hours
+        if len(minutes) == 1:
+            minutes = '0' + minutes
+        time = hours + ':' + minutes
 
         discount_sum = self._read_label(self._root_objects.
                                         labels["discount_sum_var"], "float")
@@ -644,10 +651,17 @@ class Application:
                                  "float")
         price_quantity_sum = 0.0
 
-        # Add year to date if len(date) fits the "dd-mm" input
-        # TODO: maybe check this using regex
-        if len(date) == 5:
-            date = date + '-' + backend.CONFIG_DICT["year"]
+        # Date user input is dd-mm
+        # Transform it into yyyy-mm-dd
+        day, month = date.split('-')
+
+        # If user wrote day or month as one digit, add the leading zero
+        if len(day) == 1:
+            day = '0' + day
+        if len(month) == 1:
+            month = '0' + month
+
+        date = backend.CONFIG_DICT["year"] + '-' + month + '-' + day
 
         # Get the item data from _line_list
         # TODO: combine this and the next for-loop

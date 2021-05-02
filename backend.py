@@ -8,7 +8,6 @@ import json  # To read from and to update json files
 # The product template json should be alphabetical
 from collections import OrderedDict
 
-
 # Global data structures which hold the information read from the json files
 
 # TEMPLATES key: product name
@@ -65,6 +64,7 @@ class Bill:
     total:float
         Sum of all discounted prices of all items
     """
+
     def __init__(self, entries=(), date='', time='',
                  store="", payment='', total=0.0, discount_sum=0.0,
                  quantity_discount_sum=0.0, sale_sum=0.0,
@@ -129,6 +129,7 @@ class Entry:
     unknown:str
         Similar to product_class, e.g. 'l' for food ('Lebensmittel')
     """
+
     def __init__(self, product='', price_single=0.0, quantity=1.0,
                  discount_class='', product_class='', unknown='',
                  price_quantity=0.0, discount=0.0, quantity_discount="0,0",
@@ -281,12 +282,17 @@ def backup_bill(bill):
     Parameters:
         bill (Bill): Holds all information for one purchase of various items
     """
-    out_path = CONFIG_DICT["output_csv"]
+    # Create file name
+    out_path = CONFIG_DICT["output"]
+    # Can not have ':' in file name
+    date_time_store = bill.date + 'T' + bill.time.replace(':', '-') + '_' \
+        + bill.store
+    out_path += date_time_store + ".csv"
 
     header_line, lines = format_bill(bill)
 
     # windows-1252 encoding so it's easier for excel
-    with open(out_path, 'a', newline='', encoding="windows-1252") as out_file:
+    with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
         file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(header_line)
@@ -316,11 +322,24 @@ def export_bills():
     field A1. The first row also holds a column description. All stored bills
     are formatted and written into the csv file
     """
-    out_path = CONFIG_DICT["final_csv"]
+
+    # Create file name
+    out_path = CONFIG_DICT["output"]
+    bill_count = len(BILLS)
+    bill_dates = []
     line_count = 0
     for bill in BILLS:
+        # line_count is written into field A1 of the csv so the excel macro
+        # knows the row count
         line_count += len(bill.entries) + 2
+        bill_dates.append(bill.date)
     print("line_count: ", line_count)
+    sorted(bill_dates)
+
+    date_range = bill_dates[0] + "_to_" + bill_dates[-1]
+
+    file_name = str(bill_count) + "bills_" + date_range + ".csv"
+    out_path += file_name
 
     if not line_count:
         print("no bills")

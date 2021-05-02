@@ -9,6 +9,6 @@ if __name__ == '__main__':
     backend.read_stores()
     backend.read_payments()
     backend.read_discount_classes()
-    backend.reset_backup()
+    # backend.reset_backup()
     interface = Application()
     interface.loop()
