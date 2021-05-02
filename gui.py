@@ -740,7 +740,12 @@ class Application:
             if product == '':
                 history = {}
             else:
-                history = backend.TEMPLATES[product].history
+                if product in backend.TEMPLATES:
+                    history = backend.TEMPLATES[product].history
+                else:
+                    # If the product is new and has not been saved as a new
+                    # template
+                    history = {}
 
         entry = backend.Entry(product=product,
                               price_single=price_single,
