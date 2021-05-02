@@ -352,10 +352,12 @@ class Application:
         trace_vars: dict = {}
 
         entries: dict = {}
-        for frame_key, dict_key, _, column, row, width in self._entry_list:
+        for frame_key, dict_key, _, column, row, width, bg, fg in \
+                self._entry_list:
             if frame_key == "frame_main":
                 entry, trace_var_entry = self._create_entry(frame_key, column,
-                                                            row, width, '')
+                                                            row, width, '', bg,
+                                                            fg)
                 entries.update({dict_key: entry})
                 trace_vars.update({dict_key: trace_var_entry})
 
@@ -488,13 +490,12 @@ class Application:
                 labels.update({dict_key: label})
 
         entries = {}
-        for frame_key, dict_key, func_key, column, _, width in self._entry_list:
+        for frame_key, dict_key, func_key, column, _, width, bg, fg in \
+                self._entry_list:
             if frame_key == "frame_fields":
-                entry, trace_var_entry = self._create_entry(frame_key,
-                                                            column,
-                                                            row,
-                                                            width,
-                                                            func_key)
+                entry, trace_var_entry = self._create_entry(frame_key, column,
+                                                            row, width,
+                                                            func_key, bg, fg)
                 entries.update({dict_key: entry})
                 trace_vars.update({dict_key: trace_var_entry})
 
@@ -1238,7 +1239,8 @@ class Application:
         return temp
 
     # TODO: change func_key into method_key everywhere
-    def _create_entry(self, frame_key, column, row: int, width, func_key):
+    def _create_entry(self, frame_key, column, row: int, width, func_key, bg,
+                      fg):
         """
         Create a tkinter Entry object based on the given parameters and return
         the created object
@@ -1255,6 +1257,10 @@ class Application:
             func_key: str
                 Key for the _method_dict_one_param and _method_dict_on_param
                 dictionaries
+            bg: str
+                Background colour
+            fg: str
+                Text colour
 
         Returns:
             temp: tkinter.Label
@@ -1281,7 +1287,8 @@ class Application:
         else:
             trace_var = None
 
-        temp = tk.Entry(frame, textvariable=trace_var, width=width, bg="white")
+        temp = tk.Entry(frame, textvariable=trace_var, width=width, bg=bg,
+                        fg=fg)
         temp.grid(row=row, column=column, sticky=tk.W)
         return temp, trace_var
 
