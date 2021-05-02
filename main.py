@@ -6,6 +6,7 @@ from gui import Application
 if __name__ == '__main__':
     backend.CONFIG_DICT = backend.read_config("config.json")
     backend.read_product_templates()
+    # backend.reformat_product_json()
     backend.read_stores()
     backend.read_payments()
     backend.read_discount_classes()
