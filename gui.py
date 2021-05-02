@@ -689,18 +689,19 @@ class Application:
 
             price_quantity_sum += entry.price_quantity
 
-            # update entry history with this purchase
-            date_time = date + 'T' + time
-            # price_per_unit includes discounts
-            price_per_unit = 0
-            if isinstance(entry.quantity, str) or entry.quantity == 0:
-                # if quantity is '' then it is 1
-                price_per_unit = entry.price_final
-            elif isinstance(entry.quantity, float):
-                price_per_unit = entry.price_final / entry.quantity
-            round(price_per_unit, 2)
-            # TODO: history dict instead of list would be better
-            entry.history.update({date_time: [store, price_per_unit]})
+            if backend.CONFIG_DICT["save_history"]:
+                # update entry history with this purchase
+                date_time = date + 'T' + time
+                # price_per_unit includes discounts
+                price_per_unit = 0
+                if isinstance(entry.quantity, str) or entry.quantity == 0:
+                    # if quantity is '' then it is 1
+                    price_per_unit = entry.price_final
+                elif isinstance(entry.quantity, float):
+                    price_per_unit = entry.price_final / entry.quantity
+                round(price_per_unit, 2)
+                # TODO: history dict instead of list would be better
+                entry.history.update({date_time: [store, price_per_unit]})
 
             backend.TEMPLATES.update({entry.product: entry})
             backend.update_product_templates()

@@ -472,3 +472,10 @@ def read_payments():
         data = json.load(in_file)
         PAYMENTS = data["payments"]
     print("PAYMENTS: ", PAYMENTS)
+
+
+def reformat_product_json():
+    """
+    Reads in data from the product template json, changes the data format and
+    saves it in the product template json
+    """

@@ -16,5 +16,6 @@
     "color_label_bg":           "light grey",
     "tkinter_objects":          "tkinter_objects.json",
     "delimiter":                ";",
-    "year":                     "2021"
+    "year":                     "2021",
+    "save_history":             true
 }
