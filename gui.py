@@ -1139,6 +1139,9 @@ class Application:
         self._root_objects.entries["time"].delete(0, "end")
         self._root_objects.entries["time"].insert(0, time)
 
+        # Check every row if its contents differ from the product json
+        # If there is a difference, change the colour of the save button
+
     def _calculate_price_quantity(self, line):
         """
         Calculates "price_quantity" from the "price_single" and "quantity" of

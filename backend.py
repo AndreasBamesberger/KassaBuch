@@ -446,6 +446,9 @@ def update_product_history(product):
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG_DICT["product_folder"]
 
+    if not os.path.isfile(path + filename):
+        return
+
     with open(path + filename, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
 
