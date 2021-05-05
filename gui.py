@@ -1173,12 +1173,47 @@ class Application:
                                                   "str")
             line_unknown = self._read_entry(line.entries["unknown"], "str")
 
-            eq_p = not (template_price_single == line_price_single)
+            eq_ps = not (template_price_single == line_price_single)
             eq_q = not (template_quantity == line_quantity)
-            eq_c = not(template_product_class == line_product_class)
+            eq_pc = not(template_product_class == line_product_class)
             eq_u = not(template_unknown == line_unknown)
 
-            if eq_p or eq_q or eq_c or eq_u:
+            # Get default background colour from entry list
+            bg_ps = ''
+            bg_q = ''
+            bg_pc = ''
+            bg_u = ''
+            for _, dict_key, _, _, _, _, background, _ in self._entry_list:
+                if dict_key == "price_single":
+                    bg_ps = background
+                elif dict_key == "quantity":
+                    bg_q = background
+                elif dict_key == "product_class":
+                    bg_pc = background
+                elif dict_key == "unknown":
+                    bg_u = background
+
+            if eq_ps:
+                self._change_entry_colour(line.entries["price_single"], "gold")
+            else:
+                self._change_entry_colour(line.entries["price_single"], bg_ps)
+
+            if eq_q:
+                self._change_entry_colour(line.entries["quantity"], "gold")
+            else:
+                self._change_entry_colour(line.entries["quantity"], bg_q)
+
+            if eq_pc:
+                self._change_entry_colour(line.entries["product_class"], "gold")
+            else:
+                self._change_entry_colour(line.entries["product_class"], bg_pc)
+
+            if eq_u:
+                self._change_entry_colour(line.entries["unknown"], "gold")
+            else:
+                self._change_entry_colour(line.entries["unknown"], bg_u)
+
+            if eq_ps or eq_q or eq_pc or eq_u:
                 self._change_button_colour(line.buttons["save_template"],
                                            "gold")
             else:
@@ -1470,6 +1505,10 @@ class Application:
                         fg=fg)
         temp.grid(row=row, column=column, sticky=tk.W)
         return temp, trace_var
+
+    @staticmethod
+    def _change_entry_colour(entry, colour):
+        entry.configure(bg=colour)
 
     def _create_button(self, frame_key, text, column, row: int, font, func_key):
         """
