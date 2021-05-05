@@ -250,7 +250,7 @@ def format_bill(bill):
         # 0 becomes empty string
         for index, item in enumerate(line):
             # Skip formatting on quantity and discount_class
-            if index in [6, 7]:
+            if index in [5, 6]:
                 continue
             # Replace 0 with ''
             if item == 0:
