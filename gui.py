@@ -40,7 +40,8 @@ class Line:
     """
 
     def __init__(self, row: int, labels: dict, entries: dict, buttons: dict,
-                 combo_boxes: dict, check_buttons: dict, trace_vars: dict):
+                 combo_boxes: dict, check_buttons: dict, trace_vars: dict,
+                 values: dict):
         self.row: int = row
         self.labels: dict = labels
         self.entries: dict = entries
@@ -48,6 +49,7 @@ class Line:
         self.combo_boxes: dict = combo_boxes
         self.check_buttons: dict = check_buttons
         self.trace_vars: dict = trace_vars
+        self.values: dict = values
 
     def delete(self):
         """
@@ -73,7 +75,9 @@ class Line:
                       f"\tentries: \n{self.entries}\n"
                       f"\tbuttons: \n{self.buttons}\n"
                       f"\tcombo_boxes: \n{self.combo_boxes}\n"
-                      f"\tcheck_buttons: \n{self.check_buttons}")
+                      f"\tcheck_buttons: \n{self.check_buttons}\n"
+                      f"\ttrace_vars: \n{self.trace_vars}\n"
+                      f"\tvalues: \n{self.values}\n")
         return out_string
 
 
@@ -391,7 +395,7 @@ class Application:
 
         # Create a Line object which stores all created tkinter objects
         self._root_objects = Line(-1, labels, entries, buttons, combo_boxes,
-                                  check_buttons, trace_vars)
+                                  check_buttons, trace_vars, {})
 
     def _setup_canvas_window(self):
         """
@@ -516,7 +520,7 @@ class Application:
             trace_vars.update({dict_key: trace_var_check_button})
 
         line = Line(self._row_count, labels, entries, buttons, combo_boxes,
-                    check_buttons, trace_vars)
+                    check_buttons, trace_vars, {})
         self._line_list.append(line)
 
         self._root.update()
@@ -1084,21 +1088,23 @@ class Application:
         print("Payment methods: ", payment_list)
         self._root_objects.combo_boxes["payment"]["values"] = payment_list
 
-    def _trace_update_entries(self, current_line):
+    def _trace_update_entries(self, curr_line):
         """
         Calls all "calculate" methods for a given Line in the scrollable region.
         Then calculates the sums that are displayed in the main frame and
         changes the format of the time input
 
         Parameters:
-            current_line: Line
+            curr_line: Line
                 Which Line object should be calculated
         """
         print("_trace_update_entries")
 
-        self._calculate_price_quantity(current_line)
-        self._calculate_discount(current_line)
-        self._calculate_price_final(current_line)
+        self._read_line_values(curr_line)
+        self._calculate_price_quantity(curr_line)
+        self._calculate_discount(curr_line)
+        self._calculate_price_final(curr_line)
+        self._compare_line_to_template(curr_line)
         self._calculate_total()
 
         # Add values of "price_quantity", "discount", "quantity_discount" and
@@ -1139,49 +1145,62 @@ class Application:
         self._root_objects.entries["time"].delete(0, "end")
         self._root_objects.entries["time"].insert(0, time)
 
-        # Check every row if its contents differ from the product json
-        # If there is a difference, change the colour of the save button
-
-    def _calculate_price_quantity(self, line):
+    def _compare_line_to_template(self, line):
         """
-        Calculates "price_quantity" from the "price_single" and "quantity" of
-        the given Line in the scrollable region. This value is then displayed
+        Compare fields in line with corresponding values in backend.TEMPLATES.
+        If there is a difference, change the colour of the "save" button
 
         Parameters:
             line: Line
-                Which Line object should be calculated
+                The current Line object holding the values of the current line
         """
-        print("_calculate_price_quantity")
+        print("_compare_line_to_template")
+        line_name = line.entries["name"].get()
+        print("line_name: ", line_name)
+        if line.values == {}:
+            return
+        if line_name in backend.TEMPLATES.keys():
+            template_price_single = backend.TEMPLATES[line_name].price_single
+            template_quantity = backend.TEMPLATES[line_name].quantity
+            if template_quantity == 0:
+                template_quantity = 1
+            template_product_class = backend.TEMPLATES[line_name].product_class
+            template_unknown = backend.TEMPLATES[line_name].unknown
+
+            line_price_single = line.values["price_single"]
+            line_quantity = line.values["quantity"]
+            line_product_class = self._read_entry(line.entries["product_class"],
+                                                  "str")
+            line_unknown = self._read_entry(line.entries["unknown"], "str")
+
+            eq_p = not (template_price_single == line_price_single)
+            eq_q = not (template_quantity == line_quantity)
+            eq_c = not(template_product_class == line_product_class)
+            eq_u = not(template_unknown == line_unknown)
+
+            if eq_p or eq_q or eq_c or eq_u:
+                self._change_button_colour(line.buttons["save_template"],
+                                           "gold")
+            else:
+                self._change_button_colour(line.buttons["save_template"],
+                                           "white")
+
+        else:
+            self._change_button_colour(line.buttons["save_template"], "red")
+
+    def _read_line_values(self, line):
+        """
+        Read price_single, quantity, discount_class, quantity_discount and sale
+        and store them in a dict
+        """
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
 
         if not quantity:
             quantity = 1
 
-        price_quantity = round(price_single * quantity, 2)
-
-        # # German format, decimal sign is comma
-        # price_quantity = str(price_quantity).replace('.', ',')
-
-        line.entries["price_quantity"].delete(0, "end")
-        line.entries["price_quantity"].insert(0, price_quantity)
-
-    def _calculate_discount(self, line):
-        """
-        Calculates "discount" based on "quantity_discount", "sale" and
-        "discount_class" of the given Line in the scrollable region. This value
-        is then displayed
-
-        Parameters:
-            line: Line
-                Which Line object should be calculated
-        """
-        print("_calculate_discount")
-        price_quantity = self._read_entry(line.entries["price_quantity"],
-                                          "float")
-
         discount_class = self._read_entry(line.entries["discount_class"], "str")
-        # discount_class = discount_class.replace(',', '.')
+        discount_class = discount_class.replace(',', '.')
 
         # Search the DISCOUNT_CLASSES dict for an entry matching the user input
         for key, field in backend.DISCOUNT_CLASSES.items():
@@ -1204,11 +1223,90 @@ class Application:
         quantity_discount = self._read_entry(line.entries["quantity_discount"],
                                              "float")
 
+        line.values.update({"price_single": price_single,
+                            "quantity": quantity,
+                            "discount_class": discount_class,
+                            "sale": sale,
+                            "quantity_discount": quantity_discount})
+
+    @staticmethod
+    def _calculate_price_quantity(line):
+        """
+        Calculates "price_quantity" from the "price_single" and "quantity" of
+        the given Line in the scrollable region. This value is then displayed
+
+        Parameters:
+            line: Line
+                Which Line object should be calculated
+        """
+        print("_calculate_price_quantity")
+        # price_single = self._read_entry(line.entries["price_single"], "float")
+        # quantity = self._read_entry(line.entries["quantity"], "float")
+        #
+        # if not quantity:
+        #     quantity = 1
+        #
+        price_single = line.values["price_single"]
+        quantity = line.values["quantity"]
+        price_quantity = round(price_single * quantity, 2)
+        line.values.update({"price_quantity": price_quantity})
+
+        # # German format, decimal sign is comma
+        # price_quantity = str(price_quantity).replace('.', ',')
+
+        line.entries["price_quantity"].delete(0, "end")
+        line.entries["price_quantity"].insert(0, price_quantity)
+
+    def _calculate_discount(self, line):
+        """
+        Calculates "discount" based on "quantity_discount", "sale" and
+        "discount_class" of the given Line in the scrollable region. This value
+        is then displayed
+
+        Parameters:
+            line: Line
+                Which Line object should be calculated
+        """
+        print("_calculate_discount")
+        # price_quantity = self._read_entry(line.entries["price_quantity"],
+        #                                   "float")
+        #
+        # discount_class = self._read_entry(line.entries["discount_class"],
+        # "str")
+        # # discount_class = discount_class.replace(',', '.')
+        #
+        # Search the DISCOUNT_CLASSES dict for an entry matching the user input
+        # for key, field in backend.DISCOUNT_CLASSES.items():
+        #     if discount_class == key:
+        #         discount_class = field["discount"]
+        #         break
+        #
+        # # If no match was found, try to convert the user input to a float.
+        # # If it fails, set it to 0
+        # if not isinstance(discount_class, float):
+        #     try:
+        #         discount_class = float(discount_class)
+        #     except ValueError:
+        #         discount_class = 0.0
+        #
+        # print("discount_class: ", discount_class)
+        #
+        # sale = self._read_entry(line.entries["sale"], "float")
+        #
+        # quantity_discount = self._read_entry(line.entries
+        #                                      ["quantity_discount"], "float")
+
         # For some items, first quantity_discount and sale are subtracted from
         # the price and then the result is multiplied with the discount_class
         # (minus_first = True).
         # For other items, multiplication is the first step
         # (minus_first = False)
+
+        sale = line.values["sale"]
+        quantity_discount = line.values["quantity_discount"]
+        price_quantity = line.values["price_quantity"]
+        discount_class = line.values["discount_class"]
+
         minus_first = self._read_entry(
             line.trace_vars["discount_check_button"], "float")
 
@@ -1222,13 +1320,16 @@ class Application:
         discount *= -1
         discount = round(discount, 2)
 
+        line.values.update({"discount": discount})
+
         # # German format, decimal sign is comma
         # discount = str(discount).replace('.', ',')
 
         line.entries["discount"].delete(0, "end")
         line.entries["discount"].insert(0, discount)
 
-    def _calculate_price_final(self, line):
+    @staticmethod
+    def _calculate_price_final(line):
         """
         Calculates "price_final" based on "price_quantity", "discount",
         "quantity_discount" and "sale" of the given Line in the scrollable
@@ -1240,16 +1341,21 @@ class Application:
         """
         print("_calculate_price_final")
 
-        price_quantity = self._read_entry(line.entries["price_quantity"],
-                                          "float")
-
-        discount = self._read_entry(line.entries["discount"], "float")
-        sale = self._read_entry(line.entries["sale"], "float")
-
-        quantity_discount = self._read_entry(line.entries["quantity_discount"],
-                                             "float")
+        # price_quantity = self._read_entry(line.entries["price_quantity"],
+        #                                   "float")
+        #
+        # discount = self._read_entry(line.entries["discount"], "float")
+        # sale = self._read_entry(line.entries["sale"], "float")
+        #
+        # quantity_discount = self._read_entry(line.entries
+        # ["quantity_discount"], "float")
+        price_quantity = line.values["price_quantity"]
+        discount = line.values["discount"]
+        quantity_discount = line.values["quantity_discount"]
+        sale = line.values["sale"]
         price_final = price_quantity + discount + quantity_discount + sale
         price_final = round(price_final, 2)
+        line.values.update({"price_final": price_final})
 
         # # German format, decimal sign is comma
         # price_final = str(price_final).replace('.', ',')
@@ -1266,7 +1372,14 @@ class Application:
         total = 0.0
         for line in self._line_list:
             # TODO: turn this into 1 line
-            price_final = self._read_entry(line.entries["price_final"], "float")
+            # price_final = self._read_entry(line.entries["price_final"],
+            # "float")
+
+            # If there is a row where calculation has not yet happened
+            try:
+                price_final = line.values["price_final"]
+            except KeyError:
+                return
 
             total += price_final
 
@@ -1396,6 +1509,10 @@ class Application:
                          font=font)
         temp.grid(row=row, column=column, sticky="news")
         return temp
+
+    @staticmethod
+    def _change_button_colour(button, colour):
+        button.config(bg=colour)
 
     def _create_combo_box(self, frame_key, func_key, values, state, column, row,
                           width, sticky):
