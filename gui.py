@@ -580,6 +580,9 @@ class Application:
         # Don't leave the scrollable region empty
         self._button_add_new_row()
 
+        # Set cursor focus to time
+        self._root_objects.entries["time"].focus_set()
+
     def _button_export_bills(self):
         """
         Save the current bill, then write all bills of this session to the
