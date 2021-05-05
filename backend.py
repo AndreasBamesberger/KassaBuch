@@ -311,6 +311,8 @@ def backup_bill(bill):
 
         file_writer.writerow('')
 
+    update_product_keys()
+
 
 # def reset_backup():
 #     """
@@ -428,6 +430,9 @@ def update_product_json(product):
     with open(path + filename, 'w', encoding="utf-16") as out_file:
         json.dump(out_dict, out_file, indent=2)
 
+    # Update PRODUCT_KEYS dict
+    PRODUCT_KEYS.update({name: "product_" + f"{product.identifier:05}"})
+
 
 def update_product_history(product):
     """
@@ -484,6 +489,17 @@ def update_payments():
         json.dump(out_dict, out_file, indent=2)
 
 
+def update_product_keys():
+    """
+    Writes PRODUCT_KEYS dict into json file
+    """
+    key_json = CONFIG_DICT["product_keys_json"]
+    out_dict = OrderedDict(sorted(PRODUCT_KEYS.items()))
+
+    with open(key_json, 'w', encoding="utf-16") as out_file:
+        json.dump(out_dict, out_file, indent=2)
+
+
 # def read_product_templates():
 #     """
 #     Reads the products stored in the json and stores them in the
@@ -534,6 +550,8 @@ def read_products():
                                history=data["history"],
                                identifier=identifier)
                 TEMPLATES.update({data["name"]: temp})
+
+                PRODUCT_KEYS.update({data["name"]: str_id})
     print("TEMPLATES.keys(): ", TEMPLATES.keys())
     print("first TEMPLATES entry: ")
     for x in list(TEMPLATES)[0:1]:
