@@ -880,6 +880,10 @@ class Application:
         self._root_objects.combo_boxes["store"]["values"] = sorted(backend.
                                                                    STORES)
 
+        # Compare current values in line with template to change button colour
+        # back to normal
+        self._compare_line_to_template(curr_line)
+
     def _trace_template(self, row):
         """
         Gets called when the StringVar of a Combobox in the scrollable region
