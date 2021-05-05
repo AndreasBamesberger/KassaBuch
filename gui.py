@@ -182,9 +182,9 @@ class Application:
     _create_output(self):
         Read the user input from the tkinter objects and create a backend.Bill
         object which is then returned
-    _get_entry_from_line(self, line):
+    _get_product_from_line(self, line):
         Read all Entry objects of a given line in the scrollable region and save
-        their information as a backend.Entry object, then return it
+        their information as a backend.Product object, then return it
     _button_save_template(self, row):
         Called when the "save" button in a line is pressed. Take the input of a
         line in the scrollable region, create a new product template, add it to
@@ -515,9 +515,9 @@ class Application:
             check_buttons.update({dict_key: check_button})
             trace_vars.update({dict_key: trace_var_check_button})
 
-        entry = Line(self._row_count, labels, entries, buttons, combo_boxes,
-                     check_buttons, trace_vars)
-        self._line_list.append(entry)
+        line = Line(self._row_count, labels, entries, buttons, combo_boxes,
+                    check_buttons, trace_vars)
+        self._line_list.append(line)
 
         self._root.update()
 
@@ -566,7 +566,7 @@ class Application:
         bill = self._create_output()
 
         # Don't save an empty bill
-        if bill.entries:
+        if bill.products:
             backend.BILLS.append(bill)
             backend.backup_bill(bill)
 
@@ -633,13 +633,17 @@ class Application:
         time: str = self._read_entry(self._root_objects.entries["time"], "str")
         # Time is written with '-' as a separator because it's easier to type in
         # on the numpad
-        hours, minutes = time.split(':')
-        # If user wrote hours or minutes as one digit, add the leading zero
-        if len(hours) == 1:
-            hours = '0' + hours
-        if len(minutes) == 1:
-            minutes = '0' + minutes
-        time = hours + ':' + minutes
+        try:
+            hours, minutes = time.split(':')
+            # If user wrote hours or minutes as one digit, add the leading zero
+            if len(hours) == 1:
+                hours = '0' + hours
+            if len(minutes) == 1:
+                minutes = '0' + minutes
+            time = hours + ':' + minutes
+        except ValueError:
+            # If user did not enter time
+            time = "00:00"
 
         discount_sum = self._read_label(self._root_objects.
                                         labels["discount_sum_var"], "float")
@@ -665,50 +669,62 @@ class Application:
 
         # Get the item data from _line_list
         # TODO: combine this and the next for-loop
-        entry_list = list()
+        product_list = list()
         for line in self._line_list:
-            entry = self._get_entry_from_line(line, False)
+            product = self._get_product_from_line(line, False)
             # Skip empty line
-            if entry.product == '' and entry.price_final == 0:
+            if product.name == '' and product.price_final == 0:
                 continue
 
-            entry_list.append(entry)
+            product_list.append(product)
 
-        for entry in entry_list:
+        for product in product_list:
             # Skip empty line
-            if not entry.product and not entry.quantity and \
-                    not entry.price_final:
+            if not product.name and not product.quantity and \
+                    not product.price_final:
                 continue
             # TODO: don't do this formatting here, do this only in the
             #  backend.format_bill
             # Quantity = 1 should not be shown in final excel file
-            if float(entry.quantity) == 1:
-                entry.quantity = ''
+            if float(product.quantity) == 1:
+                product.quantity = ''
             else:
-                entry.quantity = float(entry.quantity)
+                product.quantity = float(product.quantity)
 
-            price_quantity_sum += entry.price_quantity
+            price_quantity_sum += product.price_quantity
 
             if backend.CONFIG_DICT["save_history"]:
-                # update entry history with this purchase
+                # update product history with this purchase
                 date_time = date + 'T' + time
                 # price_per_unit includes discounts
                 price_per_unit = 0
-                if isinstance(entry.quantity, str) or entry.quantity == 0:
+                if isinstance(product.quantity, str) or product.quantity == 0:
                     # if quantity is '' then it is 1
-                    price_per_unit = entry.price_final
-                elif isinstance(entry.quantity, float):
-                    price_per_unit = entry.price_final / entry.quantity
-                round(price_per_unit, 2)
-                # TODO: history dict instead of list would be better
-                entry.history.update({date_time: [store, price_per_unit]})
+                    price_per_unit = product.price_final
+                elif isinstance(product.quantity, float):
+                    price_per_unit = product.price_final / product.quantity
+                price_per_unit = round(price_per_unit, 2)
+                # product.history.append([date_time, store, price_per_unit])
+                product.history.append({
+                    "date_time": date_time,
+                    "store": store,
+                    "price_single": product.price_single,
+                    "quantity": product.quantity,
+                    "price_quantity": product.price_quantity,
+                    "discount_class": product.discount_class,
+                    "quantity_discount": product.quantity_discount,
+                    "sale": product.sale,
+                    "discount": product.discount,
+                    "price_final": product.price_final,
+                    "price_final_per_unit": price_per_unit
+                })
 
-            backend.TEMPLATES.update({entry.product: entry})
-            backend.update_product_templates()
+            backend.TEMPLATES.update({product.name: product})
+            backend.update_product_history(product)
 
         price_quantity_sum = round(price_quantity_sum, 2)
 
-        bill = backend.Bill(entries=entry_list, date=date, time=time,
+        bill = backend.Bill(products=product_list, date=date, time=time,
                             store=store, payment=payment, total=total,
                             discount_sum=discount_sum,
                             quantity_discount_sum=quantity_discount_sum,
@@ -718,7 +734,7 @@ class Application:
 
         return bill
 
-    def _get_entry_from_line(self, line, new_entry):
+    def _get_product_from_line(self, line, new_product):
         """
         Read all Entry objects of a given line in the scrollable region and save
         their information as a backend.Entry object, then return it
@@ -726,15 +742,17 @@ class Application:
         Parameters:
             line: Line
                 The Line object from which information will be read
+            new_product: bool
+                If true, the product has not yet been saved as a json file
 
         Returns:
-            entry: backend.Entry
+            product: backend.Product
                 Information of all tkinter Entry objects of the given line
 
         """
         # TODO: make a list or something through which we can loop to reduce
         #  repetition
-        product = self._read_entry(line.entries["product"], "str")
+        name = self._read_entry(line.entries["name"], "str")
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
         discount_class = self._read_entry(line.entries["discount_class"], "str")
@@ -748,33 +766,58 @@ class Application:
         sale = self._read_entry(line.entries["sale"], "float")
         price_final = self._read_entry(line.entries["price_final"], "float")
 
+        identifier = -1
+
         # Get history from backend.TEMPLATES
-        if new_entry:
-            history = {}
+        if new_product:
+            history = []
         else:
-            if product == '':
-                history = {}
+            if name == '':
+                history = []
             else:
-                if product in backend.TEMPLATES:
-                    history = backend.TEMPLATES[product].history
+                if name in backend.TEMPLATES:
+                    history = backend.TEMPLATES[name].history
                 else:
                     # If the product is new and has not been saved as a new
                     # template
-                    history = {}
+                    history = []
 
-        entry = backend.Entry(product=product,
-                              price_single=price_single,
-                              quantity=quantity,
-                              discount_class=discount_class,
-                              product_class=product_class,
-                              unknown=unknown,
-                              price_quantity=price_quantity,
-                              discount=discount,
-                              quantity_discount=quantity_discount,
-                              sale=sale,
-                              price_final=price_final,
-                              history=history)
-        return entry
+        # Search backend.TEMPLATES for this product and give it the correct
+        # identifier. If it is a new product, give it an identifier that has not
+        # yet been used
+        new_product = True
+        for key, field in backend.TEMPLATES.items():
+            if name == key:
+                identifier = field.identifier
+                new_product = False
+                break
+        if new_product:
+            # Get all used identifier numbers, sort them, create a new one that
+            # is one higher
+            used_identifiers = [field.identifier
+                                for _, field in backend.TEMPLATES.items()]
+            used_identifiers = sorted(used_identifiers)
+            new_identifier = used_identifiers[-1] + 1
+            # To be safe, check if the new identifier hasn't been used so far
+            for _, field in backend.TEMPLATES.items():
+                if new_identifier == field.identifier:
+                    raise SystemError
+            identifier = new_identifier
+
+        product = backend.Product(name=name,
+                                  price_single=price_single,
+                                  quantity=quantity,
+                                  discount_class=discount_class,
+                                  product_class=product_class,
+                                  unknown=unknown,
+                                  price_quantity=price_quantity,
+                                  discount=discount,
+                                  quantity_discount=quantity_discount,
+                                  sale=sale,
+                                  price_final=price_final,
+                                  history=history,
+                                  identifier=identifier)
+        return product
 
     # TODO: use Line instead of row
     def _button_save_template(self, row):
@@ -800,27 +843,27 @@ class Application:
         if not curr_line:
             raise SystemError
 
-        entry = self._get_entry_from_line(curr_line, True)
-        if entry.product == '':
+        product = self._get_product_from_line(curr_line, True)
+        if product.name == '':
             return
-        if entry.quantity == 0:
-            entry.quantity = 1
+        if product.quantity == 0:
+            product.quantity = 1
 
-        # German format, decimal sign is comma
-        entry.price_single = str(entry.price_single).replace('.', ',')
-        entry.quantity = str(entry.quantity).replace('.', ',')
+        # # German format, decimal sign is comma
+        # product.price_single = str(product.price_single).replace('.', ',')
+        # product.quantity = str(product.quantity).replace('.', ',')
 
-        # If template already exists, delete the old entry
+        # If template already exists, delete the old product
         try:
-            backend.TEMPLATES.pop(entry.product)
+            backend.TEMPLATES.pop(product.name)
         except KeyError:
             pass
 
         # Add new template to dictionary
-        backend.TEMPLATES.update({entry.product: entry})
+        backend.TEMPLATES.update({product.name: product})
 
-        # Update the product json file
-        backend.update_product_templates()
+        # Update the product json file or create a new one
+        backend.update_product_json(product)
 
         # Alphabetically sort the list that is passed to the Combobox
         name_list = sorted([key for key, _ in backend.TEMPLATES.items()])
@@ -873,8 +916,8 @@ class Application:
         if len(temp_dict) == 0:
             template_name = self._read_entry(curr_line.combo_boxes["template"],
                                              "str")
-            curr_line.entries["product"].delete(0, "end")
-            curr_line.entries["product"].insert(0, template_name)
+            curr_line.entries["name"].delete(0, "end")
+            curr_line.entries["name"].insert(0, template_name)
             curr_line.entries["price_single"].delete(0, "end")
             curr_line.entries["sale"].delete(0, "end")
             curr_line.entries["quantity"].delete(0, "end")
@@ -894,8 +937,8 @@ class Application:
                 product = key
                 curr_temp = field
 
-            curr_line.entries["product"].delete(0, "end")
-            curr_line.entries["product"].insert(0, product)
+            curr_line.entries["name"].delete(0, "end")
+            curr_line.entries["name"].insert(0, product)
             curr_line.entries["price_single"].delete(0, "end")
             curr_line.entries["price_single"].insert(0, curr_temp.price_single)
             curr_line.entries["sale"].delete(0, "end")
@@ -930,8 +973,8 @@ class Application:
                     product = key
                     curr_temp = field
 
-                    curr_line.entries["product"].delete(0, "end")
-                    curr_line.entries["product"].insert(0, product)
+                    curr_line.entries["name"].delete(0, "end")
+                    curr_line.entries["name"].insert(0, product)
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["price_single"]. \
                         insert(0, curr_temp.price_single)
@@ -962,7 +1005,7 @@ class Application:
                 # If there are multiple matches and no exact match, treat it
                 # like no match occurred
                 else:
-                    curr_line.entries["product"].delete(0, "end")
+                    curr_line.entries["name"].delete(0, "end")
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["sale"].delete(0, "end")
                     curr_line.entries["quantity"].delete(0, "end")
@@ -1114,8 +1157,8 @@ class Application:
 
         price_quantity = round(price_single * quantity, 2)
 
-        # German format, decimal sign is comma
-        price_quantity = str(price_quantity).replace('.', ',')
+        # # German format, decimal sign is comma
+        # price_quantity = str(price_quantity).replace('.', ',')
 
         line.entries["price_quantity"].delete(0, "end")
         line.entries["price_quantity"].insert(0, price_quantity)
@@ -1135,7 +1178,7 @@ class Application:
                                           "float")
 
         discount_class = self._read_entry(line.entries["discount_class"], "str")
-        discount_class = discount_class.replace(',', '.')
+        # discount_class = discount_class.replace(',', '.')
 
         # Search the DISCOUNT_CLASSES dict for an entry matching the user input
         for key, field in backend.DISCOUNT_CLASSES.items():
@@ -1176,8 +1219,8 @@ class Application:
         discount *= -1
         discount = round(discount, 2)
 
-        # German format, decimal sign is comma
-        discount = str(discount).replace('.', ',')
+        # # German format, decimal sign is comma
+        # discount = str(discount).replace('.', ',')
 
         line.entries["discount"].delete(0, "end")
         line.entries["discount"].insert(0, discount)
@@ -1205,8 +1248,8 @@ class Application:
         price_final = price_quantity + discount + quantity_discount + sale
         price_final = round(price_final, 2)
 
-        # German format, decimal sign is comma
-        price_final = str(price_final).replace('.', ',')
+        # # German format, decimal sign is comma
+        # price_final = str(price_final).replace('.', ',')
 
         line.entries["price_final"].delete(0, "end")
         line.entries["price_final"].insert(0, price_final)
@@ -1567,5 +1610,6 @@ class Application:
         """
         in_float = round(in_float, 2)
         in_float = f'{in_float:.2f}'
-        out_str = str(in_float).replace('.', ',')
+        # out_str = str(in_float).replace('.', ',')
+        out_str = str(in_float)
         return out_str

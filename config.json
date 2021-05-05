@@ -1,5 +1,7 @@
 {
     "output":                   "..\\KassaBuch_data\\",
+    "product_folder":           "..\\KassaBuch_data\\products\\",
+    "product_keys_json":        "..\\KassaBuch_data\\product_keys.json",
     "product_templates_json":   "..\\KassaBuch_data\\product_templates.json",
     "stores_json":              "..\\KassaBuch_data\\stores.json",
     "payments_json":            "..\\KassaBuch_data\\payments.json",
