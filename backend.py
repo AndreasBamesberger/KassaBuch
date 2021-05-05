@@ -460,16 +460,16 @@ def update_stores():
     Overwrites the json holding the stores with an updated version
     """
     stores_json = CONFIG_DICT["stores_json"]
+    out_dict = {}
+    # for key, field in STORES.items():
+    #     temp = {"default_payment": field}
+    #     out_dict.update({key: temp})
+
+    # Sort the dictionary by store name
+    # TODO: use keys() instead of items()? or just out_dict?
+    out_dict = OrderedDict(sorted(STORES.items()))
+
     with open(stores_json, 'w', encoding="utf-16") as out_file:
-        out_dict = {}
-        for store in sorted(STORES):
-            temp = {"default_payment": ""}
-            out_dict.update({store: temp})
-
-        # Sort the dictionary by store name
-        # TODO: use keys() instead of items()? or just out_dict?
-        out_dict = OrderedDict(sorted(out_dict.items()))
-
         json.dump(out_dict, out_file, indent=2)
 
 
@@ -478,9 +478,9 @@ def update_payments():
     Overwrites the json holding the payment methods with an updated version
     """
     payments_json = CONFIG_DICT["payments_json"]
+    out_list = sorted(PAYMENTS)
+    out_dict = {"payments": out_list}
     with open(payments_json, 'w', encoding="utf-16") as out_file:
-        out_list = sorted(PAYMENTS)
-        out_dict = {"payments": out_list}
         json.dump(out_dict, out_file, indent=2)
 
 
