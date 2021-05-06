@@ -85,7 +85,7 @@ for bill in backend.BILLS:
                                 "price_single": product.price_single,
                                 "quantity": product.quantity,
                                 "price_quantity": product.price_quantity,
-                                "discount_class": product.discount,
+                                "discount_class": product.discount_class,
                                 "quantity_discount": product.quantity_discount,
                                 "sale": product.sale,
                                 "discount": product.discount,
