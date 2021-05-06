@@ -715,6 +715,7 @@ class Application:
                 product.history.append({
                     "date_time": date_time,
                     "store": store,
+                    "payment": payment,
                     "price_single": product.price_single,
                     "quantity": product.quantity,
                     "price_quantity": product.price_quantity,

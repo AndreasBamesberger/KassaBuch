@@ -414,9 +414,21 @@ def update_product_json(product):
     default_quantity = product.quantity
     product_class = product.product_class
     unknown = product.unknown
-    history = product.history
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG_DICT["product_folder"]
+
+    with open(path + filename, 'r', encoding="utf-16") as in_file:
+        data = json.load(in_file)
+
+    history = []
+    for item in data["history"]:
+        if item not in history:
+            history.append(item)
+    # history = data["history"]
+    for item in product.history:
+        if item not in history:
+            history.append(item)
+    # history.append(product.history)
 
     print("saving ", name, " as ", filename)
 
@@ -452,12 +464,22 @@ def update_product_history(product):
     with open(path + filename, 'r', encoding="utf-16") as in_file:
         data = json.load(in_file)
 
+    history = []
+    for item in data["history"]:
+        if item not in history:
+            history.append(item)
+    # history = data["history"]
+    for item in product.history:
+        if item not in history:
+            history.append(item)
+    # history.append(product.history)
+
     out_dict = {"name": data["name"],
                 "default_price_per_unit": data["default_price_per_unit"],
                 "default_quantity": data["default_quantity"],
                 "product_class": data["product_class"],
                 "unknown": data["unknown"],
-                "history": product.history}
+                "history": history}
 
     with open(path + filename, 'w', encoding="utf-16") as out_file:
         json.dump(out_dict, out_file, indent=2)
