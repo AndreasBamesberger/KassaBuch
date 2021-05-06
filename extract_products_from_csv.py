@@ -168,11 +168,11 @@ for bill in backend.BILLS:
                 else:
                     field.history.append(product.history)
 
-print("Semmel history: ", backend.TEMPLATES["Semmel"].history)
-# Go through all Bill objects and create product json
+# print("Semmel history: ", backend.TEMPLATES["Semmel"].history)
+# # Go through all Bill objects and create product json
+# # for key, field in backend.TEMPLATES.items():
+# #     backend.update_product_json(field)
 # for key, field in backend.TEMPLATES.items():
 #     backend.update_product_json(field)
-for key, field in backend.TEMPLATES.items():
-    backend.update_product_json(field)
 
 backend.update_product_keys()
