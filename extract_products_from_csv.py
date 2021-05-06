@@ -153,6 +153,10 @@ backend.read_products()
 print("TEMPLATES: ", backend.TEMPLATES)
 # Then add history to these entries by iterating through the Bill objects
 
+# Empty the initial history entry to avoid duplicates
+for key, field in backend.TEMPLATES.items():
+    field.history = []
+
 # Add product histories to templates
 for bill in backend.BILLS:
     for product in bill.products:
