@@ -417,18 +417,24 @@ def update_product_json(product):
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG_DICT["product_folder"]
 
-    with open(path + filename, 'r', encoding="utf-16") as in_file:
-        data = json.load(in_file)
+    if os.path.isfile(path + filename):
+        with open(path + filename, 'r', encoding="utf-16") as in_file:
+            data = json.load(in_file)
 
-    history = []
-    for item in data["history"]:
-        if item not in history:
-            history.append(item)
-    # history = data["history"]
-    for item in product.history:
-        if item not in history:
-            history.append(item)
-    # history.append(product.history)
+        history = []
+        for item in data["history"]:
+            if item not in history:
+                history.append(item)
+        # history = data["history"]
+        for item in product.history:
+            if item not in history:
+                history.append(item)
+        # history.append(product.history)
+    else:
+        history = []
+        for item in product.history:
+            if item not in history:
+                history.append(item)
 
     print("saving ", name, " as ", filename)
 

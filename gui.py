@@ -3,6 +3,8 @@ Classes to create and run the GUI
 """
 import sys  # For exit()
 import tkinter as tk
+import os  # To check if product json files exist
+import json
 from tkinter import ttk  # For style and Combobox
 
 import backend
@@ -886,7 +888,7 @@ class Application:
 
         # Compare current values in line with template to change button colour
         # back to normal
-        self._compare_line_to_template(curr_line)
+        self._compare_line_to_file(curr_line)
 
     def _trace_template(self, row):
         """
@@ -1112,7 +1114,7 @@ class Application:
         self._calculate_price_quantity(curr_line)
         self._calculate_discount(curr_line)
         self._calculate_price_final(curr_line)
-        self._compare_line_to_template(curr_line)
+        self._compare_line_to_file(curr_line)
         self._calculate_total()
 
         # Add values of "price_quantity", "discount", "quantity_discount" and
@@ -1153,9 +1155,9 @@ class Application:
         self._root_objects.entries["time"].delete(0, "end")
         self._root_objects.entries["time"].insert(0, time)
 
-    def _compare_line_to_template(self, line):
+    def _compare_line_to_file(self, line):
         """
-        Compare fields in line with corresponding values in backend.TEMPLATES.
+        Compare fields in line with corresponding values in product json.
         If there is a difference, change the colour of the "save" button
 
         Parameters:
@@ -1163,17 +1165,29 @@ class Application:
                 The current Line object holding the values of the current line
         """
         print("_compare_line_to_template")
+        # Get product identifier
         line_name = line.entries["name"].get()
+        if not line_name:
+            return
+        if line_name not in backend.PRODUCT_KEYS:
+            self._change_button_colour(line.buttons["save_template"], "red")
+            return
+
+        identifier = backend.PRODUCT_KEYS[line_name]
         print("line_name: ", line_name)
+        filename = identifier + ".json"
+        path = backend.CONFIG_DICT["product_folder"]
         if line.values == {}:
             return
-        if line_name in backend.TEMPLATES.keys():
-            template_price_single = backend.TEMPLATES[line_name].price_single
-            template_quantity = backend.TEMPLATES[line_name].quantity
+        if os.path.isfile(path + filename):
+            with open(path + filename, 'r', encoding="utf-16") as in_file:
+                data = json.load(in_file)
+            template_price_single = data["default_price_per_unit"]
+            template_quantity = data["default_quantity"]
             if template_quantity == 0:
                 template_quantity = 1
-            template_product_class = backend.TEMPLATES[line_name].product_class
-            template_unknown = backend.TEMPLATES[line_name].unknown
+            template_product_class = data["product_class"]
+            template_unknown = data["unknown"]
 
             line_price_single = line.values["price_single"]
             line_quantity = line.values["quantity"]
