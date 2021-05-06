@@ -82,6 +82,7 @@ for bill in backend.BILLS:
         pfpu = round(product.price_final / product.quantity, 2)
         product.history.append({"date_time": date_time,
                                 "store": bill.store,
+                                "payment": bill.payment,
                                 "price_single": product.price_single,
                                 "quantity": product.quantity,
                                 "price_quantity": product.price_quantity,
