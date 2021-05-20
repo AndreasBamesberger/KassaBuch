@@ -23,7 +23,7 @@ backend.CONFIG_DICT = backend.read_config("config.json")
 encoding = backend.CONFIG_DICT["encoding"]
 
 csv_content = []
-in_csv = backend.CONFIG_DICT["output"] + "KassenBon 2020.csv"
+in_csv = backend.CONFIG_DICT["output"] + "KassenBon 2021 03 (ohne m).csv"
 with open(in_csv, 'r', newline='', encoding=encoding) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';', quotechar='|')
     bill_headers = []
@@ -58,7 +58,13 @@ for index, row in enumerate(csv_content):
         product = backend.Product()
         product.name = row[3]
         product.price_single = str2float(row[4])
-        product.quantity = str2float(row[5], 1)
+
+        quantity = str2float(row[5], 1)
+        if quantity == 0:
+            product.quantity = 1
+        else:
+            product.quantity = quantity
+
         product.discount_class = row[6]
         product.product_class = row[7]
         product.unknown = row[8]
