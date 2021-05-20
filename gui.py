@@ -595,22 +595,22 @@ class Application:
         backend.export_bills()
         sys.exit()
 
-    def _button_type(self):
-        """
-        Saves the current bill. Then, uses the keyboard module to take control
-        of the keyboard and directly types the bills into a specified program.
-        Afterwards, the screen is reset to accept another bill
-        """
-        print("_button_type")
-        self._button_save()
-
-        # keyboard.write_to_program()
-
-        self._clear_screen()
-        self._reset()
-
-        # Don't leave the scrollable region empty
-        self._button_add_new_row()
+    # def _button_type(self):
+    #     """
+    #     Saves the current bill. Then, uses the keyboard module to take control
+    #     of the keyboard and directly types the bills into a specified program.
+    #     Afterwards, the screen is reset to accept another bill
+    #     """
+    #     print("_button_type")
+    #     self._button_save()
+    #
+    #     # keyboard.write_to_program()
+    #
+    #     self._clear_screen()
+    #     self._reset()
+    #
+    #     # Don't leave the scrollable region empty
+    #     self._button_add_new_row()
 
     def _create_output(self):
         """
