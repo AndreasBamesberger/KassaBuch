@@ -666,7 +666,12 @@ class Application:
 
         # Date user input is dd-mm
         # Transform it into yyyy-mm-dd
-        day, month = date.split('-')
+        try:
+            day, month = date.split('-')
+        except ValueError:
+            day = "00"
+            month = "00"
+
 
         # If user wrote day or month as one digit, add the leading zero
         if len(day) == 1:
@@ -1189,10 +1194,11 @@ class Application:
         print("line_name: ", line_name)
         filename = identifier + ".json"
         path = backend.CONFIG_DICT["product_folder"]
+        encoding = backend.CONFIG_DICT["encoding"]
         if line.values == {}:
             return
         if os.path.isfile(path + filename):
-            with open(path + filename, 'r', encoding="utf-16") as in_file:
+            with open(path + filename, 'r', encoding=encoding) as in_file:
                 data = json.load(in_file)
             template_price_single = data["default_price_per_unit"]
             template_quantity = data["default_quantity"]

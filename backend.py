@@ -303,6 +303,7 @@ def backup_bill(bill):
     """
     # Create file name
     out_path = CONFIG_DICT["output"]
+    encoding = CONFIG_DICT["encoding"]
     # Can not have ':' in file name
     date_time_store = bill.date + 'T' + bill.time.replace(':', '-') + '_' \
         + bill.store
@@ -311,7 +312,7 @@ def backup_bill(bill):
     header_line, lines = format_bill(bill)
 
     # windows-1252 encoding so it's easier for excel
-    with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
+    with open(out_path, 'w', newline='', encoding=encoding) as out_file:
         file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(header_line)
@@ -346,6 +347,7 @@ def export_bills():
 
     # Create file name
     out_path = CONFIG_DICT["output"]
+    encoding = CONFIG_DICT["encoding"]
     bill_count = len(BILLS)
     bill_dates = []
     line_count = 0
@@ -370,7 +372,7 @@ def export_bills():
                   "Preis", "Menge", "RK", "WK", "", "Preis", "Rabatt",
                   "Mengenrab", "Aktion", "Preis"]
 
-    with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
+    with open(out_path, 'w', newline='', encoding=encoding) as out_file:
         file_writer = csv.writer(out_file, delimiter=CONFIG_DICT["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(first_line)
@@ -427,9 +429,10 @@ def update_product_json(product):
     notes = product.notes
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG_DICT["product_folder"]
+    encoding = CONFIG_DICT["encoding"]
 
     if os.path.isfile(path + filename):
-        with open(path + filename, 'r', encoding="utf-16") as in_file:
+        with open(path + filename, 'r', encoding=encoding) as in_file:
             data = json.load(in_file)
 
         history = []
@@ -458,7 +461,7 @@ def update_product_json(product):
                 "notes": notes,
                 "history": history}
 
-    with open(path + filename, 'w', encoding="utf-16") as out_file:
+    with open(path + filename, 'w', encoding=encoding) as out_file:
         json.dump(out_dict, out_file, indent=2)
 
     # Update PRODUCT_KEYS dict
@@ -476,11 +479,12 @@ def update_product_history(product):
     """
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG_DICT["product_folder"]
+    encoding = CONFIG_DICT["encoding"]
 
     if not os.path.isfile(path + filename):
         return
 
-    with open(path + filename, 'r', encoding="utf-16") as in_file:
+    with open(path + filename, 'r', encoding=encoding) as in_file:
         data = json.load(in_file)
 
     history = []
@@ -502,7 +506,7 @@ def update_product_history(product):
                 "notes": data["notes"],
                 "history": history}
 
-    with open(path + filename, 'w', encoding="utf-16") as out_file:
+    with open(path + filename, 'w', encoding=encoding) as out_file:
         json.dump(out_dict, out_file, indent=2)
 
 
@@ -511,6 +515,7 @@ def update_stores():
     Overwrites the json holding the stores with an updated version
     """
     stores_json = CONFIG_DICT["stores_json"]
+    encoding = CONFIG_DICT["encoding"]
     # out_dict = {}
     # for key, field in STORES.items():
     #     temp = {"default_payment": field}
@@ -520,7 +525,7 @@ def update_stores():
     # TODO: use keys() instead of items()? or just out_dict?
     out_dict = OrderedDict(sorted(STORES.items()))
 
-    with open(stores_json, 'w', encoding="utf-16") as out_file:
+    with open(stores_json, 'w', encoding=encoding) as out_file:
         json.dump(out_dict, out_file, indent=2)
 
 
@@ -529,9 +534,10 @@ def update_payments():
     Overwrites the json holding the payment methods with an updated version
     """
     payments_json = CONFIG_DICT["payments_json"]
+    encoding = CONFIG_DICT["encoding"]
     out_list = sorted(PAYMENTS)
     out_dict = {"payments": out_list}
-    with open(payments_json, 'w', encoding="utf-16") as out_file:
+    with open(payments_json, 'w', encoding=encoding) as out_file:
         json.dump(out_dict, out_file, indent=2)
 
 
@@ -540,9 +546,10 @@ def update_product_keys():
     Writes PRODUCT_KEYS dict into json file
     """
     key_json = CONFIG_DICT["product_keys_json"]
+    encoding = CONFIG_DICT["encoding"]
     out_dict = OrderedDict(sorted(PRODUCT_KEYS.items()))
 
-    with open(key_json, 'w', encoding="utf-16") as out_file:
+    with open(key_json, 'w', encoding=encoding) as out_file:
         json.dump(out_dict, out_file, indent=2)
 
 
@@ -578,10 +585,11 @@ def update_product_keys():
 
 def read_products():
     product_folder = CONFIG_DICT["product_folder"]
+    encoding = CONFIG_DICT["encoding"]
     for root, _, files in os.walk(product_folder):
         for file in files:
             input_json = os.path.join(root, file)
-            with open(input_json, 'r', encoding="utf-16") as in_file:
+            with open(input_json, 'r', encoding=encoding) as in_file:
                 data = json.load(in_file)
                 identifier = file.replace("product_", '')
                 identifier = identifier.replace(".json", '')
@@ -612,7 +620,8 @@ def read_stores():
     dict.
     """
     input_json = CONFIG_DICT["stores_json"]
-    with open(input_json, 'r', encoding="utf-16") as in_file:
+    encoding = CONFIG_DICT["encoding"]
+    with open(input_json, 'r', encoding=encoding) as in_file:
         data = json.load(in_file)
         for key, field in data.items():
             STORES.update({key: field})
@@ -625,7 +634,8 @@ def read_discount_classes():
     in the DISCOUNT_CLASSES dict.
     """
     input_json = CONFIG_DICT["discount_classes_json"]
-    with open(input_json, 'r', encoding="utf-16") as in_file:
+    encoding = CONFIG_DICT["encoding"]
+    with open(input_json, 'r', encoding=encoding) as in_file:
         data = json.load(in_file)
         for key, field in data.items():
             DISCOUNT_CLASSES.update({key: field})
@@ -639,7 +649,8 @@ def read_payments():
     """
     global PAYMENTS
     input_json = CONFIG_DICT["payments_json"]
-    with open(input_json, 'r', encoding="utf-16") as in_file:
+    encoding = CONFIG_DICT["encoding"]
+    with open(input_json, 'r', encoding=encoding) as in_file:
         data = json.load(in_file)
         PAYMENTS = data["payments"]
     print("PAYMENTS: ", PAYMENTS)

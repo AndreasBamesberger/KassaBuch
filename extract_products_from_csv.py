@@ -20,9 +20,11 @@ def str2float(in_str, default_empty=0):
 
 backend.CONFIG_DICT = backend.read_config("config.json")
 
+encoding = backend.CONFIG_DICT["encoding"]
+
 csv_content = []
 in_csv = backend.CONFIG_DICT["output"] + "KassenBon 2020.csv"
-with open(in_csv, 'r', newline='') as csv_file:
+with open(in_csv, 'r', newline='', encoding=encoding) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';', quotechar='|')
     bill_headers = []
     for index, row in enumerate(csv_reader):
@@ -144,7 +146,7 @@ print("TEMPLATES: ", backend.TEMPLATES)
 #             if product.identifier == field.identifier:
 #                 field.history.append(product.history)
 
-for item in backend.TEMPLATES["Karree Speck"].history:
+for item in backend.TEMPLATES["Geleefrüchte 250g"].history:
     print(item)
 
 # Go through all Bill objects and create product json
@@ -184,3 +186,17 @@ for bill in backend.BILLS:
 #     backend.update_product_json(field)
 
 backend.update_product_keys()
+
+# Update stores
+backend.STORES = {}
+for bill in backend.BILLS:
+    temp_dict = {"default_payment": ''}
+    backend.STORES.update({bill.store: temp_dict})
+backend.update_stores()
+
+# Update payments
+backend.PAYMENTS = []
+for bill in backend.BILLS:
+    if bill.payment not in backend.PAYMENTS:
+        backend.PAYMENTS.append(bill.payment)
+backend.update_payments()
