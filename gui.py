@@ -261,7 +261,7 @@ class Application:
         self._method_dict_no_param: dict = \
             {"save_bill": self._button_save,
              "export_bills": self._button_export_bills,
-             "write_bills": self._button_type,
+             # "write_bills": self._button_type,
              "trace_store": self._trace_store,
              "trace_payment": self._trace_payment,
              "add_new_row": self._button_add_new_row}
@@ -781,16 +781,24 @@ class Application:
         # Get history from backend.TEMPLATES
         if new_product:
             history = []
+            display = True
+            notes = ''
         else:
             if name == '':
                 history = []
+                display = True
+                notes = ''
             else:
                 if name in backend.TEMPLATES:
                     history = backend.TEMPLATES[name].history
+                    display = backend.TEMPLATES[name].display
+                    notes = backend.TEMPLATES[name].notes
                 else:
                     # If the product is new and has not been saved as a new
                     # template
                     history = []
+                    display = True
+                    notes = ''
 
         # Search backend.TEMPLATES for this product and give it the correct
         # identifier. If it is a new product, give it an identifier that has not
@@ -826,7 +834,9 @@ class Application:
                                   sale=sale,
                                   price_final=price_final,
                                   history=history,
-                                  identifier=identifier)
+                                  identifier=identifier,
+                                  display=display,
+                                  notes=notes)
         return product
 
     # TODO: use Line instead of row
@@ -921,9 +931,11 @@ class Application:
             if template_input in key.lower():
                 temp_dict.update({key: field})
 
+        print("len(temp_dict): ", len(temp_dict))
+
         # Show the matching entries in the dropdown of the current Combobox
-        name_list = [key for key, _ in temp_dict.items()]
-        name_list.sort()
+        name_list = sorted([key for key, field in temp_dict.items()
+                            if field.display])
         curr_line.combo_boxes["template"]["values"] = name_list
 
         # If no matches, clear all values in this row
@@ -1631,7 +1643,9 @@ class Application:
 
         # Connect the values of the Combobox to a list of values
         if values == "templates":
-            box_list = sorted([key for key, _ in backend.TEMPLATES.items()])
+            # Only show products that user wants displayed
+            box_list = sorted([key for key, field in backend.TEMPLATES.items()
+                               if field.display])
         if values == "stores":
             box_list = sorted(backend.STORES)
         if values == "payments":

@@ -136,12 +136,17 @@ class Product:
         Number to subtract from price_quantity
     unknown:str
         Similar to product_class, e.g. 'l' for food ('Lebensmittel')
+    display:bool
+        Whether or not to list this product in the template selection
+    notes:str
+        Extra field for user notes
     """
 
     def __init__(self, name='', price_single=0.0, quantity=1.0,
                  discount_class='', product_class='', unknown='',
                  price_quantity=0.0, discount=0.0, quantity_discount="0,0",
-                 sale="0,0", price_final=0.0, history=None, identifier=-1):
+                 sale="0,0", price_final=0.0, history=None, identifier=-1,
+                 display=True, notes=''):
         if history is None:
             history = []
         self.name = name
@@ -157,6 +162,8 @@ class Product:
         self.price_final = price_final
         self.history = history
         self.identifier = identifier
+        self.display = display
+        self.notes = notes
 
     def __repr__(self):
         out_string = (f"\n---\nProduct\n"
@@ -172,6 +179,8 @@ class Product:
                       f"\tquantity_discount: {self.quantity_discount}\n"
                       f"\tsale: {self.sale}\n"
                       f"\tprice_final: {self.price_final}\n"
+                      f"\tdisplay: {self.display}\n"
+                      f"\tnotes: {self.notes}\n"
                       f"\thistory: {self.history}\n"
                       f"---\n"
                       )
@@ -414,6 +423,8 @@ def update_product_json(product):
     default_quantity = product.quantity
     product_class = product.product_class
     unknown = product.unknown
+    display = product.display
+    notes = product.notes
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG_DICT["product_folder"]
 
@@ -443,6 +454,8 @@ def update_product_json(product):
                 "default_quantity": default_quantity,
                 "product_class": product_class,
                 "unknown": unknown,
+                "display": display,
+                "notes": notes,
                 "history": history}
 
     with open(path + filename, 'w', encoding="utf-16") as out_file:
@@ -485,6 +498,8 @@ def update_product_history(product):
                 "default_quantity": data["default_quantity"],
                 "product_class": data["product_class"],
                 "unknown": data["unknown"],
+                "display": data["display"],
+                "notes": data["notes"],
                 "history": history}
 
     with open(path + filename, 'w', encoding="utf-16") as out_file:
@@ -496,7 +511,7 @@ def update_stores():
     Overwrites the json holding the stores with an updated version
     """
     stores_json = CONFIG_DICT["stores_json"]
-    out_dict = {}
+    # out_dict = {}
     # for key, field in STORES.items():
     #     temp = {"default_payment": field}
     #     out_dict.update({key: temp})
@@ -579,6 +594,8 @@ def read_products():
                                product_class=data["product_class"],
                                unknown=data["unknown"],
                                history=data["history"],
+                               display=data["display"],
+                               notes=data["notes"],
                                identifier=identifier)
                 TEMPLATES.update({data["name"]: temp})
 

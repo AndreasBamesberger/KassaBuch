@@ -66,6 +66,14 @@ for index, row in enumerate(csv_content):
         product.sale = str2float(row[12])
         product.price_final = str2float(row[13])
 
+        display = str2float(row[15])
+        if display == 0:
+            product.display = False
+        elif display == 1:
+            product.display = True
+
+        product.notes = ''
+
         product.history = []
 
         bill.products.append(product)
