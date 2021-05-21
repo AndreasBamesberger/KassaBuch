@@ -672,7 +672,6 @@ class Application:
             day = "00"
             month = "00"
 
-
         # If user wrote day or month as one digit, add the leading zero
         if len(day) == 1:
             day = '0' + day

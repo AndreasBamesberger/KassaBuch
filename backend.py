@@ -302,7 +302,7 @@ def backup_bill(bill):
         bill (Bill): Holds all information for one purchase of various items
     """
     # Create file name
-    out_path = CONFIG_DICT["output"]
+    out_path = CONFIG_DICT["output"] + "bill_backups\\"
     encoding = CONFIG_DICT["encoding"]
     # Can not have ':' in file name
     date_time_store = bill.date + 'T' + bill.time.replace(':', '-') + '_' \
@@ -346,7 +346,7 @@ def export_bills():
     """
 
     # Create file name
-    out_path = CONFIG_DICT["output"]
+    out_path = CONFIG_DICT["output"] + "export\\"
     encoding = CONFIG_DICT["encoding"]
     bill_count = len(BILLS)
     bill_dates = []
