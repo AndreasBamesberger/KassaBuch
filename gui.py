@@ -1029,7 +1029,8 @@ class Application:
                     # curr_line.entries["price_quantity"]. \
                     #     insert(0, curr_temp.price_quantity)
                     # curr_line.entries["discount"].delete(0, "end")
-                    # curr_line.entries["discount"].insert(0, curr_temp.discount)
+                    # curr_line.entries["discount"].insert(0,
+                    #                                      curr_temp.discount)
                     # curr_line.entries["quantity_discount"].delete(0, "end")
                     # curr_line.entries["quantity_discount"]. \
                     #     insert(0, curr_temp.quantity_discount)
