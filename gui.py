@@ -672,7 +672,6 @@ class Application:
             day = "00"
             month = "00"
 
-
         # If user wrote day or month as one digit, add the leading zero
         if len(day) == 1:
             day = '0' + day
@@ -735,6 +734,7 @@ class Application:
                 })
 
             backend.TEMPLATES.update({product.name: product})
+
             backend.update_product_history(product)
 
         price_quantity_sum = round(price_quantity_sum, 2)
@@ -767,7 +767,7 @@ class Application:
         """
         # TODO: make a list or something through which we can loop to reduce
         #  repetition
-        name = self._read_entry(line.entries["name"], "str")
+        name = self._read_entry(line.entries["name"], "str").rstrip()
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
         discount_class = self._read_entry(line.entries["discount_class"], "str")
@@ -869,6 +869,10 @@ class Application:
             raise SystemError
 
         product = self._get_product_from_line(curr_line, True)
+
+        # Delete trailing whitespaces from product name
+        product.name = product.name.rstrip()
+
         if product.name == '':
             return
         if product.quantity == 0:
@@ -972,28 +976,28 @@ class Application:
             curr_line.entries["name"].insert(0, product)
             curr_line.entries["price_single"].delete(0, "end")
             curr_line.entries["price_single"].insert(0, curr_temp.price_single)
-            curr_line.entries["sale"].delete(0, "end")
-            curr_line.entries["sale"].insert(0, curr_temp.sale)
+            # curr_line.entries["sale"].delete(0, "end")
+            # curr_line.entries["sale"].insert(0, curr_temp.sale)
             curr_line.entries["quantity"].delete(0, "end")
             curr_line.entries["quantity"].insert(0, curr_temp.quantity)
-            curr_line.entries["discount_class"].delete(0, "end")
-            curr_line.entries["discount_class"].insert(0,
-                                                       curr_temp.discount_class)
+            # curr_line.entries["discount_class"].delete(0, "end")
+            # curr_line.entries["discount_class"].insert(0,
+            #                                            curr_temp.discount_class)
             curr_line.entries["product_class"].delete(0, "end")
             curr_line.entries["product_class"].insert(0,
                                                       curr_temp.product_class)
             curr_line.entries["unknown"].delete(0, "end")
             curr_line.entries["unknown"].insert(0, curr_temp.unknown)
-            curr_line.entries["price_quantity"].delete(0, "end")
-            curr_line.entries["price_quantity"].insert(0,
-                                                       curr_temp.price_quantity)
-            curr_line.entries["discount"].delete(0, "end")
-            curr_line.entries["discount"].insert(0, curr_temp.discount)
-            curr_line.entries["quantity_discount"].delete(0, "end")
-            curr_line.entries["quantity_discount"]. \
-                insert(0, curr_temp.quantity_discount)
-            curr_line.entries["price_final"].delete(0, "end")
-            curr_line.entries["price_final"].insert(0, curr_temp.price_final)
+            # curr_line.entries["price_quantity"].delete(0, "end")
+            # curr_line.entries["price_quantity"].insert(0,
+            #                                            curr_temp.price_quantity)
+            # curr_line.entries["discount"].delete(0, "end")
+            # curr_line.entries["discount"].insert(0, curr_temp.discount)
+            # curr_line.entries["quantity_discount"].delete(0, "end")
+            # curr_line.entries["quantity_discount"]. \
+            #     insert(0, curr_temp.quantity_discount)
+            # curr_line.entries["price_final"].delete(0, "end")
+            # curr_line.entries["price_final"].insert(0, curr_temp.price_final)
 
         # If there are multiple matches, there are 2 options
         else:
@@ -1009,29 +1013,30 @@ class Application:
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["price_single"]. \
                         insert(0, curr_temp.price_single)
-                    curr_line.entries["sale"].delete(0, "end")
-                    curr_line.entries["sale"].insert(0, curr_temp.sale)
+                    # curr_line.entries["sale"].delete(0, "end")
+                    # curr_line.entries["sale"].insert(0, curr_temp.sale)
                     curr_line.entries["quantity"].delete(0, "end")
                     curr_line.entries["quantity"].insert(0, curr_temp.quantity)
-                    curr_line.entries["discount_class"].delete(0, "end")
-                    curr_line.entries["discount_class"]. \
-                        insert(0, curr_temp.discount_class)
+                    # curr_line.entries["discount_class"].delete(0, "end")
+                    # curr_line.entries["discount_class"]. \
+                    #     insert(0, curr_temp.discount_class)
                     curr_line.entries["product_class"].delete(0, "end")
                     curr_line.entries["product_class"]. \
                         insert(0, curr_temp.product_class)
                     curr_line.entries["unknown"].delete(0, "end")
                     curr_line.entries["unknown"].insert(0, curr_temp.unknown)
-                    curr_line.entries["price_quantity"].delete(0, "end")
-                    curr_line.entries["price_quantity"]. \
-                        insert(0, curr_temp.price_quantity)
-                    curr_line.entries["discount"].delete(0, "end")
-                    curr_line.entries["discount"].insert(0, curr_temp.discount)
-                    curr_line.entries["quantity_discount"].delete(0, "end")
-                    curr_line.entries["quantity_discount"]. \
-                        insert(0, curr_temp.quantity_discount)
-                    curr_line.entries["price_final"].delete(0, "end")
-                    curr_line.entries["price_final"]. \
-                        insert(0, curr_temp.price_final)
+                    # curr_line.entries["price_quantity"].delete(0, "end")
+                    # curr_line.entries["price_quantity"]. \
+                    #     insert(0, curr_temp.price_quantity)
+                    # curr_line.entries["discount"].delete(0, "end")
+                    # curr_line.entries["discount"].insert(0,
+                    #                                      curr_temp.discount)
+                    # curr_line.entries["quantity_discount"].delete(0, "end")
+                    # curr_line.entries["quantity_discount"]. \
+                    #     insert(0, curr_temp.quantity_discount)
+                    # curr_line.entries["price_final"].delete(0, "end")
+                    # curr_line.entries["price_final"]. \
+                    #     insert(0, curr_temp.price_final)
                     break
                 # If there are multiple matches and no exact match, treat it
                 # like no match occurred
@@ -1183,7 +1188,7 @@ class Application:
         """
         print("_compare_line_to_template")
         # Get product identifier
-        line_name = line.entries["name"].get()
+        line_name = line.entries["name"].get().rstrip()
         if not line_name:
             return
         if line_name not in backend.PRODUCT_KEYS:
@@ -1795,6 +1800,47 @@ class Application:
         elif event.keysym == "F5":
             for line in self._line_list:
                 self._trace_update_entries(line)
+        # F6: Insert default discount class into active row
+        elif event.keysym == "F6":
+            active_row = self._get_active_row()
+            print("active row: ", active_row)
+
+            store = self._read_entry(self._root_objects.combo_boxes["store"],
+                                     "str")
+            discount_class = backend.STORES[store]["default_discount_class"]
+            
+            for line in self._line_list:
+                if line.row == active_row:
+                    line.entries["discount_class"].delete(0, "end")
+                    line.entries["discount_class"].insert(0, discount_class)
+            for line in self._line_list:
+                self._trace_update_entries(line)
+
+    def _get_active_row(self):
+        """
+        Return the row where the cursor is currently at from the active entry
+        box or combo box
+        """
+        current_focus = str(self._root.focus_get())
+        if "entry" in current_focus:
+            # Iterate through all line objects and compare entry IDs with the
+            # current focus
+            for line in self._line_list:
+                for key, field in line.entries.items():
+                    if str(field) == current_focus:
+                        print("active object: ", key, field)
+                        return line.row
+
+        elif "combobox" in current_focus:
+            # Iterate through all line objects and compare combobox IDs with the
+            # current focus
+            for line in self._line_list:
+                for key, field in line.combo_boxes.items():
+                    if str(field) == current_focus:
+                        print("active object: ", key, field)
+                        return line.row
+
+        return -1
 
     @staticmethod
     def _float2str(in_float):

@@ -293,6 +293,24 @@ def format_bill(bill):
     return header_line, lines
 
 
+def create_unique_filename(filepath):
+    """
+    Check if a file with the output name already exists. If it does, add a
+    number to its name and check again
+    """
+
+    if not os.path.isfile(filepath + ".csv"):
+        return filepath
+
+    counter = 0
+    while True:
+        new_path = filepath + "_" + f"{counter:02}"
+        if not os.path.isfile(new_path + ".csv"):
+            return new_path
+        else:
+            counter += 1
+
+
 def backup_bill(bill):
     """
     The export_bills() function gets called at the end. This function is called
@@ -302,12 +320,18 @@ def backup_bill(bill):
         bill (Bill): Holds all information for one purchase of various items
     """
     # Create file name
-    out_path = CONFIG_DICT["output"]
+    out_path = CONFIG_DICT["output"] + "bill_backups\\"
     encoding = CONFIG_DICT["encoding"]
     # Can not have ':' in file name
-    date_time_store = bill.date + 'T' + bill.time.replace(':', '-') + '_' \
-        + bill.store
-    out_path += date_time_store + ".csv"
+    time = bill.time.replace(':', '-')
+    store = bill.store.replace(':', '-')
+    store = store.replace(' ', '_')
+    date_time_store = bill.date + 'T' + time + '_' + store
+    out_path += date_time_store
+
+    out_path = create_unique_filename(out_path)
+
+    out_path += ".csv"
 
     header_line, lines = format_bill(bill)
 
@@ -346,7 +370,7 @@ def export_bills():
     """
 
     # Create file name
-    out_path = CONFIG_DICT["output"]
+    out_path = CONFIG_DICT["output"] + "export\\"
     encoding = CONFIG_DICT["encoding"]
     bill_count = len(BILLS)
     bill_dates = []
@@ -361,8 +385,12 @@ def export_bills():
 
     date_range = bill_dates[0] + "_to_" + bill_dates[-1]
 
-    file_name = date_range + "_" + str(bill_count) + "bills.csv"
+    file_name = date_range + "_" + str(bill_count) + "bills"
     out_path += file_name
+
+    out_path = create_unique_filename(out_path)
+
+    out_path += ".csv"
 
     if not line_count:
         print("no bills")
@@ -466,6 +494,8 @@ def update_product_json(product):
 
     # Update PRODUCT_KEYS dict
     PRODUCT_KEYS.update({name: "product_" + f"{product.identifier:05}"})
+
+    update_product_keys()
 
 
 def update_product_history(product):
