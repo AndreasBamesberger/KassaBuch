@@ -1808,10 +1808,13 @@ class Application:
             store = self._read_entry(self._root_objects.combo_boxes["store"],
                                      "str")
             discount_class = backend.STORES[store]["default_discount_class"]
+            
             for line in self._line_list:
                 if line.row == active_row:
                     line.entries["discount_class"].delete(0, "end")
                     line.entries["discount_class"].insert(0, discount_class)
+            for line in self._line_list:
+                self._trace_update_entries(line)
 
     def _get_active_row(self):
         """
