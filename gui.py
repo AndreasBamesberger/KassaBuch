@@ -1800,6 +1800,44 @@ class Application:
         elif event.keysym == "F5":
             for line in self._line_list:
                 self._trace_update_entries(line)
+        # F6: Insert default discount class into active row
+        elif event.keysym == "F6":
+            active_row = self._get_active_row()
+            print("active row: ", active_row)
+
+            store = self._read_entry(self._root_objects.combo_boxes["store"],
+                                     "str")
+            discount_class = backend.STORES[store]["default_discount_class"]
+            for line in self._line_list:
+                if line.row == active_row:
+                    line.entries["discount_class"].delete(0, "end")
+                    line.entries["discount_class"].insert(0, discount_class)
+
+    def _get_active_row(self):
+        """
+        Return the row where the cursor is currently at from the active entry
+        box or combo box
+        """
+        current_focus = str(self._root.focus_get())
+        if "entry" in current_focus:
+            # Iterate through all line objects and compare entry IDs with the
+            # current focus
+            for line in self._line_list:
+                for key, field in line.entries.items():
+                    if str(field) == current_focus:
+                        print("active object: ", key, field)
+                        return line.row
+
+        elif "combobox" in current_focus:
+            # Iterate through all line objects and compare combobox IDs with the
+            # current focus
+            for line in self._line_list:
+                for key, field in line.combo_boxes.items():
+                    if str(field) == current_focus:
+                        print("active object: ", key, field)
+                        return line.row
+
+        return -1
 
     @staticmethod
     def _float2str(in_float):
