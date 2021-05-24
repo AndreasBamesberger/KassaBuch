@@ -495,6 +495,8 @@ def update_product_json(product):
     # Update PRODUCT_KEYS dict
     PRODUCT_KEYS.update({name: "product_" + f"{product.identifier:05}"})
 
+    update_product_keys()
+
 
 def update_product_history(product):
     """
