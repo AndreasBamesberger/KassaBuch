@@ -19,6 +19,7 @@
                        ["frame_main", "help_f3",                   "F3: Zu Datum springen",          0,        2,    "w",      "none 8 bold"],
                        ["frame_main", "help_f4",                   "F4: In unterste Zeile springen", 0,        3,    "w",      "none 8 bold"],
                        ["frame_main", "help_f5",                   "F5: Auswerten",                  0,        4,    "w",      "none 8 bold"],
+                       ["frame_main", "help_f6",                   "F6: Pickerl",                    0,        5,    "w",      "none 8 bold"],
                        ["frame_main", "date",                      "Datum (dd-mm): ",                1,        0,    "e",      "none 14 bold"],
                        ["frame_main", "time",                      "Uhrzeit (hh-mm): ",              1,        1,    "e",      "none 14 bold"],
                        ["frame_main", "store" ,                    "Geschäft: ",                     1,        2,    "e",      "none 14 bold"],
