@@ -766,7 +766,7 @@ class Application:
         """
         # TODO: make a list or something through which we can loop to reduce
         #  repetition
-        name = self._read_entry(line.entries["name"], "str")
+        name = self._read_entry(line.entries["name"], "str").rstrip()
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
         discount_class = self._read_entry(line.entries["discount_class"], "str")
@@ -868,6 +868,10 @@ class Application:
             raise SystemError
 
         product = self._get_product_from_line(curr_line, True)
+
+        # Delete trailing whitespaces from product name
+        product.name = product.name.rstrip()
+
         if product.name == '':
             return
         if product.quantity == 0:
@@ -1182,7 +1186,7 @@ class Application:
         """
         print("_compare_line_to_template")
         # Get product identifier
-        line_name = line.entries["name"].get()
+        line_name = line.entries["name"].get().rstrip()
         if not line_name:
             return
         if line_name not in backend.PRODUCT_KEYS:
