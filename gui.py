@@ -734,6 +734,7 @@ class Application:
                 })
 
             backend.TEMPLATES.update({product.name: product})
+
             backend.update_product_history(product)
 
         price_quantity_sum = round(price_quantity_sum, 2)
@@ -975,28 +976,28 @@ class Application:
             curr_line.entries["name"].insert(0, product)
             curr_line.entries["price_single"].delete(0, "end")
             curr_line.entries["price_single"].insert(0, curr_temp.price_single)
-            curr_line.entries["sale"].delete(0, "end")
-            curr_line.entries["sale"].insert(0, curr_temp.sale)
+            # curr_line.entries["sale"].delete(0, "end")
+            # curr_line.entries["sale"].insert(0, curr_temp.sale)
             curr_line.entries["quantity"].delete(0, "end")
             curr_line.entries["quantity"].insert(0, curr_temp.quantity)
-            curr_line.entries["discount_class"].delete(0, "end")
-            curr_line.entries["discount_class"].insert(0,
-                                                       curr_temp.discount_class)
+            # curr_line.entries["discount_class"].delete(0, "end")
+            # curr_line.entries["discount_class"].insert(0,
+            #                                            curr_temp.discount_class)
             curr_line.entries["product_class"].delete(0, "end")
             curr_line.entries["product_class"].insert(0,
                                                       curr_temp.product_class)
             curr_line.entries["unknown"].delete(0, "end")
             curr_line.entries["unknown"].insert(0, curr_temp.unknown)
-            curr_line.entries["price_quantity"].delete(0, "end")
-            curr_line.entries["price_quantity"].insert(0,
-                                                       curr_temp.price_quantity)
-            curr_line.entries["discount"].delete(0, "end")
-            curr_line.entries["discount"].insert(0, curr_temp.discount)
-            curr_line.entries["quantity_discount"].delete(0, "end")
-            curr_line.entries["quantity_discount"]. \
-                insert(0, curr_temp.quantity_discount)
-            curr_line.entries["price_final"].delete(0, "end")
-            curr_line.entries["price_final"].insert(0, curr_temp.price_final)
+            # curr_line.entries["price_quantity"].delete(0, "end")
+            # curr_line.entries["price_quantity"].insert(0,
+            #                                            curr_temp.price_quantity)
+            # curr_line.entries["discount"].delete(0, "end")
+            # curr_line.entries["discount"].insert(0, curr_temp.discount)
+            # curr_line.entries["quantity_discount"].delete(0, "end")
+            # curr_line.entries["quantity_discount"]. \
+            #     insert(0, curr_temp.quantity_discount)
+            # curr_line.entries["price_final"].delete(0, "end")
+            # curr_line.entries["price_final"].insert(0, curr_temp.price_final)
 
         # If there are multiple matches, there are 2 options
         else:
@@ -1012,29 +1013,29 @@ class Application:
                     curr_line.entries["price_single"].delete(0, "end")
                     curr_line.entries["price_single"]. \
                         insert(0, curr_temp.price_single)
-                    curr_line.entries["sale"].delete(0, "end")
-                    curr_line.entries["sale"].insert(0, curr_temp.sale)
+                    # curr_line.entries["sale"].delete(0, "end")
+                    # curr_line.entries["sale"].insert(0, curr_temp.sale)
                     curr_line.entries["quantity"].delete(0, "end")
                     curr_line.entries["quantity"].insert(0, curr_temp.quantity)
-                    curr_line.entries["discount_class"].delete(0, "end")
-                    curr_line.entries["discount_class"]. \
-                        insert(0, curr_temp.discount_class)
+                    # curr_line.entries["discount_class"].delete(0, "end")
+                    # curr_line.entries["discount_class"]. \
+                    #     insert(0, curr_temp.discount_class)
                     curr_line.entries["product_class"].delete(0, "end")
                     curr_line.entries["product_class"]. \
                         insert(0, curr_temp.product_class)
                     curr_line.entries["unknown"].delete(0, "end")
                     curr_line.entries["unknown"].insert(0, curr_temp.unknown)
-                    curr_line.entries["price_quantity"].delete(0, "end")
-                    curr_line.entries["price_quantity"]. \
-                        insert(0, curr_temp.price_quantity)
-                    curr_line.entries["discount"].delete(0, "end")
-                    curr_line.entries["discount"].insert(0, curr_temp.discount)
-                    curr_line.entries["quantity_discount"].delete(0, "end")
-                    curr_line.entries["quantity_discount"]. \
-                        insert(0, curr_temp.quantity_discount)
-                    curr_line.entries["price_final"].delete(0, "end")
-                    curr_line.entries["price_final"]. \
-                        insert(0, curr_temp.price_final)
+                    # curr_line.entries["price_quantity"].delete(0, "end")
+                    # curr_line.entries["price_quantity"]. \
+                    #     insert(0, curr_temp.price_quantity)
+                    # curr_line.entries["discount"].delete(0, "end")
+                    # curr_line.entries["discount"].insert(0, curr_temp.discount)
+                    # curr_line.entries["quantity_discount"].delete(0, "end")
+                    # curr_line.entries["quantity_discount"]. \
+                    #     insert(0, curr_temp.quantity_discount)
+                    # curr_line.entries["price_final"].delete(0, "end")
+                    # curr_line.entries["price_final"]. \
+                    #     insert(0, curr_temp.price_final)
                     break
                 # If there are multiple matches and no exact match, treat it
                 # like no match occurred
