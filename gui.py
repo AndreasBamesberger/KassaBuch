@@ -934,11 +934,16 @@ class Application:
         template_input = self._read_entry(curr_line.combo_boxes["template"],
                                           "str").lower()
 
-        # Add all template entries who contain the user input
         temp_dict = dict()
-        for key, field in backend.TEMPLATES.items():
-            if template_input in key.lower():
-                temp_dict.update({key: field})
+        if backend.CONFIG_DICT["regex"]:
+            # Treat the user input as regex pattern and find matching product
+            # names
+            temp_dict = backend.regex_search(template_input)
+        else:
+            # Add all template entries who contain the user input
+            for key, field in backend.TEMPLATES.items():
+                if template_input in key.lower():
+                    temp_dict.update({key: field})
 
         print("len(temp_dict): ", len(temp_dict))
 
@@ -1801,18 +1806,31 @@ class Application:
             for line in self._line_list:
                 self._trace_update_entries(line)
         # F6: Insert default discount class into active row
+        #     If a discount value is already present, delete it
         elif event.keysym == "F6":
             active_row = self._get_active_row()
             print("active row: ", active_row)
 
-            store = self._read_entry(self._root_objects.combo_boxes["store"],
-                                     "str")
-            discount_class = backend.STORES[store]["default_discount_class"]
-            
             for line in self._line_list:
                 if line.row == active_row:
-                    line.entries["discount_class"].delete(0, "end")
-                    line.entries["discount_class"].insert(0, discount_class)
+                    # Get current discount class input
+                    curr_discount_class = self._read_entry(
+                        line.entries["discount_class"], "str")
+
+                    if curr_discount_class == "":
+                        store = self._read_entry(
+                            self._root_objects.combo_boxes["store"],
+                            "str")
+                        if store in backend.STORES:
+                            discount_class = backend.STORES[store][
+                                "default_discount_class"]
+                        else:
+                            return
+                        line.entries["discount_class"].delete(0, "end")
+                        line.entries["discount_class"].insert(0, discount_class)
+                    else:
+                        line.entries["discount_class"].delete(0, "end")
+
             for line in self._line_list:
                 self._trace_update_entries(line)
 
