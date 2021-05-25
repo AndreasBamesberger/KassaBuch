@@ -8,6 +8,7 @@ import json  # To read from and to update json files
 # The product template json should be alphabetical
 from collections import OrderedDict
 import os  # To walk through product json files
+import re  # To match user input with product names
 
 # Global data structures which hold the information read from the json files
 
@@ -684,3 +685,37 @@ def read_payments():
         data = json.load(in_file)
         PAYMENTS = data["payments"]
     print("PAYMENTS: ", PAYMENTS)
+
+
+def regex_search(input_str):
+    """
+    Treat the user template input as a regex pattern and match it with every
+    product name.
+
+    Parameters:
+        input_str:str
+            The user input
+    Returns:
+        out_dict:dict
+            Dict holding all matching products.
+            Key = TEMPLATES.key, Field = TEMPLATES.field
+    """
+
+    """
+    regex: match all alphanumeric and whitespace characters
+    .:
+        Any character except newline
+    *:
+        Zero or more of
+    """
+    input_str = input_str.replace('*', ".*")
+    input_str = ".*" + input_str
+    pattern = re.compile(input_str)
+    out_dict = dict()
+
+    for key, field in TEMPLATES.items():
+        match = pattern.match(key.lower())
+        if match:
+            out_dict.update({key: field})
+
+    return out_dict

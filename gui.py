@@ -934,11 +934,16 @@ class Application:
         template_input = self._read_entry(curr_line.combo_boxes["template"],
                                           "str").lower()
 
-        # Add all template entries who contain the user input
         temp_dict = dict()
-        for key, field in backend.TEMPLATES.items():
-            if template_input in key.lower():
-                temp_dict.update({key: field})
+        if backend.CONFIG_DICT["regex"]:
+            # Treat the user input as regex pattern and find matching product
+            # names
+            temp_dict = backend.regex_search(template_input)
+        else:
+            # Add all template entries who contain the user input
+            for key, field in backend.TEMPLATES.items():
+                if template_input in key.lower():
+                    temp_dict.update({key: field})
 
         print("len(temp_dict): ", len(temp_dict))
 

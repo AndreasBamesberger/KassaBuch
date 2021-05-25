@@ -19,6 +19,7 @@
     "tkinter_objects":          "tkinter_objects.json",
     "delimiter":                ";",
     "year":                     "2021",
+    "regex":                    true,
     "save_history":             true,
     "encoding":                 "windows-1252"
 }
