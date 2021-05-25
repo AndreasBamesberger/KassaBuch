@@ -710,7 +710,10 @@ def regex_search(input_str):
     """
     input_str = input_str.replace('*', ".*")
     input_str = ".*" + input_str
-    pattern = re.compile(input_str)
+    try:
+        pattern = re.compile(input_str)
+    except re.error:
+        return None
     out_dict = dict()
 
     for key, field in TEMPLATES.items():
