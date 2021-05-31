@@ -1,0 +1,10 @@
+{
+  "name": "Joghurt 300g",
+  "default_price_per_unit": 0.85,
+  "default_quantity": 2,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "Test entry 03",
+  "history": []
+}

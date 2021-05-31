@@ -1,0 +1,25 @@
+{
+  "name": "K\u00e4se 150g",
+  "default_price_per_unit": 1.89,
+  "default_quantity": 3,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "Test entry 05",
+  "history": [
+    {
+      "date_time": "2021-04-03T12:34",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 1.89,
+      "quantity": 3.0,
+      "price_quantity": 5.67,
+      "discount_class": "a",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -1.42,
+      "price_final": 4.25,
+      "price_final_per_unit": 1.42
+    }
+  ]
+}

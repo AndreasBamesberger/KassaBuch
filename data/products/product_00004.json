@@ -1,0 +1,25 @@
+{
+  "name": "Salami 150g",
+  "default_price_per_unit": 2.54,
+  "default_quantity": 2.0,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "",
+  "history": [
+    {
+      "date_time": "2021-04-03T12:34",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 2.54,
+      "quantity": 2.0,
+      "price_quantity": 5.08,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 5.08,
+      "price_final_per_unit": 2.54
+    }
+  ]
+}

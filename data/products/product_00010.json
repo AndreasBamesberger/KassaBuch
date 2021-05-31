@@ -1,0 +1,25 @@
+{
+  "name": "Mineralwasser 1,5l",
+  "default_price_per_unit": 0.45,
+  "default_quantity": 4.0,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "",
+  "history": [
+    {
+      "date_time": "2021-04-03T12:34",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 0.45,
+      "quantity": 4.0,
+      "price_quantity": 1.8,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.8,
+      "price_final_per_unit": 0.45
+    }
+  ]
+}

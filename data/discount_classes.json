@@ -1,0 +1,12 @@
+{
+    "a": {
+        "discount": 25,
+        "text": "Lieblingsprodukt",
+        "store": "Billa"
+    },
+    "g": {
+        "discount": 25,
+        "text": "Lieblingsprodukt",
+        "store": "Spar"
+    }
+}

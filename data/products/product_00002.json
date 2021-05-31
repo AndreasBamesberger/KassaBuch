@@ -1,0 +1,10 @@
+{
+  "name": "Semmel",
+  "default_price_per_unit": 0.30,
+  "default_quantity": 4,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "Test entry 02",
+  "history": []
+}
