@@ -1,0 +1,35 @@
+{
+  "store": {
+    "frame": "frame_main",
+    "dict_key": "store",
+    "command": "trace_store",
+    "values": "stores",
+    "state": "normal",
+    "column": 2,
+    "row": 2,
+    "width": 20,
+    "sticky": "news"
+  },
+  "payment": {
+    "frame": "frame_main",
+    "dict_key": "payment",
+    "command": "trace_payment",
+    "values": "payments",
+    "state": "normal",
+    "column": 2,
+    "row": 3,
+    "width": 20,
+    "sticky": "news"
+  },
+  "template": {
+    "frame": "frame_fields",
+    "dict_key": "template",
+    "command": "trace_template",
+    "values": "templates",
+    "state": "normal",
+    "column": 0,
+    "row": "",
+    "width": 35,
+    "sticky": "news"
+  }
+}

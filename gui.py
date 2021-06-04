@@ -1,13 +1,14 @@
 ﻿"""
 Classes to create and run the GUI
 """
+import json
+import os  # To check if product json files exist
 import sys  # For exit()
 import tkinter as tk
-import os  # To check if product json files exist
-import json
 from tkinter import ttk  # For style and Combobox
 
 import backend
+import tkinter_objects as tko
 
 
 class Line:
@@ -41,9 +42,10 @@ class Line:
         Destroy all tkinter objects of this line
     """
 
-    def __init__(self, row: int, labels: dict, entries: dict, buttons: dict,
+    def __init__(self, frame, row, labels: dict, entries: dict, buttons: dict,
                  combo_boxes: dict, check_buttons: dict, trace_vars: dict,
                  values: dict):
+        self.frame = frame
         self.row: int = row
         self.labels: dict = labels
         self.entries: dict = entries
@@ -52,6 +54,22 @@ class Line:
         self.check_buttons: dict = check_buttons
         self.trace_vars: dict = trace_vars
         self.values: dict = values
+
+        if self.labels:
+            for _, field in self.labels.items():
+                field.create(self.frame, self.row)
+        if self.entries:
+            for _, field in self.entries.items():
+                field.create(self.frame, self.row)
+        if self.buttons:
+            for _, field in self.buttons.items():
+                field.create(self.frame, self.row)
+        if self.combo_boxes:
+            for _, field in self.combo_boxes.items():
+                field.create(self.frame, self.row)
+        if self.check_buttons:
+            for _, field in self.check_buttons.items():
+                field.create(self.frame, self.row)
 
     def delete(self):
         """
@@ -92,42 +110,42 @@ class Application:
 
     Attributes
     ----------
-    _button_list: list
-        List of the parameters with which the tkinter Button objects are created
+    # _button_list: list
+    #     List of the parameters with which the tkinter Button objects are created
     _canvas: tkinter.Canvas
         The scrollable region
     _canvas_height: int
         Vertical resolution of the scrollable region
     _canvas_width: int
         Horizontal resolution of the scrollable region
-    _check_button_list: list
-        List of the parameters with which the tkinter Checkbutton objects are
-        created
+    # _check_button_list: list
+    #     List of the parameters with which the tkinter Checkbutton objects are
+    #     created
     _color_frame: str
         Color of the background
     _color_label_bg: str
         Color of the tkinter Label object background
     _color_label_fg: str
         Color of the tkinter Label text/foreground
-    _combo_box_list: list
-        List of the parameters with which the tkinter Combobox objects are
-        created
-    _entry_list: list
-        List of the parameters with which the tkinter Entry objects are created
+    # _combo_box_list: list
+    #     List of the parameters with which the tkinter Combobox objects are
+    #     created
+    # _entry_list: list
+    #     List of the parameters with which the tkinter Entry objects are created
     _font: str
         Font of the texts
     _frame_canvas: tkinter.Frame
         Frame to create the scrollable region
     _frame_dict: dict
         Dictionary that holds the available frames.
-    _frame_fields: tk.Frame
+    frame_fields: tk.Frame
         Frame that holds the lines inside the scrollable region
-    _frame_main: tk.Frame
+    frame_main: tk.Frame
         Frame inside the main root window
     _height: int
         Vertical tkinter window resolution
-    _label_list: list
-        List of the parameters with which the tkinter Label objects are created
+    # _label_list: list
+    #     List of the parameters with which the tkinter Label objects are created
     _line_list: list
         List of all currently active Line objects in the scrollable region
     _method_dict_no_param: dict
@@ -136,13 +154,13 @@ class Application:
     _method_dict_one_param: dict
         Dictionary that holds references to GUI methods with 2 parameters.
         This is used to bind a method to a tkinter object
-    _objects: dict
-        Dictionary of all values in the tkinter_objects json
+    # _objects: dict
+    #     Dictionary of all values in the tkinter_objects json
     _root: tkinter.Tk
         The main window object
     _root_objects: Line
         All tkinter objects of the root window
-    _row_count: int
+    row_count: int
         Number of rows generated in the scrollable region. This value never
         decreases, even when a line is deleted
     _scaling: float
@@ -162,7 +180,7 @@ class Application:
     _setup_canvas_window(self):
         Configures the root window, creates all necessary tkinter objects
     _reset(self):
-        _row_count is reset to 0 and _line_list is emptied
+        row_count is reset to 0 and _line_list is emptied
     _clear_screen(self):
         All objects in the _root window are deleted and all lines inside the
         scrollable region are deleted
@@ -258,22 +276,22 @@ class Application:
         # check_button objects have a value "command" which corresponds to the
         # keys in these method dictionaries. This is used to bind method calls
         # to these tkinter objects
-        self._method_dict_no_param: dict = \
-            {"save_bill": self._button_save,
-             "export_bills": self._button_export_bills,
+        self.method_dict_no_param: dict = \
+            {"save_bill": self.button_save,
+             "export_bills": self.button_export_bills,
              # "write_bills": self._button_type,
-             "trace_store": self._trace_store,
-             "trace_payment": self._trace_payment,
-             "add_new_row": self._button_add_new_row}
-        self._method_dict_one_param: dict = \
-            {"update": self._trace_update_entries,
-             "delete_row": self._button_del_row,
-             "trace_template": self._trace_template,
-             "save_template": self._button_save_template}
+             "trace_store": self.trace_store,
+             "trace_payment": self.trace_payment,
+             "add_new_row": self.button_add_new_row}
+        self.method_dict_one_param: dict = \
+            {"update": self.trace_update_entries,
+             "delete_row": self.button_del_row,
+             "trace_template": self.trace_template,
+             "save_template": self.button_save_template}
 
-        # Store all parameters for the tkinter objects in this dictionary
-        self._objects: dict = backend.read_config(
-            backend.CONFIG_DICT["tkinter_objects"])
+        # # Store all parameters for the tkinter objects in this dictionary
+        # self._objects: dict = backend.read_config(
+        #     backend.CONFIG_DICT["tkinter_objects"])
 
         # Read parameters from the config file
         self._font: str = "none " + backend.CONFIG_DICT["font_size"] + " bold"
@@ -287,7 +305,7 @@ class Application:
         self._color_label_fg: str = backend.CONFIG_DICT["color_label_fg"]
         self._color_label_bg: str = backend.CONFIG_DICT["color_label_bg"]
 
-        self._row_count: int = 0
+        self.row_count: int = 0
         self._line_list: list = []
 
         # Create root window
@@ -301,22 +319,22 @@ class Application:
         self._root.bind_all('<KeyRelease>', self._key_release)
 
         # Split up the _objects dict into the different object types
-        try:
-            self._label_list = self._objects["label_list"]
-            self._entry_list = self._objects["entry_list"]
-            self._button_list = self._objects["button_list"]
-            self._combo_box_list = self._objects["combo_box_list"]
-            self._check_button_list = self._objects["check_button_list"]
-        except KeyError:
-            print("Error while reading tkinter objects from file")
-            raise SystemError
+        # try:
+        #     self._label_list = self._objects["label_list"]
+        #     self._entry_list = self._objects["entry_list"]
+        #     self._button_list = self._objects["button_list"]
+        #     self._combo_box_list = self._objects["combo_box_list"]
+        #     self._check_button_list = self._objects["check_button_list"]
+        # except KeyError:
+        #     print("Error while reading tkinter objects from file")
+        #     raise SystemError
 
         # Create the different frames and canvasses
         # All this is done so that _vsb can scroll the _canvas
-        self._frame_main = tk.Frame(self._root, bg=self._color_frame)
-        self._frame_canvas = tk.Frame(self._frame_main)
+        self.frame_main = tk.Frame(self._root, bg=self._color_frame)
+        self._frame_canvas = tk.Frame(self.frame_main)
         self._canvas = tk.Canvas(self._frame_canvas, bg=self._color_frame)
-        self._frame_fields = tk.Frame(self._canvas, bg=self._color_frame)
+        self.frame_fields = tk.Frame(self._canvas, bg=self._color_frame)
         # Create the scrollbar
         self._vsb = tk.Scrollbar(self._frame_canvas, orient="vertical",
                                  command=self._canvas.yview)
@@ -324,18 +342,18 @@ class Application:
         # In the tkinter_objects json file all objects have a value "frame"
         # which corresponds to the keys in these method dictionaries. This is
         # used to declare the target tkinter frame in the json file
-        self._frame_dict = {"frame_fields": self._frame_fields,
-                            "frame_main": self._frame_main}
+        self._frame_dict = {"frame_fields": self.frame_fields,
+                            "frame_main": self.frame_main}
 
         self._setup_root_window()
         self._setup_canvas_window()
 
         # Create an initial item row so the scrollable region is not empty at
         # program start
-        self._button_add_new_row()
+        # self.button_add_new_row()
 
         # User input starts with date so the cursor is set there
-        self._root_objects.entries["date"].focus_set()
+        # self._root_objects.entries["date"].focus_set()
 
     def loop(self):
         """
@@ -354,56 +372,57 @@ class Application:
         self._root.title("Kassabuch")
         self._root.configure(background=self._color_frame)
 
-        # Create all tkinter objects with frame_key "frame_main"
-        trace_vars: dict = {}
+        frame = self._frame_dict["frame_main"]
+        row = None
+        labels = self._get_frame_objects(LABELS, "frame_main")
+        entries = self._get_frame_objects(ENTRIES, "frame_main")
+        buttons = self._get_frame_objects(BUTTONS, "frame_main")
+        combo_boxes = self._get_frame_objects(COMBOBOXES, "frame_main")
+        check_buttons = None
+        trace_vars = None
+        values = None
+        self._root_objects = Line(frame, row, labels, entries, buttons,
+                                  combo_boxes, check_buttons, trace_vars,
+                                  values)
 
-        entries: dict = {}
-        for frame_key, dict_key, _, column, row, width, bg, fg in \
-                self._entry_list:
-            if frame_key == "frame_main":
-                entry, trace_var_entry = self._create_entry(frame_key, column,
-                                                            row, width, '', bg,
-                                                            fg)
-                entries.update({dict_key: entry})
-                trace_vars.update({dict_key: trace_var_entry})
-
-        labels: dict = {}
-        for frame_key, dict_key, text, column, row, sticky, font in \
-                self._label_list:
-            if frame_key == "frame_main":
-                label = self._create_label(frame_key, text, column, row, sticky,
-                                           font)
-                labels.update({dict_key: label})
-
-        combo_boxes: dict = {}
-        for frame_key, dict_key, func_key, values, state, column, row, width, \
-                sticky in self._combo_box_list:
-            if frame_key == "frame_main":
-                combo_box, trace_var_combo_box = self._create_combo_box(
-                    frame_key, func_key, values, state, column, row, width,
-                    sticky)
-                trace_vars.update({dict_key: trace_var_combo_box})
-                combo_boxes.update({dict_key: combo_box})
-
-        buttons: dict = {}
-        for frame_key, dict_key, text, func_key, column, row, font in \
-                self._button_list:
-            if frame_key == "frame_main":
-                button = self._create_button(frame_key, text, column, row, font,
-                                             func_key)
-                buttons.update({dict_key: button})
-
-        check_buttons: dict = {}
-
-        # Create a Line object which stores all created tkinter objects
-        self._root_objects = Line(-1, labels, entries, buttons, combo_boxes,
-                                  check_buttons, trace_vars, {})
+        # # Create all tkinter objects with frame_key "frame_main"
+        # labels = {}
+        # for key, field in tko.LABELS.items():
+        #     if field.frame_key == "frame_main":
+        #         label = self._create_label(field)
+        #         labels.update({key: label})
+        #
+        # entries: dict = {}
+        # for key, field in tko.ENTRIES.items():
+        #     if field.frame_key == "frame_main":
+        #         entry = self._create_entry(field)
+        #         entries.update({key: entry})
+        #
+        # combo_boxes: dict = {}
+        # trace_vars: dict = {}
+        # for key, field in tko.COMBOBOXES.items():
+        #     if field.frame_key == "frame_main":
+        #         combo_box, trace_var_combo_box = self._create_combo_box(field)
+        #         combo_boxes.update({key: combo_box})
+        #         trace_vars.update({key: trace_var_combo_box})
+        #
+        # buttons: dict = {}
+        # for key, field in tko.BUTTONS.items():
+        #     if field.frame_key == "frame_main":
+        #         button = self._create_button(field)
+        #         buttons.update({key: button})
+        #
+        # check_buttons: dict = {}
+        # #
+        # # # Create a Line object which stores all created tkinter objects
+        # self._root_objects = Line(-1, labels, entries, buttons, combo_boxes,
+        #                           check_buttons, trace_vars, {})
 
     def _setup_canvas_window(self):
         """
         Configures the root window, creates all necessary tkinter objects
         """
-        self._frame_main.grid(sticky="news")
+        self.frame_main.grid(sticky="news")
 
         # Place _frame_canvas inside the _root grid
         self._frame_canvas.grid(row=9, column=0, padx=(0, 0), pady=(5, 5),
@@ -423,12 +442,12 @@ class Application:
 
         # Create the _frame_fields (where the rows will be placed) inside
         # _canvas
-        self._canvas.create_window((0, 0), window=self._frame_fields,
+        self._canvas.create_window((0, 0), window=self.frame_fields,
                                    anchor="nw")
 
         # # Update frames idle tasks to let tkinter calculate tkinter object
         # sizes
-        self._frame_fields.update_idletasks()
+        self.frame_fields.update_idletasks()
 
         self._frame_canvas.config(width=self._canvas_width,
                                   height=self._canvas_height)
@@ -438,9 +457,9 @@ class Application:
 
     def _reset(self):
         """
-        _row_count is reset to 0 and _line_list is emptied
+        row_count is reset to 0 and _line_list is emptied
         """
-        self._row_count = 0
+        self.row_count = 0
         self._line_list = list()
 
     def _clear_screen(self):
@@ -467,19 +486,19 @@ class Application:
         for line in self._line_list:
             line.delete()
 
-    def _button_add_new_row(self):
+    def button_add_new_row(self):
         """
         Iterate through all lists holding tkinter object information and create
         a new line in the scrollable region with the necessary objects. Then
         append this Line object to _line_list
         """
         print("_button_add_new_row")
-        row: int = self._row_count
+        row: int = self.row_count
         trace_vars = {}
 
         combo_boxes = {}
         for frame_key, dict_key, func_key, values, state, column, _, width, \
-                sticky in self._combo_box_list:
+            sticky in self._combo_box_list:
             if frame_key == "frame_fields":
                 combo_box, trace_var_combo_box = self._create_combo_box(
                     frame_key, func_key, values, state, column, row, width,
@@ -521,7 +540,7 @@ class Application:
             check_buttons.update({dict_key: check_button})
             trace_vars.update({dict_key: trace_var_check_button})
 
-        line = Line(self._row_count, labels, entries, buttons, combo_boxes,
+        line = Line(self.row_count, labels, entries, buttons, combo_boxes,
                     check_buttons, trace_vars, {})
         self._line_list.append(line)
 
@@ -530,13 +549,13 @@ class Application:
         # Set the canvas scrolling region
         self._canvas.config(scrollregion=self._canvas.bbox("all"))
 
-        self._row_count += 1
-        print("self._row_count = ", self._row_count)
+        self.row_count += 1
+        print("self.row_count = ", self.row_count)
 
         # Scroll down so the new line is visible
         self._canvas.yview_scroll(2, "units")
 
-    def _button_del_row(self, row):
+    def button_del_row(self, row):
         """
         Search _line_list for a Line object with Line.row = row, call its
         delete() method and remove it from _line_lists. Then, recalculate the
@@ -552,14 +571,14 @@ class Application:
                 line.delete()
                 self._line_list.pop(index)
                 break
-        print("self._row_count = ", self._row_count)
+        print("self.row_count = ", self.row_count)
         self._calculate_total()
 
         self._root.update()
         # Set the canvas scrolling region again
         self._canvas.config(scrollregion=self._canvas.bbox("all"))
 
-    def _button_save(self):
+    def button_save(self):
         """
         Create a backend.Bill from the user input, append this Bill to
         backend.BILLS and save it to the backup csv file. Then, reset and clear
@@ -568,7 +587,7 @@ class Application:
         print("_button_save")
         # Update all fields
         for line in self._line_list:
-            self._trace_update_entries(line)
+            self.trace_update_entries(line)
         bill = self._create_output()
 
         # Don't save an empty bill
@@ -580,18 +599,18 @@ class Application:
         self._reset()
 
         # Don't leave the scrollable region empty
-        self._button_add_new_row()
+        self.button_add_new_row()
 
         # Set cursor focus to time
         self._root_objects.entries["time"].focus_set()
 
-    def _button_export_bills(self):
+    def button_export_bills(self):
         """
         Save the current bill, then write all bills of this session to the
         output csv and close the program
         """
         print("_button_export_bills")
-        self._button_save()
+        self.button_save()
         backend.export_bills()
         sys.exit()
 
@@ -845,7 +864,7 @@ class Application:
         return product
 
     # TODO: use Line instead of row
-    def _button_save_template(self, row):
+    def button_save_template(self, row):
         """
         Called when the "save" button in a line is pressed. Take the input of a
         line in the scrollable region, create a new product template, add it to
@@ -909,7 +928,7 @@ class Application:
         # back to normal
         self._compare_line_to_file(curr_line)
 
-    def _trace_template(self, row):
+    def trace_template(self, row):
         """
         Gets called when the StringVar of a Combobox in the scrollable region
         changes. Searches the dictionary of templates for a match with the
@@ -1058,7 +1077,7 @@ class Application:
                     curr_line.entries["quantity_discount"].delete(0, "end")
                     curr_line.entries["price_final"].delete(0, "end")
 
-    def _trace_store(self):
+    def trace_store(self):
         """
         Gets called when the StringVar of the "store" Combobox changes. Searches
         the dictionary of stores for a match with the user input. If a match is
@@ -1106,7 +1125,7 @@ class Application:
                 else:
                     self._root_objects.combo_boxes["payment"].set('')
 
-    def _trace_payment(self):
+    def trace_payment(self):
         """
         Gets called when the StringVar of the "payment" Combobox changes.
         Searches the payment list for a match
@@ -1125,7 +1144,7 @@ class Application:
         print("Payment methods: ", payment_list)
         self._root_objects.combo_boxes["payment"]["values"] = payment_list
 
-    def _trace_update_entries(self, curr_line):
+    def trace_update_entries(self, curr_line):
         """
         Calls all "calculate" methods for a given Line in the scrollable region.
         Then calculates the sums that are displayed in the main frame and
@@ -1163,7 +1182,7 @@ class Application:
         sale_sum = self._float2str(sale_sum)
 
         self._root_objects.labels["discount_sum_var"].config(text=discount_sum)
-        self._root_objects.labels["quantity_discount_sum_var"].\
+        self._root_objects.labels["quantity_discount_sum_var"]. \
             config(text=quantity_discount_sum)
         self._root_objects.labels["sale_sum_var"].config(text=sale_sum)
 
@@ -1173,7 +1192,7 @@ class Application:
             price_quantity_sum += self._read_entry(
                 line.entries["price_quantity"], "float")
         price_quantity_sum = self._float2str(price_quantity_sum)
-        self._root_objects.labels["price_quantity_sum_var"].\
+        self._root_objects.labels["price_quantity_sum_var"]. \
             config(text=price_quantity_sum)
 
         # in "time" label, replace '-' with ':'
@@ -1225,8 +1244,8 @@ class Application:
 
             eq_ps = not (template_price_single == line_price_single)
             eq_q = not (template_quantity == line_quantity)
-            eq_pc = not(template_product_class == line_product_class)
-            eq_u = not(template_unknown == line_unknown)
+            eq_pc = not (template_product_class == line_product_class)
+            eq_u = not (template_unknown == line_unknown)
 
             # Get default background colour from entry list
             bg_ps = ''
@@ -1471,252 +1490,162 @@ class Application:
         total = self._float2str(total)
         self._root_objects.labels["total_var"].config(text=total)
 
-    def _create_label(self, frame_key, text, column, row, sticky, font):
-        """
-        Create a tkinter Label object based on the given parameters and return
-        the created object
+    # def _create_label(self, label):
+    #     """
+    #     """
+    #     frame = self._frame_dict[label.frame_key]
+    #     temp = tk.Label(frame, text=label.text, bg=label.bg, fg=label.fg,
+    #                     font=label.font)
+    #     temp.grid(row=label.row, column=label.column, sticky=label.sticky)
+    #     label.object = temp
+    #     return label
 
-        Parameters:
-            frame_key:str
-                Key for the _frame_dict dictionary
-            text: str
-                Text to be displayed in this Label
-            column: int
-                Horizontal position value for the grid system
-            row: int
-                Vertical position value for the grid system
-            sticky: str
-                In which direction should the created object stick to the grid.
-                Combination of letters 'n', 'e', 's', 'w'
-            font: str
-                Font of the text to be displayed in this Label
+    # # TODO: change func_key into method_key everywhere
+    # def _create_entry(self, entry):
+    #     """
+    #     """
+    #     frame = self._frame_dict[entry.frame_key]
+    #
+    #     # If the user has specified a method to be executed, search both method
+    #     # dictionaries for a matching entry and define a function that calls the
+    #     # method with the correct parameter
+    #
+    #     temp = tk.Entry(frame, width=entry.width, bg=entry.bg,
+    #                     fg=entry.fg)
+    #     temp.grid(row=entry.row, column=entry.column, sticky=entry.sticky)
+    #     entry.object = temp
+    #     return entry
 
-        Returns:
-            temp: tkinter.Label
-                The created Label object
-        """
-        frame = self._frame_dict[frame_key]
-        temp = tk.Label(frame, text=text, bg=self._color_label_bg,
-                        fg=self._color_label_fg,
-                        font=font)
-        temp.grid(row=row, column=column, sticky=sticky)
-        return temp
+    # @staticmethod
+    # def _change_entry_colour(entry, colour):
+    #     entry.configure(bg=colour)
 
-    # TODO: change func_key into method_key everywhere
-    def _create_entry(self, frame_key, column, row: int, width, func_key, bg,
-                      fg):
-        """
-        Create a tkinter Entry object based on the given parameters and return
-        the created object
+    # def _create_button(self, button):
+    #     """
+    #     """
+    #     frame = self._frame_dict[button.frame_key]
+    #
+    #     if button.frame_key == "frame_main":
+    #         row = button.row
+    #     elif button.frame_key == "frame_fields":
+    #         row = self.row_count
+    #     else:
+    #         raise SystemError
+    #
+    #     func_key = button.command
+    #
+    #     # Search both method dictionaries for a matching entry and define a
+    #     # function that calls the method with the correct parameter
+    #     def command():
+    #         if func_key in self.method_dict_one_param.keys():
+    #             self.method_dict_one_param[func_key](row)
+    #         else:
+    #             self.method_dict_no_param[func_key]()
+    #
+    #     temp = tk.Button(frame, text=button.text, width=len(button.text),
+    #                      command=command, font=button.font)
+    #     temp.grid(row=row, column=button.column, sticky=button.sticky)
+    #     button.object = temp
+    #     return button
 
-        Parameters:
-            frame_key:str
-                Key for the _frame_dict dictionary
-            column: int
-                Horizontal position value for the grid system
-            row: int
-                Vertical position value for the grid system
-            width: int
-                Horizontal size of the object
-            func_key: str
-                Key for the _method_dict_one_param and _method_dict_on_param
-                dictionaries
-            bg: str
-                Background colour
-            fg: str
-                Text colour
-
-        Returns:
-            temp: tkinter.Label
-                The created Label object
-            trace_var: tkinter.StringVar
-                Variable that traces user input in this object and calls the
-                command function
-        """
-        frame = self._frame_dict[frame_key]
-
-        # If the user has specified a method to be executed, search both method
-        # dictionaries for a matching entry and define a function that calls the
-        # method with the correct parameter
-        if func_key != '':
-            def command(*_):
-                if func_key in self._method_dict_one_param.keys():
-                    self._method_dict_one_param[func_key](row)
-                else:
-                    self._method_dict_no_param[func_key]()
-
-            trace_var = tk.StringVar()
-            trace_var.set('')
-            trace_var.trace('w', command)
-        else:
-            trace_var = None
-
-        temp = tk.Entry(frame, textvariable=trace_var, width=width, bg=bg,
-                        fg=fg)
-        temp.grid(row=row, column=column, sticky=tk.W)
-        return temp, trace_var
-
-    @staticmethod
-    def _change_entry_colour(entry, colour):
-        entry.configure(bg=colour)
-
-    def _create_button(self, frame_key, text, column, row: int, font, func_key):
-        """
-        Create a tkinter Button object based on the given parameters and return
-        the created object
-
-        Parameters:
-            frame_key:str
-                Key for the _frame_dict dictionary
-            text: str
-                Text to be displayed in this Button
-            column: int
-                Horizontal position value for the grid system
-            row: int
-                Vertical position value for the grid system
-            font: str
-                Font of the text to be displayed in this Button
-            func_key: str
-                Key for the _method_dict_one_param and _method_dict_on_param
-                dictionaries
-
-        Returns:
-            temp: tkinter.Button
-                The created Button object
-        """
-        frame = self._frame_dict[frame_key]
-
-        # Search both method dictionaries for a matching entry and define a
-        # function that calls the method with the correct parameter
-        def command():
-            if func_key in self._method_dict_one_param.keys():
-                self._method_dict_one_param[func_key](row)
-            else:
-                self._method_dict_no_param[func_key]()
-
-        temp = tk.Button(frame, text=text, width=len(text), command=command,
-                         font=font)
-        temp.grid(row=row, column=column, sticky="news")
-        return temp
-
-    @staticmethod
-    def _change_button_colour(button, colour):
-        button.config(bg=colour)
-
-    def _create_combo_box(self, frame_key, func_key, values, state, column, row,
-                          width, sticky):
-        """
-        Create a tkinter Combobox object based on the given parameters and
-        return the created object
-
-        Parameters:
-            frame_key:str
-                Key for the _frame_dict dictionary
-            func_key: str
-                Key for the _method_dict_one_param and _method_dict_on_param
-                dictionaries
-            values: str
-                What kind of information the dropdown menu should display
-            state: str
-                Behaviour of the Combobox, e.g. readonly
-            column: int
-                Horizontal position value for the grid system
-            row: int
-                Vertical position value for the grid system
-            width: int
-                Horizontal size of the object
-            sticky: str
-                In which direction should the created object stick to the grid.
-                Combination of letters 'n', 'e', 's', 'w'
-
-        Returns:
-            temp: tkinter.ttk.Combobox
-                The created Combobox object
-            trace_var: tkinter.StringVar
-                Variable that traces user input in this object and calls the
-                command function
-        """
-        frame = self._frame_dict[frame_key]
-
-        # If the user has specified a method to be executed, search both method
-        # dictionaries for a matching entry and define a function that calls the
-        # method with the correct parameter
-        if func_key:
-            def command(*_):
-                if func_key in self._method_dict_one_param.keys():
-                    self._method_dict_one_param[func_key](row)
-                else:
-                    self._method_dict_no_param[func_key]()
-
-            trace_var = tk.StringVar()
-            trace_var.set('')
-            trace_var.trace('w', command)
-        else:
-            trace_var = ''
-
-        temp = ttk.Combobox(frame, width=width, textvariable=trace_var)
-        box_list = None
-
-        # Connect the values of the Combobox to a list of values
-        if values == "templates":
-            # Only show products that user wants displayed
-            box_list = sorted([key for key, field in backend.TEMPLATES.items()
-                               if field.display])
-        if values == "stores":
-            box_list = sorted(backend.STORES)
-        if values == "payments":
-            box_list = sorted(backend.PAYMENTS)
-        temp["values"] = box_list
-        temp["state"] = state
-        temp.grid(row=row, column=column, sticky=sticky)
-        return temp, trace_var
-
-    def _create_check_button(self, frame_key, func_key, text, column, row,
-                             sticky):
-        """
-        Create a tkinter Checkbutton object based on the given parameters and
-        return the created object
-
-        Parameters:
-            frame_key:str
-                Key for the _frame_dict dictionary
-            func_key: str
-                Key for the _method_dict_one_param and _method_dict_on_param
-                dictionaries
-            text: str
-                Text to be displayed in this Button
-            column: int
-                Horizontal position value for the grid system
-            row: int
-                Vertical position value for the grid system
-            sticky: str
-                In which direction should the created object stick to the grid.
-                Combination of letters 'n', 'e', 's', 'w'
-
-        Returns:
-            temp: tkinter.Checkbutton
-                The created Checkbutton object
-            trace_var: tkinter.IntVar
-                Variable that traces user input in this object
-        """
-        frame = self._frame_dict[frame_key]
-        trace_var = tk.IntVar()
-        trace_var.set(1)  # requested to be on by default
-
-        # TODO: change command from "" to update all
-        # Search both method dictionaries for a matching entry and define a
-        # function that calls the method with the correct parameter
-        def command():
-            if func_key in self._method_dict_one_param.keys():
-                self._method_dict_one_param[func_key](row)
-            elif func_key in self._method_dict_no_param.keys():
-                self._method_dict_no_param[func_key]()
-
-        check_box = tk.Checkbutton(frame, text=text, variable=trace_var,
-                                   onvalue=1, offvalue=0, command=command)
-        check_box.grid(row=row, column=column, sticky=sticky)
-
-        return check_box, trace_var
+    # @staticmethod
+    # def _change_button_colour(button, colour):
+    #     button.config(bg=colour)
+    #
+    # def _create_combo_box(self, cb):
+    #     """
+    #     """
+    #     frame = self._frame_dict[cb.frame_key]
+    #
+    #     if cb.frame_key == "frame_main":
+    #         row = cb.row
+    #     elif cb.frame_key == "frame_fields":
+    #         row = self.row_count
+    #     else:
+    #         raise SystemError
+    #
+    #     func_key = cb.command
+    #
+    #     # If the user has specified a method to be executed, search both method
+    #     # dictionaries for a matching entry and define a function that calls the
+    #     # method with the correct parameter
+    #     if func_key:
+    #         def command(*_):
+    #             if cb.command in self._method_dict_one_param.keys():
+    #                 self._method_dict_one_param[func_key](row)
+    #             else:
+    #                 self._method_dict_no_param[func_key]()
+    #
+    #         trace_var = tk.StringVar()
+    #         trace_var.set('')
+    #         trace_var.trace('w', command)
+    #     else:
+    #         trace_var = ''
+    #
+    #     temp = ttk.Combobox(frame, width=cb.width, textvariable=trace_var)
+    #     box_list = None
+    #
+    #     # Connect the values of the Combobox to a list of values
+    #     if cb.values == "templates":
+    #         # Only show products that user wants displayed
+    #         box_list = sorted([key for key, field in backend.TEMPLATES.items()
+    #                            if field.display])
+    #     if cb.values == "stores":
+    #         box_list = sorted(backend.STORES)
+    #     if cb.values == "payments":
+    #         box_list = sorted(backend.PAYMENTS)
+    #     temp["values"] = box_list
+    #     temp["state"] = cb.state
+    #     temp.grid(row=row, column=cb.column, sticky=cb.sticky)
+    #     cb.object = temp
+    #     return cb, trace_var
+    #
+    # def _create_check_button(self, frame_key, func_key, text, column, row,
+    #                          sticky):
+    #     """
+    #     Create a tkinter Checkbutton object based on the given parameters and
+    #     return the created object
+    #
+    #     Parameters:
+    #         frame_key:str
+    #             Key for the _frame_dict dictionary
+    #         func_key: str
+    #             Key for the _method_dict_one_param and _method_dict_on_param
+    #             dictionaries
+    #         text: str
+    #             Text to be displayed in this Button
+    #         column: int
+    #             Horizontal position value for the grid system
+    #         row: int
+    #             Vertical position value for the grid system
+    #         sticky: str
+    #             In which direction should the created object stick to the grid.
+    #             Combination of letters 'n', 'e', 's', 'w'
+    #
+    #     Returns:
+    #         temp: tkinter.Checkbutton
+    #             The created Checkbutton object
+    #         trace_var: tkinter.IntVar
+    #             Variable that traces user input in this object
+    #     """
+    #     frame = self._frame_dict[frame_key]
+    #     trace_var = tk.IntVar()
+    #     trace_var.set(1)  # requested to be on by default
+    #
+    #     # TODO: change command from "" to update all
+    #     # Search both method dictionaries for a matching entry and define a
+    #     # function that calls the method with the correct parameter
+    #     def command():
+    #         if func_key in self._method_dict_one_param.keys():
+    #             self._method_dict_one_param[func_key](row)
+    #         elif func_key in self._method_dict_no_param.keys():
+    #             self._method_dict_no_param[func_key]()
+    #
+    #     check_box = tk.Checkbutton(frame, text=text, variable=trace_var,
+    #                                onvalue=1, offvalue=0, command=command)
+    #     check_box.grid(row=row, column=column, sticky=sticky)
+    #
+    #     return check_box, trace_var
 
     # TODO: split into 2 methods entry2str and entry2float
     @staticmethod
@@ -1786,13 +1715,13 @@ class Application:
         #     and move the cursor to its Combobox
         if event.keysym == "F1":
             for line in self._line_list:
-                self._trace_update_entries(line)
-            self._button_add_new_row()
+                self.trace_update_entries(line)
+            self.button_add_new_row()
             self._line_list[-1].combo_boxes["template"].focus_set()
         # F2: Create a new Line object in the scrollable region and move the
         #     cursor to its Combobox
         elif event.keysym == "F2":
-            self._button_add_new_row()
+            self.button_add_new_row()
             self._line_list[-1].combo_boxes["template"].focus_set()
         # F3: Move the cursor to the "date" Entry field
         elif event.keysym == "F3":
@@ -1804,7 +1733,7 @@ class Application:
         # F5: Calculate all
         elif event.keysym == "F5":
             for line in self._line_list:
-                self._trace_update_entries(line)
+                self.trace_update_entries(line)
         # F6: Insert default discount class into active row
         #     If a discount value is already present, delete it
         elif event.keysym == "F6":
@@ -1832,7 +1761,7 @@ class Application:
                         line.entries["discount_class"].delete(0, "end")
 
             for line in self._line_list:
-                self._trace_update_entries(line)
+                self.trace_update_entries(line)
 
     def _get_active_row(self):
         """
@@ -1878,3 +1807,127 @@ class Application:
         # out_str = str(in_float).replace('.', ',')
         out_str = str(in_float)
         return out_str
+
+    @staticmethod
+    def _get_frame_objects(in_dict, frame_str):
+        # return [field for _, field in in_dict.items()
+        #         if field.frame_key == frame_str]
+        out_dict = {}
+        for key, field in in_dict.items():
+            if field.frame_key == frame_str:
+                out_dict.update({key: field})
+        return out_dict
+
+
+LABELS = {
+    "help_f1": tko.Label("frame_main", "help_f1",
+                         "F1: Auswerten & neue Zeile", 0, 0, "w",
+                         "none 8 bold"),
+    "help_f2": tko.Label("frame_main", "help_f2", "F2: Neue Zeile", 0, 1,
+                         "w", "none 8 bold"),
+    "help_f3": tko.Label("frame_main", "help_f3", "F3: Zu Datum springen",
+                         0, 2, "w", "none 8 bold"),
+    "help_f4": tko.Label("frame_main", "help_f4",
+                         "F4: In unterste Zeile springen", 0, 3, "w",
+                         "none 8 bold"),
+    "help_f5": tko.Label("frame_main", "help_f5", "F5: Auswerten", 0, 4,
+                         "w", "none 8 bold"),
+    "help_f6": tko.Label("frame_main", "help_f6", "F5: Pickerl", 0, 5,
+                         "w", "none 8 bold"),
+    "date": tko.Label("frame_main", "date", "Datum (dd-mm): ", 1, 0, "e",
+                      "none 14 bold"),
+    "time": tko.Label("frame_main", "time", "Uhrzeit (hh-mm): ", 1, 1,
+                      "e", "none 14 bold"),
+    "store": tko.Label("frame_main", "store", "Geschäft: ", 1, 2, "e",
+                       "none 14 bold"),
+    "payment": tko.Label("frame_main", "payment", "Zahlungsart: ", 1, 3,
+                         "e", "none 14 bold"),
+    "price_quantity_sum": tko.Label("frame_main", "price_quantity_sum",
+                                    "Summe Mengenpreise: ", 1, 4, "e",
+                                    "none 14 bold"),
+    "price_quantity_sum_var": tko.Label("frame_main",
+                                        "price_quantity_sum_var", "", 2, 4, "w",
+                                        "none 14 bold"),
+    "discount_sum": tko.Label("frame_main", "discount_sum",
+                              "Summe Rabatte: ", 1, 5, "e", "none 14 bold"),
+    "discount_sum_var": tko.Label("frame_main", "discount_sum_var", "", 2,
+                                  5, "w", "none 14 bold"),
+    "quantity_discount_sum": tko.Label("frame_main",
+                                       "quantity_discount_sum",
+                                       "Summe Mengenrabatte", 1, 6, "e",
+                                       "none 14 bold"),
+    "quantity_discount_sum_var": tko.Label("frame_main",
+                                           "quantity_discount_sum_var", "", 2,
+                                           6,
+                                           "w", "none 14 bold"),
+    "sale_sum": tko.Label("frame_main", "sale_sum", "Summe Aktionen: ", 1,
+                          7, "e", "none 14 bold"),
+    "sale_sum_var": tko.Label("frame_main", "sale_sum_var", "", 2, 7, "w",
+                              "none 14 bold"),
+    "total": tko.Label("frame_main", "total", "Gesamt: ", 1, 8, "e",
+                       "none 14 bold"),
+    "total_var": tko.Label("frame_main", "total_var", "", 2, 8, "w",
+                           "none 14 bold"),
+    "description": tko.Label("frame_main", "description",
+                             "Vorlage                                        "
+                             "Produkt                            Menge   Preis "
+                             " RK PK  U   Preis   Rabatt MRabt  Aktion Preis",
+                             0, 8, "w", "none 14 bold")}
+
+ENTRIES = {
+    "date": tko.Entry("frame_main", "date", 2, 0, 20, "white", "black"),
+    "time": tko.Entry("frame_main", "time", 2, 1, 20, "white", "black"),
+    "name": tko.Entry("frame_fields", "name", 3, "", 30, "gray75",
+                      "black"),
+    "quantity": tko.Entry("frame_fields", "quantity", 5, "", 8, "white",
+                          "black"),
+    "price_single": tko.Entry("frame_fields", "price_single", 7, "", 8,
+                              "white", "black"),
+    "discount_class": tko.Entry("frame_fields", "discount_class", 9, "",
+                                4, "salmon", "black"),
+    "product_class": tko.Entry("frame_fields", "product_class", 11, "", 4,
+                               "white", "black"),
+    "unknown": tko.Entry("frame_fields", "unknown", 13, "", 4,
+                         "light sky blue", "black"),
+    "price_quantity": tko.Entry("frame_fields", "price_quantity", 15, "",
+                                8, "gray75", "black"),
+    "discount": tko.Entry("frame_fields", "discount", 17, "", 8, "gray75",
+                          "black"),
+    "quantity_discount": tko.Entry("frame_fields", "quantity_discount",
+                                   19, "", 8, "white", "black"),
+    "sale": tko.Entry("frame_fields", "sale", 21, "", 8, "white",
+                      "black"),
+    "price_final": tko.Entry("frame_fields", "price_final", 23, "", 8,
+                             "gray75", "black")
+}
+
+BUTTONS = {
+    "new_row": tko.Button("frame_main", "add_new_row", "Neue Zeile",
+                          Application.button_add_new_row, 3, 0, "none 14 bold"),
+
+    "save_bill": tko.Button("frame_main", "save_bill", "Speichern",
+                            Application.button_save, 3, 1, "none 14 bold"),
+    "export_bills": tko.Button("frame_main", "export_bills", "Export",
+                               Application.button_export_bills, 3, 2,
+                               "none 14 bold"),
+    # "delete_row": Button("frame_fields", "delete_row", "Löschen",
+    #                      "delete_row", 24, 0, "none 10 bold"),
+    # "save_template": Button("frame_fields", "save_template",
+    #                         "Speichern", "save_template", 25,
+    #                         0, "none 10 bold")
+}
+COMBOBOXES = {
+    "store": tko.ComboBox("frame_main", "store", Application.trace_store,
+                          "stores", "normal", 2, 2, 20, "news"),
+    "payment": tko.ComboBox("frame_main", "payment", Application.trace_payment,
+                            "payments", "normal", 2, 3, 20, "news"),
+    "template": tko.ComboBox("frame_fields", "template",
+                             Application.trace_template, "template", "normal",
+                             0, "", 35, "news")
+}
+
+
+CHECKBUTTONS = {
+    "minus_first": tko.CheckButton("frame_fields", "discount_check_button", "",
+                                   "Minus zuerst", 26, "news")
+}

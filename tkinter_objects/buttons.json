@@ -1,0 +1,47 @@
+{
+  "new_row": {
+    "frame": "frame_main",
+    "dict_key": "add_new_row",
+    "text": "Neue Zeile",
+    "command": "add_new_row",
+    "column": 3,
+    "row": 0,
+    "font": "none 14 bold"
+  },
+  "save_bill": {
+    "frame": "frame_main",
+    "dict_key": "save_bill",
+    "text": "Speichern",
+    "command": "save_bill",
+    "column": 3,
+    "row": 1,
+    "font": "none 14 bold"
+  },
+  "export_bills": {
+    "frame": "frame_main",
+    "dict_key": "export_bills",
+    "text": "Export",
+    "command": "export_bills",
+    "column": 3,
+    "row": 2,
+    "font": "none 14 bold"
+  },
+  "delete_row": {
+    "frame": "frame_fields",
+    "dict_key": "delete_row",
+    "text": "Löschen",
+    "command": "delete_row",
+    "column": 24,
+    "row": 0,
+    "font": "none 10 bold"
+  },
+  "save_template": {
+    "frame": "frame_fields",
+    "dict_key": "save_template",
+    "text": "Speichern",
+    "command": "save_template",
+    "column": 25,
+    "row": 0,
+    "font": "none 10 bold"
+  }
+}

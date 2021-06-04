@@ -1,0 +1,132 @@
+{
+  "date": {
+    "frame": "frame_main",
+    "dict_key": "date",
+    "command": "",
+    "column": 2,
+    "row": 0,
+    "width": 20,
+    "background": "white",
+    "foreground":"black"
+  },
+  "time": {
+    "frame": "frame_main",
+    "dict_key": "time",
+    "command": "",
+    "column": 2,
+    "row": 1,
+    "width": 20,
+    "background": "white",
+    "foreground":"black"
+  },
+  "name": {
+    "frame": "frame_fields",
+    "dict_key": "name",
+    "command": "",
+    "column": 3,
+    "row": "",
+    "width": 30,
+    "background": "gray75",
+    "foreground":"black"
+  },
+  "quantity": {
+    "frame": "frame_fields",
+    "dict_key": "quantity",
+    "command": "",
+    "column": 5,
+    "row": "",
+    "width": 8,
+    "background": "white",
+    "foreground":"black"
+  },
+  "price_single": {
+    "frame": "frame_fields",
+    "dict_key": "price_single",
+    "command": "",
+    "column": 7,
+    "row": "",
+    "width": 8,
+    "background": "white",
+    "foreground":"black"
+  },
+  "discount_class": {
+    "frame": "frame_fields",
+    "dict_key": "discount_class",
+    "command": "",
+    "column": 9,
+    "row": "",
+    "width": 4,
+    "background": "salmon",
+    "foreground":"black"
+  },
+  "product_class": {
+    "frame": "frame_fields",
+    "dict_key": "product_class",
+    "command": "",
+    "column": 11,
+    "row": "",
+    "width": 4,
+    "background": "white",
+    "foreground":"black"
+  },
+  "unknown": {
+    "frame": "frame_fields",
+    "dict_key": "unknown",
+    "command": "",
+    "column": 13,
+    "row": "",
+    "width": 4,
+    "background": "light sky blue",
+    "foreground":"black"
+  },
+  "price_quantity": {
+    "frame": "frame_fields",
+    "dict_key": "price_quantity",
+    "command": "",
+    "column": 15,
+    "row": "",
+    "width": 8,
+    "background": "gray75",
+    "foreground":"black"
+  },
+  "discount": {
+    "frame": "frame_fields",
+    "dict_key": "discount",
+    "command": "",
+    "column": 17,
+    "row": "",
+    "width": 8,
+    "background": "gray75",
+    "foreground":"black"
+  },
+  "quantity_discount": {
+    "frame": "frame_fields",
+    "dict_key": "quantity_discount",
+    "command": "",
+    "column": 19,
+    "row": "",
+    "width": 8,
+    "background": "white",
+    "foreground":"black"
+  },
+  "sale": {
+    "frame": "frame_fields",
+    "dict_key": "sale",
+    "command": "",
+    "column": 21,
+    "row": "",
+    "width": 8,
+    "background": "white",
+    "foreground":"black"
+  },
+  "price_final": {
+    "frame": "frame_fields",
+    "dict_key": "price_final",
+    "command": "",
+    "column": 23,
+    "row": "",
+    "width": 8,
+    "background": "gray75",
+    "foreground":"black"
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "help_f1": {
+    "frame": "frame_main",
+    "dict_key": "help_f1",
+    "text": "F1: Auswerten & neue Zeile",
+    "column": 0,
+    "row": 0,
+    "sticky": "w",
+    "font": "none 8 bold"
+  },
+  "help_f2": {
+    "frame": "frame_main",
+    "dict_key": "help_f2",
+    "text": "F2: Neue Zeile",
+    "column": 0,
+    "row": 1,
+    "sticky": "w",
+    "font": "none 8 bold"
+  },
+  "help_f3": {
+    "frame": "frame_main",
+    "dict_key": "help_f3",
+    "text": "Zu Datum springen",
+    "column": 0,
+    "row": 2,
+    "sticky": "w",
+    "font": "none 8 bold"
+  },
+  "help_f4": {
+    "frame": "frame_main",
+    "dict_key": "help_f4",
+    "text": "F4: In unterste Zeile springen",
+    "column": 0,
+    "row": 3,
+    "sticky": "w",
+    "font": "none 8 bold"
+  },
+  "help_f5": {
+    "frame": "frame_main",
+    "dict_key": "help_f5",
+    "text": "F5: Auswerten",
+    "column": 0,
+    "row": 4,
+    "sticky": "w",
+    "font": "none 8 bold"
+  },
+  "help_f6": {
+    "frame": "frame_main",
+    "dict_key": "help_f6",
+    "text": "F6: Pickerl",
+    "column": 0,
+    "row": 5,
+    "sticky": "w",
+    "font": "none 8 bold"
+  },
+  "date": {
+    "frame": "frame_main",
+    "dict_key": "date",
+    "text": "Datum (dd-mm): ",
+    "column": 1,
+    "row": 0,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "time": {
+    "frame": "frame_main",
+    "dict_key": "time",
+    "text": "Uhrzeit (hh-mm): ",
+    "column": 1,
+    "row": 1,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "store": {
+    "frame": "frame_main",
+    "dict_key": "store",
+    "text": "Geschäft: ",
+    "column": 1,
+    "row": 2,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "payment": {
+    "frame": "frame_main",
+    "dict_key": "payment",
+    "text": "Zahlungsart: ",
+    "column": 1,
+    "row": 3,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "price_quantity_sum": {
+    "frame": "frame_main",
+    "dict_key": "price_quantity_sum",
+    "text": "Summe Mengenpreise: ",
+    "column": 1,
+    "row": 4,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "price_quantity_sum_var": {
+    "frame": "frame_main",
+    "dict_key": "price_quantity_sum_var",
+    "text": "",
+    "column": 2,
+    "row": 4,
+    "sticky": "w",
+    "font": "none 14 bold"
+  },
+  "discount_sum": {
+    "frame": "frame_main",
+    "dict_key": "discount_sum",
+    "text": "Summe Rabatte: ",
+    "column": 1,
+    "row": 5,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "discount_sum_var": {
+    "frame": "frame_main",
+    "dict_key": "discount_sum_var",
+    "text": "",
+    "column": 2,
+    "row": 5,
+    "sticky": "w",
+    "font": "none 14 bold"
+  },
+  "quantity_discount_sum": {
+    "frame": "frame_main",
+    "dict_key": "quantity_discount_sum",
+    "text": "Summe Mengenrabatte: ",
+    "column": 1,
+    "row": 6,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "quantity_discount_sum_var": {
+    "frame": "frame_main",
+    "dict_key": "quantity_discount_sum_var",
+    "text": "",
+    "column": 2,
+    "row": 6,
+    "sticky": "w",
+    "font": "none 14 bold"
+  },
+  "sale_sum": {
+    "frame": "frame_main",
+    "dict_key": "sale_sum",
+    "text": "Summe Aktionen: ",
+    "column": 1,
+    "row": 7,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "sale_sum_var": {
+    "frame": "frame_main",
+    "dict_key": "sale_sum_var",
+    "text": "",
+    "column": 2,
+    "row": 7,
+    "sticky": "w",
+    "font": "none 14 bold"
+  },
+  "total": {
+    "frame": "frame_main",
+    "dict_key": "total",
+    "text": "Gesamt: ",
+    "column": 1,
+    "row": 8,
+    "sticky": "e",
+    "font": "none 14 bold"
+  },
+  "total_var": {
+    "frame": "frame_main",
+    "dict_key": "total_var",
+    "text": "",
+    "column": 2,
+    "row": 8,
+    "sticky": "w",
+    "font": "none 14 bold"
+  },
+  "description": {
+    "frame": "frame_main",
+    "dict_key": "description",
+    "text": " Vorlage                                        Produkt                            Menge   Preis  RK PK  U   Preis   Rabatt MRabt  Aktion Preis",
+    "column": 0,
+    "row": 8,
+    "sticky": "w",
+    "font": "none 12 bold"
+  }
+}

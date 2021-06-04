@@ -1,0 +1,10 @@
+{
+  "minus_first": {
+      "frame": "frame_fields",
+      "dict_key": "discount_check_button",
+      "command": "",
+      "text": "Minus zuerst",
+      "column": 26,
+      "sticky": "news"
+  }
+}
