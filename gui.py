@@ -1,10 +1,10 @@
 ﻿"""
 Classes to create and run the GUI
 """
+import json
+import os  # To check if product json files exist
 import sys  # For exit()
 import tkinter as tk
-import os  # To check if product json files exist
-import json
 from tkinter import ttk  # For style and Combobox
 
 import backend
@@ -272,20 +272,25 @@ class Application:
              "save_template": self._button_save_template}
 
         # Store all parameters for the tkinter objects in this dictionary
-        self._objects: dict = backend.read_config(
-            backend.CONFIG_DICT["tkinter_objects"])
+        self._objects: dict = backend.read_json(
+            backend.CONFIG["FILES"]["tkinter objects json"])
 
         # Read parameters from the config file
-        self._font: str = "none " + backend.CONFIG_DICT["font_size"] + " bold"
-        self._scaling: float = backend.CONFIG_DICT["scaling"]
-        self._width: float = backend.CONFIG_DICT["main_width"]
-        self._height: float = backend.CONFIG_DICT["main_height"]
-        self._canvas_width: float = backend.CONFIG_DICT["canvas_width"]
-        self._canvas_height: float = backend.CONFIG_DICT["canvas_height"]
+        self._font: str = "none " + \
+                          backend.CONFIG["GRAPHICS"]["font size"] + " bold"
+        self._scaling: float = backend.CONFIG["GRAPHICS"]["scaling"]
+        self._width: float = backend.CONFIG["GRAPHICS"]["main width"]
+        self._height: float = backend.CONFIG["GRAPHICS"]["main height"]
+        self._canvas_width: float = backend.CONFIG["GRAPHICS"][
+            "canvas width"]
+        self._canvas_height: float = backend.CONFIG["GRAPHICS"][
+            "canvas height"]
 
-        self._color_frame: str = backend.CONFIG_DICT["color_frame"]
-        self._color_label_fg: str = backend.CONFIG_DICT["color_label_fg"]
-        self._color_label_bg: str = backend.CONFIG_DICT["color_label_bg"]
+        self._color_frame: str = backend.CONFIG["GRAPHICS"]["colour frame"]
+        self._color_label_fg: str = backend.CONFIG["GRAPHICS"][
+            "colour label fg"]
+        self._color_label_bg: str = backend.CONFIG["GRAPHICS"][
+            "colour label bg"]
 
         self._row_count: int = 0
         self._line_list: list = []
@@ -678,7 +683,7 @@ class Application:
         if len(month) == 1:
             month = '0' + month
 
-        date = backend.CONFIG_DICT["year"] + '-' + month + '-' + day
+        date = backend.CONFIG["DEFAULT"]["year"] + '-' + month + '-' + day
 
         # Get the item data from _line_list
         # TODO: combine this and the next for-loop
@@ -706,7 +711,7 @@ class Application:
 
             price_quantity_sum += product.price_quantity
 
-            if backend.CONFIG_DICT["save_history"]:
+            if backend.CONFIG["DEFAULT"]["save_history"]:
                 # update product history with this purchase
                 date_time = date + 'T' + time
                 # price_per_unit includes discounts
@@ -935,7 +940,7 @@ class Application:
                                           "str").lower()
 
         temp_dict = dict()
-        if backend.CONFIG_DICT["regex"]:
+        if backend.CONFIG["DEFAULT"]["regex"]:
             # Treat the user input as regex pattern and find matching product
             # names
             temp_dict = backend.regex_search(template_input)
@@ -1203,8 +1208,8 @@ class Application:
         identifier = backend.PRODUCT_KEYS[line_name]
         print("line_name: ", line_name)
         filename = identifier + ".json"
-        path = backend.CONFIG_DICT["product_folder"]
-        encoding = backend.CONFIG_DICT["encoding"]
+        path = backend.CONFIG["FOLDERS"]["product folder"]
+        encoding = backend.CONFIG["DEFAULT"]["encoding"]
         if line.values == {}:
             return
         if os.path.isfile(path + filename):

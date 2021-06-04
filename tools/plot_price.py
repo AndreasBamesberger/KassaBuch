@@ -9,8 +9,8 @@ import datetime
 
 import backend
 
-backend.CONFIG_DICT = backend.read_config("config.json")
-path = backend.CONFIG_DICT["product_folder"] + "product_00003.json"
+backend.CONFIG = backend.read_config("config.json")
+path = backend.CONFIG["FOLDERS"]["product folder"] + "product_00003.json"
 
 with open(path, 'r', encoding="utf-16") as in_file:
     data = json.load(in_file)

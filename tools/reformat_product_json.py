@@ -7,9 +7,9 @@ from collections import OrderedDict
 Takes the TEMPLATES dictionary, changes the data format and
 saves it in the product template json
 """
-backend.CONFIG_DICT = backend.read_config("config.json")
+backend.CONFIG = backend.read_config("config.json")
 
-product_folder = backend.CONFIG_DICT["product_folder"]
+product_folder = backend.CONFIG["FOLDERS"]["product folder"]
 for root, _, files in os.walk(product_folder):
     for file in files:
         input_json = os.path.join(root, file)
@@ -30,9 +30,9 @@ for root, _, files in os.walk(product_folder):
 # backend.read_stores()
 # backend.read_payments()
 # backend.read_discount_classes()
-# templates_json = backend.CONFIG_DICT["product_templates_json"]
+# templates_json = backend.CONFIG["product_templates_json"]
 #
-# out_folder = backend.CONFIG_DICT["output"] + "products\\"
+# out_folder = backend.CONFIG["output"] + "products\\"
 # counter = 0
 # product_dict = {}
 #
@@ -61,7 +61,7 @@ for root, _, files in os.walk(product_folder):
 #
 #     counter += 1
 #
-# with open(backend.CONFIG_DICT["output"] + "product_keys.json", "w",
+# with open(backend.CONFIG["output"] + "product_keys.json", "w",
 #           encoding="utf-16") as key_file:
 #     json.dump(product_dict, key_file, indent=2)
 #
