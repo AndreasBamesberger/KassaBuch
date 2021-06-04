@@ -2,14 +2,14 @@
 Classes to store information of one item and a bill. Functions to read and
 update the json files, to write to output csv files.
 """
+import configparser  # To read config file
 import csv  # To write the output into csv files
 # import datetime
 import json  # To read from and to update json files
-# The product template json should be alphabetical
-from collections import OrderedDict
 import os  # To walk through product json files
 import re  # To match user input with product names
-import configparser  # To read config file
+# The product template json should be alphabetical
+from collections import OrderedDict
 
 # Global data structures which hold the information read from the json files
 
@@ -35,7 +35,6 @@ PAYMENTS = []
 # DISCOUNT_CLASSES field: dict holding discount value, description and
 #                         applicable store
 DISCOUNT_CLASSES = {}
-
 
 # PRODUCT_KEYS key: product name
 # PRODUCT_KEYS field: number corresponding to product name
@@ -338,7 +337,8 @@ def backup_bill(bill):
 
     # windows-1252 encoding so it's easier for excel
     with open(out_path, 'w', newline='', encoding=encoding) as out_file:
-        file_writer = csv.writer(out_file, delimiter=CONFIG["DEFAULT"]["delimiter"],
+        file_writer = csv.writer(out_file,
+                                 delimiter=CONFIG["DEFAULT"]["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(header_line)
         for line in lines:
@@ -402,7 +402,8 @@ def export_bills():
                   "Mengenrab", "Aktion", "Preis"]
 
     with open(out_path, 'w', newline='', encoding=encoding) as out_file:
-        file_writer = csv.writer(out_file, delimiter=CONFIG["DEFAULT"]["delimiter"],
+        file_writer = csv.writer(out_file,
+                                 delimiter=CONFIG["DEFAULT"]["delimiter"],
                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(first_line)
 

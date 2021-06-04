@@ -103,11 +103,11 @@ class Application:
     _check_button_list: list
         List of the parameters with which the tkinter Checkbutton objects are
         created
-    _color_frame: str
+    _colour_frame: str
         Color of the background
-    _color_label_bg: str
+    _colour_label_bg: str
         Color of the tkinter Label object background
-    _color_label_fg: str
+    _colour_label_fg: str
         Color of the tkinter Label text/foreground
     _combo_box_list: list
         List of the parameters with which the tkinter Combobox objects are
@@ -286,10 +286,10 @@ class Application:
         self._canvas_height: float = backend.CONFIG["GRAPHICS"][
             "canvas height"]
 
-        self._color_frame: str = backend.CONFIG["GRAPHICS"]["colour frame"]
-        self._color_label_fg: str = backend.CONFIG["GRAPHICS"][
+        self._colour_frame: str = backend.CONFIG["GRAPHICS"]["colour frame"]
+        self._colour_label_fg: str = backend.CONFIG["GRAPHICS"][
             "colour label fg"]
-        self._color_label_bg: str = backend.CONFIG["GRAPHICS"][
+        self._colour_label_bg: str = backend.CONFIG["GRAPHICS"][
             "colour label bg"]
 
         self._row_count: int = 0
@@ -318,10 +318,10 @@ class Application:
 
         # Create the different frames and canvasses
         # All this is done so that _vsb can scroll the _canvas
-        self._frame_main = tk.Frame(self._root, bg=self._color_frame)
+        self._frame_main = tk.Frame(self._root, bg=self._colour_frame)
         self._frame_canvas = tk.Frame(self._frame_main)
-        self._canvas = tk.Canvas(self._frame_canvas, bg=self._color_frame)
-        self._frame_fields = tk.Frame(self._canvas, bg=self._color_frame)
+        self._canvas = tk.Canvas(self._frame_canvas, bg=self._colour_frame)
+        self._frame_fields = tk.Frame(self._canvas, bg=self._colour_frame)
         # Create the scrollbar
         self._vsb = tk.Scrollbar(self._frame_canvas, orient="vertical",
                                  command=self._canvas.yview)
@@ -357,52 +357,9 @@ class Application:
         self._root.geometry(str(self._width) + 'x' + str(self._height))
         self._root.tk.call('tk', 'scaling', self._scaling)
         self._root.title("Kassabuch")
-        self._root.configure(background=self._color_frame)
+        self._root.configure(background=self._colour_frame)
 
-        # Create all tkinter objects with frame_key "frame_main"
-        trace_vars: dict = {}
-
-        entries: dict = {}
-        for frame_key, dict_key, _, column, row, width, bg, fg in \
-                self._entry_list:
-            if frame_key == "frame_main":
-                entry, trace_var_entry = self._create_entry(frame_key, column,
-                                                            row, width, '', bg,
-                                                            fg)
-                entries.update({dict_key: entry})
-                trace_vars.update({dict_key: trace_var_entry})
-
-        labels: dict = {}
-        for frame_key, dict_key, text, column, row, sticky, font in \
-                self._label_list:
-            if frame_key == "frame_main":
-                label = self._create_label(frame_key, text, column, row, sticky,
-                                           font)
-                labels.update({dict_key: label})
-
-        combo_boxes: dict = {}
-        for frame_key, dict_key, func_key, values, state, column, row, width, \
-                sticky in self._combo_box_list:
-            if frame_key == "frame_main":
-                combo_box, trace_var_combo_box = self._create_combo_box(
-                    frame_key, func_key, values, state, column, row, width,
-                    sticky)
-                trace_vars.update({dict_key: trace_var_combo_box})
-                combo_boxes.update({dict_key: combo_box})
-
-        buttons: dict = {}
-        for frame_key, dict_key, text, func_key, column, row, font in \
-                self._button_list:
-            if frame_key == "frame_main":
-                button = self._create_button(frame_key, text, column, row, font,
-                                             func_key)
-                buttons.update({dict_key: button})
-
-        check_buttons: dict = {}
-
-        # Create a Line object which stores all created tkinter objects
-        self._root_objects = Line(-1, labels, entries, buttons, combo_boxes,
-                                  check_buttons, trace_vars, {})
+        self._root_objects = self._create_line("frame_main", -1)
 
     def _setup_canvas_window(self):
         """
@@ -479,55 +436,7 @@ class Application:
         append this Line object to _line_list
         """
         print("_button_add_new_row")
-        row: int = self._row_count
-        trace_vars = {}
-
-        combo_boxes = {}
-        for frame_key, dict_key, func_key, values, state, column, _, width, \
-                sticky in self._combo_box_list:
-            if frame_key == "frame_fields":
-                combo_box, trace_var_combo_box = self._create_combo_box(
-                    frame_key, func_key, values, state, column, row, width,
-                    sticky)
-                trace_vars.update({dict_key: trace_var_combo_box})
-                combo_boxes.update({dict_key: combo_box})
-
-        labels = {}
-        for frame_key, dict_key, text, column, _, sticky, font in \
-                self._label_list:
-            if frame_key == "frame_fields":
-                label = self._create_label(frame_key, text, column, row,
-                                           sticky, font)
-                labels.update({dict_key: label})
-
-        entries = {}
-        for frame_key, dict_key, func_key, column, _, width, bg, fg in \
-                self._entry_list:
-            if frame_key == "frame_fields":
-                entry, trace_var_entry = self._create_entry(frame_key, column,
-                                                            row, width,
-                                                            func_key, bg, fg)
-                entries.update({dict_key: entry})
-                trace_vars.update({dict_key: trace_var_entry})
-
-        buttons = {}
-        for frame_key, dict_key, text, func_key, column, _, font in \
-                self._button_list:
-            if frame_key == "frame_fields":
-                buttons.update({dict_key: self._create_button(frame_key, text,
-                                                              column, row, font,
-                                                              func_key)})
-
-        check_buttons = {}
-        for frame_key, dict_key, func_key, text, column, sticky in \
-                self._check_button_list:
-            check_button, trace_var_check_button = self._create_check_button(
-                frame_key, func_key, text, column, row, sticky)
-            check_buttons.update({dict_key: check_button})
-            trace_vars.update({dict_key: trace_var_check_button})
-
-        line = Line(self._row_count, labels, entries, buttons, combo_boxes,
-                    check_buttons, trace_vars, {})
+        line = self._create_line("frame_fields", self._row_count)
         self._line_list.append(line)
 
         self._root.update()
@@ -1168,7 +1077,7 @@ class Application:
         sale_sum = self._float2str(sale_sum)
 
         self._root_objects.labels["discount_sum_var"].config(text=discount_sum)
-        self._root_objects.labels["quantity_discount_sum_var"].\
+        self._root_objects.labels["quantity_discount_sum_var"]. \
             config(text=quantity_discount_sum)
         self._root_objects.labels["sale_sum_var"].config(text=sale_sum)
 
@@ -1178,7 +1087,7 @@ class Application:
             price_quantity_sum += self._read_entry(
                 line.entries["price_quantity"], "float")
         price_quantity_sum = self._float2str(price_quantity_sum)
-        self._root_objects.labels["price_quantity_sum_var"].\
+        self._root_objects.labels["price_quantity_sum_var"]. \
             config(text=price_quantity_sum)
 
         # in "time" label, replace '-' with ':'
@@ -1230,8 +1139,8 @@ class Application:
 
             eq_ps = not (template_price_single == line_price_single)
             eq_q = not (template_quantity == line_quantity)
-            eq_pc = not(template_product_class == line_product_class)
-            eq_u = not(template_unknown == line_unknown)
+            eq_pc = not (template_product_class == line_product_class)
+            eq_u = not (template_unknown == line_unknown)
 
             # Get default background colour from entry list
             bg_ps = ''
@@ -1501,8 +1410,8 @@ class Application:
                 The created Label object
         """
         frame = self._frame_dict[frame_key]
-        temp = tk.Label(frame, text=text, bg=self._color_label_bg,
-                        fg=self._color_label_fg,
+        temp = tk.Label(frame, text=text, bg=self._colour_label_bg,
+                        fg=self._colour_label_fg,
                         font=font)
         temp.grid(row=row, column=column, sticky=sticky)
         return temp
@@ -1883,3 +1792,67 @@ class Application:
         # out_str = str(in_float).replace('.', ',')
         out_str = str(in_float)
         return out_str
+
+    def _create_line(self, frame_key_choice, line_row):
+        """
+
+        """
+        trace_vars: dict = {}
+
+        entries: dict = {}
+        for frame_key, dict_key, func_key, column, row, width, bg, fg in \
+                self._entry_list:
+            if frame_key == frame_key_choice:
+                if row == "":
+                    row = line_row
+                entry, trace_var_entry = self._create_entry(frame_key, column,
+                                                            row, width,
+                                                            func_key, bg, fg)
+                entries.update({dict_key: entry})
+                trace_vars.update({dict_key: trace_var_entry})
+
+        labels: dict = {}
+        for frame_key, dict_key, text, column, row, sticky, font in \
+                self._label_list:
+            if frame_key == frame_key_choice:
+                if row == "":
+                    row = line_row
+                label = self._create_label(frame_key, text, column, row, sticky,
+                                           font)
+                labels.update({dict_key: label})
+
+        combo_boxes: dict = {}
+        for frame_key, dict_key, func_key, values, state, column, row, width, \
+                sticky in self._combo_box_list:
+            if frame_key == frame_key_choice:
+                if row == "":
+                    row = line_row
+                combo_box, trace_var_combo_box = self._create_combo_box(
+                    frame_key, func_key, values, state, column, row, width,
+                    sticky)
+                trace_vars.update({dict_key: trace_var_combo_box})
+                combo_boxes.update({dict_key: combo_box})
+
+        buttons: dict = {}
+        for frame_key, dict_key, text, func_key, column, row, font in \
+                self._button_list:
+            if frame_key == frame_key_choice:
+                if row == "":
+                    row = line_row
+                button = self._create_button(frame_key, text, column, row, font,
+                                             func_key)
+                buttons.update({dict_key: button})
+
+        check_buttons: dict = {}
+        for frame_key, dict_key, func_key, text, column, sticky in \
+                self._check_button_list:
+            if frame_key == frame_key_choice:
+                check_button, trace_var_check_button = \
+                    self._create_check_button(frame_key, func_key, text, column,
+                                              line_row, sticky)
+                check_buttons.update({dict_key: check_button})
+                trace_vars.update({dict_key: trace_var_check_button})
+
+        # Create a Line object which stores all created tkinter objects
+        return Line(line_row, labels, entries, buttons, combo_boxes,
+                    check_buttons, trace_vars, {})
