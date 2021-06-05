@@ -1,10 +1,39 @@
 {
   "name": "Semmel",
-  "default_price_per_unit": 0.30,
+  "default_price_per_unit": 0.3,
   "default_quantity": 4,
   "product_class": "",
   "unknown": "",
   "display": true,
   "notes": "Test entry 02",
-  "history": []
+  "history": [
+    {
+      "date_time": "2021-04-12T10:23",
+      "store": "Hofer",
+      "payment": "Bar",
+      "price_single": 0.3,
+      "quantity": 4.0,
+      "price_quantity": 1.2,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.2,
+      "price_final_per_unit": 0.3
+    },
+    {
+      "date_time": "2021-04-12T23:10",
+      "store": "Saturn",
+      "payment": "Bar",
+      "price_single": 0.3,
+      "quantity": 4.0,
+      "price_quantity": 1.2,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.2,
+      "price_final_per_unit": 0.3
+    }
+  ]
 }

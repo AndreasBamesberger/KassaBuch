@@ -22,7 +22,7 @@ colour label fg = black
 colour label bg = light grey
 
 [DEFAULT]
-delimiter = ";"
+delimiter = ;
 year = 2021
 regex = True
 save history = True

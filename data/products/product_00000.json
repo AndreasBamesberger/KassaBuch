@@ -20,6 +20,20 @@
       "discount": -0.0,
       "price_final": 1.5,
       "price_final_per_unit": 1.5
+    },
+    {
+      "date_time": "2021-12-10T10:04",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 1.5,
+      "quantity": "",
+      "price_quantity": 1.5,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.5,
+      "price_final_per_unit": 1.5
     }
   ]
 }

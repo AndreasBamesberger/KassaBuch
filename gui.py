@@ -188,7 +188,7 @@ class Application:
     _create_output(self):
         Read the user input from the tkinter objects and create a backend.Bill
         object which is then returned
-    _get_product_from_line(self, line):
+    _read_product_from_line(self, line):
         Read all Entry objects of a given line in the scrollable region and save
         their information as a backend.Product object, then return it
     _button_save_template(self, row):
@@ -475,7 +475,9 @@ class Application:
 
     def _button_save(self):
         """
-        Create a backend.Bill from the user input, append this Bill to
+        Read all the user input, call backend.create_bill to turn it into a Bill
+        object.
+         append this Bill to
         backend.BILLS and save it to the backup csv file. Then, reset and clear
         the screen to accept a new bill
         """
@@ -483,12 +485,43 @@ class Application:
         # Update all fields
         for line in self._line_list:
             self._trace_update_entries(line)
-        bill = self._create_output()
 
-        # Don't save an empty bill
-        if bill.products:
-            backend.BILLS.append(bill)
-            backend.backup_bill(bill)
+        store = self._read_entry(self._root_objects.combo_boxes["store"], "str")
+        payment = self._read_entry(self._root_objects.combo_boxes["payment"],
+                                   "str")
+        date: str = self._read_entry(self._root_objects.entries["date"], "str")
+
+        time: str = self._read_entry(self._root_objects.entries["time"], "str")
+        discount_sum = self._read_label(self._root_objects.
+                                        labels["discount_sum_var"], "float")
+        quantity_discount_sum = self._read_label(
+            self._root_objects.labels["quantity_discount_sum_var"], "float")
+        sale_sum = self._read_label(self._root_objects.labels["sale_sum_var"],
+                                    "float")
+        total = self._read_label(self._root_objects.labels["total_var"],
+                                 "float")
+
+        product_list = list()
+        for line in self._line_list:
+            product = self._read_product_from_line(line, False)
+            # Skip empty line
+            if product.name == '' and product.price_final == 0:
+                continue
+
+            product_list.append(product)
+
+        user_input = {"store": store,
+                      "payment": payment,
+                      "date": date,
+                      "time": time,
+                      "discount_sum": discount_sum,
+                      "quantity_discount_sum": quantity_discount_sum,
+                      "sale_sum": sale_sum,
+                      "total": total,
+                      "product_list": product_list}
+
+        # bill = self._create_output()
+        backend.create_bill(user_input)
 
         self._clear_screen()
         self._reset()
@@ -526,144 +559,7 @@ class Application:
     #     # Don't leave the scrollable region empty
     #     self._button_add_new_row()
 
-    def _create_output(self):
-        """
-        Read the user input from the tkinter objects and create a backend.Bill
-        object which is then returned
-
-        Returns:
-            bill: backend.Bill
-                The Bill object created from user input
-        """
-        store = self._read_entry(self._root_objects.combo_boxes["store"], "str")
-
-        # TODO: As soon as message windows are a thing, make one to ask the user
-        #  for default payment string
-        if store not in backend.STORES and store != '':
-            backend.STORES.update({store: {"default_payment": ''}})
-            backend.update_stores()
-
-        payment = self._read_entry(self._root_objects.combo_boxes["payment"],
-                                   "str")
-
-        # If payment method is new, store it and update the payments json
-        if payment not in backend.PAYMENTS and payment != '':
-            backend.PAYMENTS.append(payment)
-            backend.update_payments()
-
-        date: str = self._read_entry(self._root_objects.entries["date"], "str")
-
-        time: str = self._read_entry(self._root_objects.entries["time"], "str")
-        # Time is written with '-' as a separator because it's easier to type in
-        # on the numpad
-        try:
-            hours, minutes = time.split(':')
-            # If user wrote hours or minutes as one digit, add the leading zero
-            if len(hours) == 1:
-                hours = '0' + hours
-            if len(minutes) == 1:
-                minutes = '0' + minutes
-            time = hours + ':' + minutes
-        except ValueError:
-            # If user did not enter time
-            time = "00:00"
-
-        discount_sum = self._read_label(self._root_objects.
-                                        labels["discount_sum_var"], "float")
-        quantity_discount_sum = self._read_label(
-            self._root_objects.labels["quantity_discount_sum_var"], "float")
-        sale_sum = self._read_label(self._root_objects.labels["sale_sum_var"],
-                                    "float")
-        total = self._read_label(self._root_objects.labels["total_var"],
-                                 "float")
-        price_quantity_sum = 0.0
-
-        # Date user input is dd-mm
-        # Transform it into yyyy-mm-dd
-        try:
-            day, month = date.split('-')
-        except ValueError:
-            day = "00"
-            month = "00"
-
-        # If user wrote day or month as one digit, add the leading zero
-        if len(day) == 1:
-            day = '0' + day
-        if len(month) == 1:
-            month = '0' + month
-
-        date = backend.CONFIG["DEFAULT"]["year"] + '-' + month + '-' + day
-
-        # Get the item data from _line_list
-        # TODO: combine this and the next for-loop
-        product_list = list()
-        for line in self._line_list:
-            product = self._get_product_from_line(line, False)
-            # Skip empty line
-            if product.name == '' and product.price_final == 0:
-                continue
-
-            product_list.append(product)
-
-        for product in product_list:
-            # Skip empty line
-            if not product.name and not product.quantity and \
-                    not product.price_final:
-                continue
-            # TODO: don't do this formatting here, do this only in the
-            #  backend.format_bill
-            # Quantity = 1 should not be shown in final excel file
-            if float(product.quantity) == 1:
-                product.quantity = ''
-            else:
-                product.quantity = float(product.quantity)
-
-            price_quantity_sum += product.price_quantity
-
-            if backend.CONFIG["DEFAULT"]["save_history"]:
-                # update product history with this purchase
-                date_time = date + 'T' + time
-                # price_per_unit includes discounts
-                price_per_unit = 0
-                if isinstance(product.quantity, str) or product.quantity == 0:
-                    # if quantity is '' then it is 1
-                    price_per_unit = product.price_final
-                elif isinstance(product.quantity, float):
-                    price_per_unit = product.price_final / product.quantity
-                price_per_unit = round(price_per_unit, 2)
-                # product.history.append([date_time, store, price_per_unit])
-                product.history.append({
-                    "date_time": date_time,
-                    "store": store,
-                    "payment": payment,
-                    "price_single": product.price_single,
-                    "quantity": product.quantity,
-                    "price_quantity": product.price_quantity,
-                    "discount_class": product.discount_class,
-                    "quantity_discount": product.quantity_discount,
-                    "sale": product.sale,
-                    "discount": product.discount,
-                    "price_final": product.price_final,
-                    "price_final_per_unit": price_per_unit
-                })
-
-            backend.TEMPLATES.update({product.name: product})
-
-            backend.update_product_history(product)
-
-        price_quantity_sum = round(price_quantity_sum, 2)
-
-        bill = backend.Bill(products=product_list, date=date, time=time,
-                            store=store, payment=payment, total=total,
-                            discount_sum=discount_sum,
-                            quantity_discount_sum=quantity_discount_sum,
-                            sale_sum=sale_sum,
-                            price_quantity_sum=price_quantity_sum)
-        print("bill = ", bill)
-
-        return bill
-
-    def _get_product_from_line(self, line, new_product):
+    def _read_product_from_line(self, line, new_product):
         """
         Read all Entry objects of a given line in the scrollable region and save
         their information as a backend.Entry object, then return it
@@ -681,6 +577,7 @@ class Application:
         """
         # TODO: make a list or something through which we can loop to reduce
         #  repetition
+
         name = self._read_entry(line.entries["name"], "str").rstrip()
         price_single = self._read_entry(line.entries["price_single"], "float")
         quantity = self._read_entry(line.entries["quantity"], "float")
@@ -695,68 +592,19 @@ class Application:
         sale = self._read_entry(line.entries["sale"], "float")
         price_final = self._read_entry(line.entries["price_final"], "float")
 
-        identifier = -1
+        user_input = {"name": name,
+                      "price_single": price_single,
+                      "quantity": quantity,
+                      "discount_class": discount_class,
+                      "product_class": product_class,
+                      "unknown": unknown,
+                      "price_quantity": price_quantity,
+                      "discount": discount,
+                      "quantity_discount": quantity_discount,
+                      "sale": sale,
+                      "price_final": price_final}
 
-        # Get history from backend.TEMPLATES
-        if new_product:
-            history = []
-            display = True
-            notes = ''
-        else:
-            if name == '':
-                history = []
-                display = True
-                notes = ''
-            else:
-                if name in backend.TEMPLATES:
-                    history = backend.TEMPLATES[name].history
-                    display = backend.TEMPLATES[name].display
-                    notes = backend.TEMPLATES[name].notes
-                else:
-                    # If the product is new and has not been saved as a new
-                    # template
-                    history = []
-                    display = True
-                    notes = ''
-
-        # Search backend.TEMPLATES for this product and give it the correct
-        # identifier. If it is a new product, give it an identifier that has not
-        # yet been used
-        new_product = True
-        for key, field in backend.TEMPLATES.items():
-            if name == key:
-                identifier = field.identifier
-                new_product = False
-                break
-        if new_product:
-            # Get all used identifier numbers, sort them, create a new one that
-            # is one higher
-            used_identifiers = [field.identifier
-                                for _, field in backend.TEMPLATES.items()]
-            used_identifiers = sorted(used_identifiers)
-            new_identifier = used_identifiers[-1] + 1
-            # To be safe, check if the new identifier hasn't been used so far
-            for _, field in backend.TEMPLATES.items():
-                if new_identifier == field.identifier:
-                    raise SystemError
-            identifier = new_identifier
-
-        product = backend.Product(name=name,
-                                  price_single=price_single,
-                                  quantity=quantity,
-                                  discount_class=discount_class,
-                                  product_class=product_class,
-                                  unknown=unknown,
-                                  price_quantity=price_quantity,
-                                  discount=discount,
-                                  quantity_discount=quantity_discount,
-                                  sale=sale,
-                                  price_final=price_final,
-                                  history=history,
-                                  identifier=identifier,
-                                  display=display,
-                                  notes=notes)
-        return product
+        return backend.create_product(user_input, new_product)
 
     # TODO: use Line instead of row
     def _button_save_template(self, row):
@@ -782,31 +630,8 @@ class Application:
         if not curr_line:
             raise SystemError
 
-        product = self._get_product_from_line(curr_line, True)
-
-        # Delete trailing whitespaces from product name
-        product.name = product.name.rstrip()
-
-        if product.name == '':
-            return
-        if product.quantity == 0:
-            product.quantity = 1
-
-        # # German format, decimal sign is comma
-        # product.price_single = str(product.price_single).replace('.', ',')
-        # product.quantity = str(product.quantity).replace('.', ',')
-
-        # If template already exists, delete the old product
-        try:
-            backend.TEMPLATES.pop(product.name)
-        except KeyError:
-            pass
-
-        # Add new template to dictionary
-        backend.TEMPLATES.update({product.name: product})
-
-        # Update the product json file or create a new one
-        backend.update_product_json(product)
+        product = self._read_product_from_line(curr_line, True)
+        backend.create_template(product)
 
         # Alphabetically sort the list that is passed to the Combobox
         name_list = sorted([key for key, _ in backend.TEMPLATES.items()])
@@ -1795,63 +1620,95 @@ class Application:
 
     def _create_line(self, frame_key_choice, line_row):
         """
+        Look through all lists of tkinter objects, if they have the correct
+        frame_key, create them and store them in a Line object.
 
+        Parameters:
+            frame_key_choice:str
+                "frame_main" or "frame_fields"
+            line_row:int
+                In which row is the new Line object
+        Returns:
+            line:Line
+                The created Line object
         """
         trace_vars: dict = {}
-
-        entries: dict = {}
-        for frame_key, dict_key, func_key, column, row, width, bg, fg in \
-                self._entry_list:
-            if frame_key == frame_key_choice:
-                if row == "":
-                    row = line_row
-                entry, trace_var_entry = self._create_entry(frame_key, column,
-                                                            row, width,
-                                                            func_key, bg, fg)
-                entries.update({dict_key: entry})
-                trace_vars.update({dict_key: trace_var_entry})
-
         labels: dict = {}
-        for frame_key, dict_key, text, column, row, sticky, font in \
-                self._label_list:
-            if frame_key == frame_key_choice:
-                if row == "":
-                    row = line_row
-                label = self._create_label(frame_key, text, column, row, sticky,
-                                           font)
-                labels.update({dict_key: label})
-
-        combo_boxes: dict = {}
-        for frame_key, dict_key, func_key, values, state, column, row, width, \
-                sticky in self._combo_box_list:
-            if frame_key == frame_key_choice:
-                if row == "":
-                    row = line_row
-                combo_box, trace_var_combo_box = self._create_combo_box(
-                    frame_key, func_key, values, state, column, row, width,
-                    sticky)
-                trace_vars.update({dict_key: trace_var_combo_box})
-                combo_boxes.update({dict_key: combo_box})
-
+        entries: dict = {}
         buttons: dict = {}
-        for frame_key, dict_key, text, func_key, column, row, font in \
-                self._button_list:
-            if frame_key == frame_key_choice:
-                if row == "":
-                    row = line_row
-                button = self._create_button(frame_key, text, column, row, font,
-                                             func_key)
-                buttons.update({dict_key: button})
-
+        combo_boxes: dict = {}
         check_buttons: dict = {}
-        for frame_key, dict_key, func_key, text, column, sticky in \
-                self._check_button_list:
-            if frame_key == frame_key_choice:
-                check_button, trace_var_check_button = \
-                    self._create_check_button(frame_key, func_key, text, column,
-                                              line_row, sticky)
-                check_buttons.update({dict_key: check_button})
-                trace_vars.update({dict_key: trace_var_check_button})
+
+        def create_labels():
+            for frame_key, dict_key, text, column, row, sticky, font in \
+                    self._label_list:
+                if frame_key == frame_key_choice:
+                    if row == "":
+                        row = line_row
+                    label = self._create_label(frame_key, text, column, row,
+                                               sticky,
+                                               font)
+                    labels.update({dict_key: label})
+
+        def create_entries():
+            for frame_key, dict_key, func_key, column, row, width, bg, fg in \
+                    self._entry_list:
+                if frame_key == frame_key_choice:
+                    if row == "":
+                        row = line_row
+                    entry, trace_var_entry = self._create_entry(frame_key,
+                                                                column,
+                                                                row, width,
+                                                                func_key, bg,
+                                                                fg)
+                    entries.update({dict_key: entry})
+                    trace_vars.update({dict_key: trace_var_entry})
+
+        def create_buttons():
+            for frame_key, dict_key, text, func_key, column, row, font in \
+                    self._button_list:
+                if frame_key == frame_key_choice:
+                    if row == "":
+                        row = line_row
+                    button = self._create_button(frame_key, text, column, row,
+                                                 font,
+                                                 func_key)
+                    buttons.update({dict_key: button})
+
+        def create_combo_boxes():
+            for frame_key, dict_key, func_key, values, state, column, row, \
+                    width, sticky in self._combo_box_list:
+                if frame_key == frame_key_choice:
+                    if row == "":
+                        row = line_row
+                    combo_box, trace_var_combo_box = self._create_combo_box(
+                        frame_key, func_key, values, state, column, row, width,
+                        sticky)
+                    trace_vars.update({dict_key: trace_var_combo_box})
+                    combo_boxes.update({dict_key: combo_box})
+
+        def create_check_buttons():
+            for frame_key, dict_key, func_key, text, column, sticky in \
+                    self._check_button_list:
+                if frame_key == frame_key_choice:
+                    check_button, trace_var_check_button = \
+                        self._create_check_button(frame_key, func_key, text,
+                                                  column, line_row, sticky)
+                    check_buttons.update({dict_key: check_button})
+                    trace_vars.update({dict_key: trace_var_check_button})
+
+        create_labels()
+
+        # Order of operations is important for tab-switching through the objects
+        if frame_key_choice == "frame_main":
+            create_entries()
+            create_combo_boxes()
+        elif frame_key_choice == "frame_fields":
+            create_combo_boxes()
+            create_entries()
+
+        create_buttons()
+        create_check_buttons()
 
         # Create a Line object which stores all created tkinter objects
         return Line(line_row, labels, entries, buttons, combo_boxes,

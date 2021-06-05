@@ -723,3 +723,233 @@ def regex_search(input_str):
             out_dict.update({key: field})
 
     return out_dict
+
+
+def create_template(product: Product):
+    """
+    Add the new Product to the TEMPLATES list or update an old entry. Then save
+    the product info as a json file.
+
+    Parameters:
+        product: Product
+            The Product object from which the new template is created
+    """
+
+    # Delete trailing whitespaces from product name
+    product.name = product.name.rstrip()
+
+    if product.name == '':
+        return
+
+    if product.quantity == 0:
+        product.quantity = 1
+
+    # # German format, decimal sign is comma
+    # product.price_single = str(product.price_single).replace('.', ',')
+    # product.quantity = str(product.quantity).replace('.', ',')
+
+    # If template already exists, delete the old product
+    try:
+        TEMPLATES.pop(product.name)
+    except KeyError:
+        pass
+
+    # Add new template to dictionary
+    TEMPLATES.update({product.name: product})
+
+    # Update the product json file or create a new one
+    update_product_json(product)
+
+
+def create_product(user_input: dict, new_product: bool):
+    """
+    Create a new Product object from the user input.
+
+    Parameters:
+        user_input: dict
+            Dictionary holding all user input
+        new_product: bool
+            If true, the product has not yet been saved as a json file
+
+    Returns:
+        product: Product
+            The created Product object
+    """
+
+    identifier = -1
+
+    # Get history from backend.TEMPLATES
+    if new_product:
+        history = []
+        display = True
+        notes = ''
+    else:
+        if user_input["name"] == '':
+            history = []
+            display = True
+            notes = ''
+        else:
+            if user_input["name"] in TEMPLATES:
+                history = TEMPLATES[user_input["name"]].history
+                display = TEMPLATES[user_input["name"]].display
+                notes = TEMPLATES[user_input["name"]].notes
+            else:
+                # If the product is new and has not been saved as a new
+                # template
+                history = []
+                display = True
+                notes = ''
+
+    # Search backend.TEMPLATES for this product and give it the correct
+    # identifier. If it is a new product, give it an identifier that has not
+    # yet been used
+    new_product = True
+    for key, field in TEMPLATES.items():
+        if user_input["name"] == key:
+            identifier = field.identifier
+            new_product = False
+            break
+    if new_product:
+        # Get all used identifier numbers, sort them, create a new one that
+        # is one higher
+        used_identifiers = [field.identifier
+                            for _, field in TEMPLATES.items()]
+        used_identifiers = sorted(used_identifiers)
+        new_identifier = used_identifiers[-1] + 1
+        # To be safe, check if the new identifier hasn't been used so far
+        for _, field in TEMPLATES.items():
+            if new_identifier == field.identifier:
+                raise SystemError
+        identifier = new_identifier
+
+    product = Product(name=user_input["name"],
+                      price_single=user_input["price_single"],
+                      quantity=user_input["quantity"],
+                      discount_class=user_input["discount_class"],
+                      product_class=user_input["product_class"],
+                      unknown=user_input["unknown"],
+                      price_quantity=user_input["price_quantity"],
+                      discount=user_input["discount"],
+                      quantity_discount=user_input["quantity_discount"],
+                      sale=user_input["sale"],
+                      price_final=user_input["price_final"],
+                      history=history,
+                      identifier=identifier,
+                      display=display,
+                      notes=notes)
+    return product
+
+
+def create_bill(user_input: dict):
+    """
+    Create a Bill object from the user input. Then store it in the BILLS list
+    and save it as a csv file.
+
+    Parameters:
+        user_input: dict
+            Dictionary holding all user input
+    """
+    # TODO: As soon as message windows are a thing, make one to ask the user
+    #  for default payment string
+    if user_input["store"] not in STORES and user_input["store"] != '':
+        STORES.update({user_input["store"]: {"default_payment": ''}})
+        update_stores()
+
+    # If payment method is new, store it and update the payments json
+    if user_input["payment"] not in PAYMENTS and user_input["payment"] != '':
+        PAYMENTS.append(user_input["payment"])
+        update_payments()
+
+    # Time is written with '-' as a separator because it's easier to type in
+    # on the numpad
+    try:
+        hours, minutes = user_input["time"].split(':')
+        # If user wrote hours or minutes as one digit, add the leading zero
+        if len(hours) == 1:
+            hours = '0' + hours
+        if len(minutes) == 1:
+            minutes = '0' + minutes
+        time = hours + ':' + minutes
+    except ValueError:
+        # If user did not enter time
+        time = "00:00"
+
+    price_quantity_sum = 0.0
+
+    # Date user input is dd-mm
+    # Transform it into yyyy-mm-dd
+    try:
+        day, month = user_input["date"].split('-')
+    except ValueError:
+        day = "00"
+        month = "00"
+
+    # If user wrote day or month as one digit, add the leading zero
+    if len(day) == 1:
+        day = '0' + day
+    if len(month) == 1:
+        month = '0' + month
+
+    date = CONFIG["DEFAULT"]["year"] + '-' + month + '-' + day
+
+    for product in user_input["product_list"]:
+        # Skip empty line
+        if not product.name and not product.quantity and \
+                not product.price_final:
+            continue
+        # TODO: don't do this formatting here, do this only in the
+        #  backend.format_bill
+        # Quantity = 1 should not be shown in final excel file
+        if float(product.quantity) == 1:
+            product.quantity = ''
+        else:
+            product.quantity = float(product.quantity)
+
+        price_quantity_sum += product.price_quantity
+
+        if CONFIG["DEFAULT"]["save history"]:
+            # update product history with this purchase
+            date_time = date + 'T' + time
+            # price_per_unit includes discounts
+            price_per_unit = 0
+            if isinstance(product.quantity, str) or product.quantity == 0:
+                # if quantity is '' then it is 1
+                price_per_unit = product.price_final
+            elif isinstance(product.quantity, float):
+                price_per_unit = product.price_final / product.quantity
+            price_per_unit = round(price_per_unit, 2)
+            # product.history.append([date_time, store, price_per_unit])
+            product.history.append({
+                "date_time": date_time,
+                "store": user_input["store"],
+                "payment": user_input["payment"],
+                "price_single": product.price_single,
+                "quantity": product.quantity,
+                "price_quantity": product.price_quantity,
+                "discount_class": product.discount_class,
+                "quantity_discount": product.quantity_discount,
+                "sale": product.sale,
+                "discount": product.discount,
+                "price_final": product.price_final,
+                "price_final_per_unit": price_per_unit
+            })
+
+        TEMPLATES.update({product.name: product})
+
+        update_product_history(product)
+
+    price_quantity_sum = round(price_quantity_sum, 2)
+
+    bill = Bill(products=user_input["product_list"], date=date, time=time,
+                store=user_input["store"], payment=user_input["payment"],
+                total=user_input["total"],
+                discount_sum=user_input["discount_sum"],
+                quantity_discount_sum=user_input["quantity_discount_sum"],
+                sale_sum=user_input["sale_sum"],
+                price_quantity_sum=price_quantity_sum)
+    print("bill = ", bill)
+
+    # Don't save an empty bill
+    if bill.products:
+        BILLS.append(bill)
+        backup_bill(bill)

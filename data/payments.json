@@ -1,7 +1,8 @@
 {
-    "payments": [
-        "Bar", 
-        "Karte", 
-        "Gutschein"
-    ]
+  "payments": [
+    "Bar",
+    "Gutschein",
+    "Karte",
+    "TestPayment"
+  ]
 }

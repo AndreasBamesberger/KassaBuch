@@ -6,5 +6,34 @@
   "unknown": "",
   "display": true,
   "notes": "Test entry 08",
-  "history": []
+  "history": [
+    {
+      "date_time": "2021-12-10T10:04",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 9.35,
+      "quantity": "",
+      "price_quantity": 9.35,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 9.35,
+      "price_final_per_unit": 9.35
+    },
+    {
+      "date_time": "2021-04-12T23:10",
+      "store": "Saturn",
+      "payment": "Bar",
+      "price_single": 9.35,
+      "quantity": "",
+      "price_quantity": 9.35,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 9.35,
+      "price_final_per_unit": 9.35
+    }
+  ]
 }
