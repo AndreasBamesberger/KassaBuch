@@ -34,6 +34,20 @@
       "discount": -0.0,
       "price_final": 9.35,
       "price_final_per_unit": 9.35
+    },
+    {
+      "date_time": "2021-00-00T00:00",
+      "store": "",
+      "payment": "",
+      "price_single": 9.35,
+      "quantity": "",
+      "price_quantity": 9.35,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 9.35,
+      "price_final_per_unit": 9.35
     }
   ]
 }

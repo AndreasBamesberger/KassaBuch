@@ -4,26 +4,25 @@ update the json files, to write to output csv files.
 """
 import configparser  # To read config file
 import csv  # To write the output into csv files
-# import datetime
-import json  # To read from and to update json files
+import json  # To read from and write to update json files
 import os  # To walk through product json files
-import re  # To match user input with product names
-# The product template json should be alphabetical
+import re  # To match user input with product templates
+
+# The product template json should be alphabetical product names
 from collections import OrderedDict
 
 # Global data structures which hold the information read from the json files
 
 # TEMPLATES key: product name
-# TEMPLATES field: Entry object
+# TEMPLATES field: Product object
 TEMPLATES = {}
 
 # STORES key: store name
-# STORES field: dict {'default_payment': str}
+# STORES field: dict {"default_payment": str, "default_discount_class": str}
 STORES = {}
 
-# CONFIG key: config parameter
-# CONFIG field: config parameter choice
-CONFIG = {}
+# configparser.ConfigParser
+CONFIG: configparser.ConfigParser()
 
 # list of Bill objects
 BILLS = []
@@ -31,13 +30,13 @@ BILLS = []
 # list of payment methods as str
 PAYMENTS = []
 
-# DISCOUNT_CLASSES key: discount letter as str
-# DISCOUNT_CLASSES field: dict holding discount value, description and
-#                         applicable store
+# DISCOUNT_CLASSES key: discount letter
+# DISCOUNT_CLASSES field: dict {"discount": float/int, "text": str,
+#                               "store": str}
 DISCOUNT_CLASSES = {}
 
 # PRODUCT_KEYS key: product name
-# PRODUCT_KEYS field: number corresponding to product name
+# PRODUCT_KEYS field: str, "product_" + number corresponding to product name
 PRODUCT_KEYS = {}
 
 
@@ -48,27 +47,26 @@ class Bill:
     ...
     Attributes
     ----------
-    date:str
+    date: str
         Date of the purchase, e.g. '2021-02-13'
-    discount_sum:float
+    discount_sum: float
         Sum of the money saved from all discounts of the entries
-    products:tuple
-        List or tuple holding the products purchased in this bill.
-        Type is backend.Product
-    payment:str
+    payment: str
         Payment method for this bill, e.g. cash or card
-    price_quantity_sum:float
+    price_quantity_sum: float
         Sum of 'price for 1 item' * 'quantity bought' of all items. Price of the
         bill without any discounts
-    quantity_discount_sum:float
+    products: tuple
+        List holding the products purchased in this bill. Type is Product
+    quantity_discount_sum: float
         Sum of all quantity discounts of all items
-    sale_sum:float
+    sale_sum: float
         Sum af all sale discounts of all items
-    store:str
+    store: str
         Name of the store where this was purchased
-    time:str
+    time: str
         Time of the purchase, e.g. '12:34'
-    total:float
+    total: float
         Sum of all discounted prices of all items
     """
 
@@ -109,38 +107,38 @@ class Product:
     ...
     Attributes
     ----------
-    discount:float
+    discount: float
         Money saved by the discounts for this item
-    discount_class:str
+    discount_class: str
         Either a letter which corresponds to an entry in the DISCOUNT_CLASSES
         dictionary or a percentage, e.g. 20 would be 20 percent discount
-    history:list of dicts
-        List holding all previous purchases
-    identifier:int
-        Number to identify the product, this corresponds to the json file name
-    price_final:float
-        price_quantity with discounts applied. Order with which discounts are
-        applied depends on the check_button in the GUI
-    price_quantity:float
-        price_single * quantity
-    price_single:float
-        Price of 1 item (or 1kg)
-    name:str
-        Name of the item
-    product_class:str
-        E.g. 'b' for beer or 'w' for wine
-    quantity:float
-        How much of this item was purchased. Either item count or weight in kg
-    quantity_discount:float
-        Number to subtract from price_quantity
-    sale:float
-        Number to subtract from price_quantity
-    unknown:str
-        Similar to product_class, e.g. 'l' for food ('Lebensmittel')
-    display:bool
+    display: bool
         Whether or not to list this product in the template selection
-    notes:str
+    history: list of dicts
+        List holding all previous purchases
+    identifier: int
+        Number to identify the product, this corresponds to the json file name
+    name: str
+        Name of the item
+    notes: str
         Extra field for user notes
+    price_final: float
+        price_quantity with discounts applied. Order with which discounts are
+        applied depends on the "minus_first" check_button in the GUI
+    price_quantity: float
+        price_single * quantity
+    price_single: float
+        Price of 1 item (or 1kg)
+    product_class: str
+        E.g. 'b' for beer or 'w' for wine
+    quantity: float
+        How much of this item was purchased. Either item count or weight in kg
+    quantity_discount: float
+        Number to subtract from price_quantity
+    sale: float
+        Number to subtract from price_quantity
+    unknown: str
+        Similar to product_class, e.g. 'l' for food ('Lebensmittel')
     """
 
     def __init__(self, name='', price_single=0.0, quantity=1.0,
@@ -190,6 +188,13 @@ class Product:
 
 def read_config(config_path):
     """
+    Uses the configparser module to extract information from the config file.
+
+    Parameters:
+        config_path (str): Windows path to the config file
+
+    Returns:
+        config (configparser.ConfigParser): Output created by configparser
     """
     config = configparser.ConfigParser()
     config.read(config_path)
@@ -197,6 +202,14 @@ def read_config(config_path):
 
 
 def read_json(file_path):
+    """
+    Opens a json file and reads it using the json module
+
+    Parameters:
+        file_path (str): Windows path to the config file
+    Returns:
+        out_dict (dict): Output created by json.load()
+    """
     with open(file_path, 'r', encoding="utf-8") as json_file:
         out_dict = json.load(json_file)
         return out_dict
@@ -269,6 +282,7 @@ def format_bill(bill):
                 line[index] = f'{item:.2f}'
 
         # German format, decimal sign is comma
+        # TODO don't do this to the product name
         line = [str(item).replace('.', ',') for item in line]
 
         lines.append(line)
@@ -293,18 +307,24 @@ def format_bill(bill):
     return header_line, lines
 
 
-def create_unique_filename(filepath):
+def create_unique_filename(file_path):
     """
-    Check if a file with the output name already exists. If it does, add a
-    number to its name and check again
+    Check if a backup bill file with the output name already exists. If it does,
+    add a number to its name and check again
+
+    Parameters:
+        file_path (str): Windows path to save the file
+
+    Returns:
+        new_path (str): The new Windows path where the file will be saved
     """
 
-    if not os.path.isfile(filepath + ".csv"):
-        return filepath
+    if not os.path.isfile(file_path + ".csv"):
+        return file_path
 
     counter = 0
     while True:
-        new_path = filepath + "_" + f"{counter:02}"
+        new_path = file_path + "_" + f"{counter:02}"
         if not os.path.isfile(new_path + ".csv"):
             return new_path
         else:
@@ -313,8 +333,9 @@ def create_unique_filename(filepath):
 
 def backup_bill(bill):
     """
-    The export_bills() function gets called at the end. This function is called
-    after each bill to act as a backup in case the program crashes
+    In contrast to the export_bills function, this function gets called after
+    each bill is saved to act as as backup in case the program crashes. The bill
+    is saved as a csv file
 
     Parameters:
         bill (Bill): Holds all information for one purchase of various items
@@ -335,7 +356,6 @@ def backup_bill(bill):
 
     header_line, lines = format_bill(bill)
 
-    # windows-1252 encoding so it's easier for excel
     with open(out_path, 'w', newline='', encoding=encoding) as out_file:
         file_writer = csv.writer(out_file,
                                  delimiter=CONFIG["DEFAULT"]["delimiter"],
@@ -349,26 +369,15 @@ def backup_bill(bill):
     update_product_keys()
 
 
-# def reset_backup():
-#     """
-#     This function is called at program start to clear out the backup file, so
-#     that it only holds information for the current run
-#     """
-#     out_path = CONFIG["output_csv"]
-#     with open(out_path, 'w', newline='', encoding="windows-1252") as out_file:
-#         file_writer = csv.writer(out_file, delimiter=CONFIG["delimiter"],
-#                                  quotechar='|', quoting=csv.QUOTE_MINIMAL)
-#
-#         file_writer.writerow('')
-
-
 def export_bills():
     """
     This function is executed when the 'export' button is pressed in the GUI.
     The row count of the output csv is calculated, this value is written into
     field A1. The first row also holds a column description. All stored bills
-    are formatted and written into the csv file
+    are formatted and written into a csv file
     """
+    if not BILLS:
+        return
 
     # Create file name
     out_path = CONFIG["FOLDERS"]["output"] + "export\\"
@@ -393,10 +402,6 @@ def export_bills():
 
     out_path += ".csv"
 
-    if not line_count:
-        print("no bills")
-        return
-
     first_line = [line_count, "Zeit", "Händler", "Bezeichnung",
                   "Preis", "Menge", "RK", "WK", "", "Preis", "Rabatt",
                   "Mengenrab", "Aktion", "Preis"]
@@ -416,40 +421,14 @@ def export_bills():
             file_writer.writerow('')
 
 
-# # encodings
-# # utf-8, 16, 32
-# # windows-1252
-# # cp273 (german)
-# def update_product_templates():
-#     """
-#     Overwrites the json holding the product templates with an updated version
-#     """
-#     templates_json = CONFIG["product_templates_json"]
-#     out_dict = {}
-#     for key, field in TEMPLATES.items():
-#         try:
-#             price_single = float(field.price_single.replace(',', '.'))
-#         except AttributeError:
-#             price_single = float(field.price_single)
-#         round(price_single, 2)
-#
-#         try:
-#             quantity = float(field.quantity)
-#         except ValueError:
-#             quantity = 1
-#         temp = {
-#             "price_single": price_single,
-#             "quantity": quantity,
-#             "product_class": field.product_class,
-#             "unknown": field.unknown,
-#             "history": field.history}
-#         out_dict.update({key: temp})
-#     # Save a dictionary with alphabetically sorted keys
-#     out_dict = OrderedDict(sorted(out_dict.items()))
-#     with open(templates_json, 'w', encoding="utf-16") as out_file:
-#         json.dump(out_dict, out_file, indent=2)
-
 def update_product_json(product):
+    """
+    Reads the purchase history from the json file, adds the current purchase and
+    overwrites the json with this updated information
+
+    Parameters:
+        product (Product): Object holding the data to be saved as a json
+    """
     name = product.name
     default_price_per_unit = product.price_single
     default_quantity = product.quantity
@@ -469,11 +448,9 @@ def update_product_json(product):
         for item in data["history"]:
             if item not in history:
                 history.append(item)
-        # history = data["history"]
         for item in product.history:
             if item not in history:
                 history.append(item)
-        # history.append(product.history)
     else:
         history = []
         for item in product.history:
@@ -496,7 +473,6 @@ def update_product_json(product):
 
     # Update PRODUCT_KEYS dict
     PRODUCT_KEYS.update({name: "product_" + f"{product.identifier:05}"})
-
     update_product_keys()
 
 
@@ -506,8 +482,7 @@ def update_product_history(product):
     Write back into product json file
 
     Parameters:
-        product: Product
-            The product in question
+        product (Product): The product in question
     """
     filename = "product_" + f"{product.identifier:05}" + ".json"
     path = CONFIG["FOLDERS"]["product folder"]
@@ -585,37 +560,11 @@ def update_product_keys():
         json.dump(out_dict, out_file, indent=2)
 
 
-# def read_product_templates():
-#     """
-#     Reads the products stored in the json and stores them in the
-#     TEMPLATES dict.
-#     """
-#     input_json = CONFIG["product_templates_json"]
-#     with open(input_json, 'r', encoding="utf-16") as in_file:
-#         data = json.load(in_file)
-#         for key, field in data.items():
-#             temp = Entry(product=key,
-#                          price_single=field["price_single"],
-#                          quantity=field["quantity"],
-#                          product_class=field["product_class"],
-#                          unknown=field["unknown"],
-#                          history=field["history"])
-#             TEMPLATES.update({key: temp})
-#     print("TEMPLATES.keys(): ", TEMPLATES.keys())
-#     print("first TEMPLATES entry: ")
-#     for x in list(TEMPLATES)[0:1]:
-#         print(x, TEMPLATES[x])
-
-
-# def read_product_keys():
-#     input_json = CONFIG["product_keys_json"]
-#     with open(input_json, 'r', encoding="utf-16") as in_file:
-#         data = json.load(in_file)
-#     PRODUCT_KEYS.update(data)
-#     print("PRODUCT_KEYS: ", PRODUCT_KEYS)
-
-
 def read_products():
+    """
+    Crawls through every file in the "products" folder, reads its contents and
+    saves it as a new product template in TEMPLATES
+    """
     product_folder = CONFIG["FOLDERS"]["product folder"]
     encoding = CONFIG["DEFAULT"]["encoding"]
     for root, _, files in os.walk(product_folder):
@@ -694,22 +643,20 @@ def regex_search(input_str):
     product name.
 
     Parameters:
-        input_str:str
-            The user input
+        input_str (str): The user input
     Returns:
-        out_dict:dict
-            Dict holding all matching products.
-            Key = TEMPLATES.key, Field = TEMPLATES.field
+        out_dict (dict): Dict holding all matching products.
+                         Key = TEMPLATES.key, Field = TEMPLATES.field
     """
 
     """
     regex: match all alphanumeric and whitespace characters
-    .:
-        Any character except newline
-    *:
-        Zero or more of
+    .: Any character except newline
+    *: Zero or more of
     """
     input_str = input_str.replace('*', ".*")
+    # Add ".*" in front so the user input can match strings anywhere without
+    # typing '*' in front
     input_str = ".*" + input_str
     try:
         pattern = re.compile(input_str)
@@ -731,8 +678,8 @@ def create_template(product: Product):
     the product info as a json file.
 
     Parameters:
-        product: Product
-            The Product object from which the new template is created
+        product (Product): The Product object from which the new template is
+                           created
     """
 
     # Delete trailing whitespaces from product name
@@ -766,14 +713,12 @@ def create_product(user_input: dict, new_product: bool):
     Create a new Product object from the user input.
 
     Parameters:
-        user_input: dict
-            Dictionary holding all user input
-        new_product: bool
-            If true, the product has not yet been saved as a json file
+        user_input (dict): Dictionary holding all user input
+        new_product (bool): If true, the product has not yet been saved as a
+                            json file
 
     Returns:
-        product: Product
-            The created Product object
+        product (Product): The created Product object
     """
 
     identifier = -1
@@ -846,11 +791,9 @@ def create_bill(user_input: dict):
     and save it as a csv file.
 
     Parameters:
-        user_input: dict
-            Dictionary holding all user input
+        user_input (dict): Dictionary holding all user input
     """
-    # TODO: As soon as message windows are a thing, make one to ask the user
-    #  for default payment string
+    # If store is new, store it and update the stores json
     if user_input["store"] not in STORES and user_input["store"] != '':
         STORES.update({user_input["store"]: {"default_payment": ''}})
         update_stores()
