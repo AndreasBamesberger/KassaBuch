@@ -1,0 +1,25 @@
+{
+  "name": "Rindfleisch 300g",
+  "default_price_per_unit": 9.45,
+  "default_quantity": 1,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "Test entry 09",
+  "history": [
+    {
+      "date_time": "2021-04-03T12:34",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 9.45,
+      "quantity": 2.0,
+      "price_quantity": 18.9,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 18.9,
+      "price_final_per_unit": 9.45
+    }
+  ]
+}

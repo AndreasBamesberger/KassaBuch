@@ -1,0 +1,67 @@
+{
+  "name": "Milch 1l",
+  "default_price_per_unit": 1.04,
+  "default_quantity": 1,
+  "product_class": "",
+  "unknown": "",
+  "display": true,
+  "notes": "Test entry 01",
+  "history": [
+    {
+      "date_time": "2021-04-12T07:34",
+      "store": "Hofer",
+      "payment": "Bar",
+      "price_single": 1.04,
+      "quantity": 2.0,
+      "price_quantity": 2.08,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 2.08,
+      "price_final_per_unit": 1.04
+    },
+    {
+      "date_time": "2021-04-12T10:23",
+      "store": "Hofer",
+      "payment": "Bar",
+      "price_single": 1.04,
+      "quantity": "",
+      "price_quantity": 1.04,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.04,
+      "price_final_per_unit": 1.04
+    },
+    {
+      "date_time": "2021-00-00T00:00",
+      "store": "",
+      "payment": "",
+      "price_single": 1.04,
+      "quantity": "",
+      "price_quantity": 1.04,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.04,
+      "price_final_per_unit": 1.04
+    },
+    {
+      "date_time": "2021-00-00T00:00",
+      "store": "",
+      "payment": "",
+      "price_single": 1.04,
+      "quantity": 0.0,
+      "price_quantity": 1.04,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.04,
+      "price_final_per_unit": 1.04
+    }
+  ]
+}

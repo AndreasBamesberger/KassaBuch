@@ -18,12 +18,12 @@ def str2float(in_str, default_empty=0):
     return out_float
 
 
-backend.CONFIG_DICT = backend.read_config("config.json")
+backend.CONFIG = backend.read_config("config.json")
 
-encoding = backend.CONFIG_DICT["encoding"]
+encoding = backend.CONFIG["DEFAULT"]["encoding"]
 
 csv_content = []
-in_csv = backend.CONFIG_DICT["output"] + "KassenBon 2021 03 (ohne m).csv"
+in_csv = backend.CONFIG["FOLDERS"]["output"] + "KassenBon 2021 03 (ohne m).csv"
 with open(in_csv, 'r', newline='', encoding=encoding) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';', quotechar='|')
     bill_headers = []

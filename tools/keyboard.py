@@ -10,7 +10,7 @@ def window_enumeration_handler(hwnd, top_windows):
 
 
 def write_to_program():
-    program = backend.CONFIG_DICT["type_to_program"]
+    program = backend.CONFIG["type_to_program"]
     if program == '':
         print("empty program string")
         return

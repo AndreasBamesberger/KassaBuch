@@ -1,0 +1,21 @@
+{
+  "Billa": {
+    "default_payment": "Karte",
+    "default_discount_class": "a"
+  },
+  "Hofer": {
+    "default_payment": "Bar",
+    "default_discount_class": ""
+  },
+  "Saturn": {
+    "default_payment": "Bar",
+    "default_discount_class": ""
+  },
+  "Spar": {
+    "default_payment": "Karte",
+    "default_discount_class": "g"
+  },
+  "TestStore": {
+    "default_payment": ""
+  }
+}

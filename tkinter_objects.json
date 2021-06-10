@@ -55,8 +55,8 @@
     "button_list":    [["frame_main",   "add_new_row",  "Neue Zeile", "add_new_row",    3,       0,     "none 14 bold"],
                        ["frame_main",   "save_bill",    "Speichern",  "save_bill",      3,       1,     "none 14 bold"],
                        ["frame_main",   "export_bills", "Export",     "export_bills",   3,       2,     "none 14 bold"],
-                       ["frame_fields", "delete_row",   "Löschen",    "delete_row",    24,       0,     "none 10 bold"],
-                       ["frame_fields", "save_template","Speichern",  "save_template", 25,       0,     "none 10 bold"]],
+                       ["frame_fields", "delete_row",   "Löschen",    "delete_row",    24,       "",     "none 10 bold"],
+                       ["frame_fields", "save_template","Speichern",  "save_template", 25,       "",     "none 10 bold"]],
 
     "_combo_box_comment": ["frame",        "dict_key", "command",        "values",    "state",  "column", "row", "width", "sticky"],
     "combo_box_list":    [["frame_main",   "store",    "trace_store",    "stores",    "normal", 2,        2,     20,      "news"],

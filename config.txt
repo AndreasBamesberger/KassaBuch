@@ -1,0 +1,28 @@
+[FOLDERS]
+output = ..\KassaBuch_data\
+product folder = ..\KassaBuch_data\products\
+
+[FILES]
+product keys json = ..\KassaBuch_data\product_keys.json
+product templates json = ..\KassaBuch_data\product_templates.json
+stores json = ..\KassaBuch_data\stores.json
+payments json = ..\KassaBuch_data\payments.json
+discount classes json = ..\KassaBuch_data\discount_classes.json
+
+[GRAPHICS]
+font size = 14
+scaling = 1.5
+main width = 1860
+main height = 620
+canvas width = 1280
+canvas height = 300
+colour frame = light grey
+colour label fg = black
+colour label bg = light grey
+
+[DEFAULT]
+delimiter = ;
+year = 2021
+regex = True
+save history = True
+encoding = "windows-1252"
