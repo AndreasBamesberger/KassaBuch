@@ -1,13 +1,13 @@
 [FOLDERS]
-output = data\
-product folder = data\products\
+output = ..\KassaBuch_data\
+product folder = ..\KassaBuch_data\products\
 
 [FILES]
-product keys json = data\product_keys.json
-product templates json = data\product_templates.json
-stores json = data\stores.json
-payments json = data\payments.json
-discount classes json = data\discount_classes.json
+product keys json = ..\KassaBuch_data\product_keys.json
+product templates json = ..\KassaBuch_data\product_templates.json
+stores json = ..\KassaBuch_data\stores.json
+payments json = ..\KassaBuch_data\payments.json
+discount classes json = ..\KassaBuch_data\discount_classes.json
 
 [GRAPHICS]
 font size = 14
