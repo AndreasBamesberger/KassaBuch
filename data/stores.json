@@ -14,8 +14,5 @@
   "Spar": {
     "default_payment": "Karte",
     "default_discount_class": "g"
-  },
-  "TestStore": {
-    "default_payment": ""
   }
 }

@@ -2,7 +2,6 @@
   "payments": [
     "Bar",
     "Gutschein",
-    "Karte",
-    "TestPayment"
+    "Karte"
   ]
 }
