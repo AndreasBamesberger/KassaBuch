@@ -430,7 +430,12 @@ class Application:
                 self._line_list.pop(index)
                 break
         print("self._row_count = ", self._row_count)
-        self._calculate_total()
+
+        if len(self._line_list) > 0:
+            for line in self._line_list:
+                self.trace_update_entries(line)
+        else:
+            self.trace_update_entries(None)
 
         self._root.update()
         # Set the canvas scrolling region again
@@ -813,11 +818,12 @@ class Application:
         """
         print("trace_update_entries")
 
-        self._read_line_values(curr_line)
-        self._calculate_price_quantity(curr_line)
-        self._calculate_discount(curr_line)
-        self._calculate_price_final(curr_line)
-        self._compare_line_to_file(curr_line)
+        if curr_line is not None:
+            self._read_line_values(curr_line)
+            self._calculate_price_quantity(curr_line)
+            self._calculate_discount(curr_line)
+            self._calculate_price_final(curr_line)
+            self._compare_line_to_file(curr_line)
         self._calculate_total()
 
         # Add values of "price_quantity", "discount", "quantity_discount" and
