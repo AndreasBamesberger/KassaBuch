@@ -802,7 +802,8 @@ def create_bill(user_input: dict):
     """
     # If store is new, store it and update the stores json
     if user_input["store"] not in STORES and user_input["store"] != '':
-        STORES.update({user_input["store"]: {"default_payment": ''}})
+        STORES.update({user_input["store"]: {"default_payment": '',
+                                             "default_discount_class": ''}})
         update_stores()
 
     # If payment method is new, store it and update the payments json
