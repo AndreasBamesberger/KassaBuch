@@ -623,6 +623,9 @@ class Application:
                 if template_input in key.lower():
                     temp_dict.update({key: field})
 
+        if temp_dict is None:
+            return
+
         print("len(temp_dict): ", len(temp_dict))
 
         # Show the matching entries in the dropdown of the current Combobox
@@ -726,12 +729,13 @@ class Application:
 
         store_list.sort()
 
-        print("Matching stores: ", store_list)
+        # print("Matching stores: ", store_list)
+        print("len(store_list): ", len(store_list))
 
         # Show the matching entries in the dropdown of the current Combobox
         self._root_objects.combo_boxes["store"].object["values"] = store_list
 
-        print("STORES: ", backend.STORES)
+        # print("STORES: ", backend.STORES)
         if len(store_list) == 0:
             self._root_objects.combo_boxes["payment"].object.set('')
         # if store is Billa, Billa Plus or Merkur: change payment to Karte
@@ -749,10 +753,11 @@ class Application:
             for key, field in backend.STORES.items():
                 if store_input == key.lower():
                     # Set text in Combobox to matching store
-                    self._root_objects.trace_vars["store"].set(key)
+                    self._root_objects.combo_boxes["store"].trace_var.set(key)
                     payment = field["default_payment"]
                     print("payment: ", payment)
-                    self._root_objects.combo_boxes["payment"].set(payment)
+                    self._root_objects.combo_boxes["payment"].object. \
+                        set(payment)
                     break
                 else:
                     self._root_objects.combo_boxes["payment"].object.set('')
@@ -760,8 +765,26 @@ class Application:
     def trace_payment(self):
         """
         Gets called when the StringVar of the "payment" Combobox changes.
+        Checks if the cursor focus is in the "payment" Combobox. If it is not,
+        stop.
         Searches the payment list for a match
         """
+        # Only search for matching entries when user focus is in the payment
+        # ComboBox. The trace_store method also changes the payment many times
+        # per change in the "store" field
+
+        # Get "payment" ComboBox id
+        payment_id = str(self._root_objects.combo_boxes["payment"].object)
+
+        # Get current focus
+        try:
+            current_focus = str(self._root.focus_get())
+        except KeyError:
+            return
+
+        if payment_id != current_focus:
+            return
+
         # Read user input from the Combobox
         payment_input = self._read_entry(
             self._root_objects.combo_boxes["payment"], "str").lower()
@@ -773,7 +796,8 @@ class Application:
                 payment_list.append(payment)
 
         payment_list.sort()
-        print("Payment methods: ", payment_list)
+        # print("Payment methods: ", payment_list)
+        print("len(payment_list): ", len(payment_list))
         self._root_objects.combo_boxes["payment"].object["values"] = \
             payment_list
 
@@ -1152,7 +1176,7 @@ class Application:
 
                     if curr_discount_class == "":
                         store = self._read_entry(
-                            self._root_objects.combo_boxes["store"].object,
+                            self._root_objects.combo_boxes["store"],
                             "str")
                         if store in backend.STORES:
                             discount_class = backend.STORES[store][
@@ -1183,7 +1207,7 @@ class Application:
             # current focus
             for line in self._line_list:
                 for key, field in line.entries.items():
-                    if str(field) == current_focus:
+                    if str(field.object) == current_focus:
                         print("active object: ", key, field)
                         return line.row
 
@@ -1192,7 +1216,7 @@ class Application:
             # current focus
             for line in self._line_list:
                 for key, field in line.combo_boxes.items():
-                    if str(field) == current_focus:
+                    if str(field.object) == current_focus:
                         print("active object: ", key, field)
                         return line.row
 

@@ -258,6 +258,8 @@ class ComboBoxContainer:
         Create the tkinter object and position it using grid()
         """
         def command(*_):
+            if not self.func:
+                return
             if self.param is not None:
                 self.func(self.param)
             else:
@@ -369,7 +371,7 @@ def create_labels(interface, frame):
                                       "w", "none 8 bold"),
             "help_f5": LabelContainer(interface.frame_main, "F5: Auswerten", 0,
                                       4, "w", "none 8 bold"),
-            "help_f6": LabelContainer(interface.frame_main, "F5: Pickerl", 0, 5,
+            "help_f6": LabelContainer(interface.frame_main, "F6: Pickerl", 0, 5,
                                       "w", "none 8 bold"),
             "date": LabelContainer(interface.frame_main, "Datum (dd-mm): ", 1,
                                    0, "e", "none 14 bold"),
@@ -542,6 +544,9 @@ def create_combo_boxes(interface, frame, row):
             "payment": ComboBoxContainer(interface.frame_main,
                                          interface.trace_payment, None,
                                          "payments", "normal", 2, 3, 20, "news")
+            # "payment": ComboBoxContainer(interface.frame_main,
+            #                              None, None,
+            #                              "payments", "normal", 2, 3, 20, "news")
         }
     elif frame == interface.frame_fields:
         return {

@@ -180,7 +180,7 @@ class Product:
                       f"\tprice_final: {self.price_final}\n"
                       f"\tdisplay: {self.display}\n"
                       f"\tnotes: {self.notes}\n"
-                      f"\thistory: {self.history}\n"
+                      f"\thistory: {len(self.history)} items\n"
                       f"---\n"
                       )
         return out_string
@@ -568,7 +568,7 @@ def read_products():
     product_folder = CONFIG["FOLDERS"]["product folder"]
     encoding = CONFIG["DEFAULT"]["encoding"]
     for root, _, files in os.walk(product_folder):
-        for file in files:
+        for index, file in enumerate(files):
             input_json = os.path.join(root, file)
             with open(input_json, 'r', encoding=encoding) as in_file:
                 data = json.load(in_file)
@@ -576,7 +576,8 @@ def read_products():
                 identifier = identifier.replace(".json", '')
                 identifier = int(identifier)
                 str_id = "product_" + f"{identifier:05}"
-                print(str_id, ", data: ", data)
+                # print(str_id, ", data: ", data)
+                # print(str_id)
                 temp = Product(name=data["name"],
                                price_single=data["default_price_per_unit"],
                                quantity=data["default_quantity"],
@@ -589,6 +590,12 @@ def read_products():
                 TEMPLATES.update({data["name"]: temp})
 
                 PRODUCT_KEYS.update({data["name"]: str_id})
+
+            # Print status message every 500 files to show user that program is
+            # still running
+            if index % 500 == 0:
+                print("Reading file: ", str_id)
+
     print("TEMPLATES.keys(): ", TEMPLATES.keys())
     print("first TEMPLATES entry: ")
     for x in list(TEMPLATES)[0:1]:
