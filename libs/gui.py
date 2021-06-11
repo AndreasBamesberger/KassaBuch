@@ -7,8 +7,8 @@ import sys  # For exit()
 import tkinter as tk
 from tkinter import ttk  # For style and Combobox
 
-import backend
-import tkinter_objects as tko
+import libs.backend as backend
+import libs.tkinter_objects as tko
 
 
 class Line:

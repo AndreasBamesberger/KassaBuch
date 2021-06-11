@@ -1,6 +1,6 @@
 """ Reads config file, json files and starts interface """
-import backend
-from gui import Application
+import libs.backend as backend
+from libs.gui import Application
 
 
 if __name__ == '__main__':

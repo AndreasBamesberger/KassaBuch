@@ -5,7 +5,7 @@ them
 import tkinter as tk
 from tkinter import ttk
 
-import backend
+import libs.backend as backend
 
 
 # TODO: create parent gui object class?
