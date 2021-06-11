@@ -1,11 +1,11 @@
 {
   "name": "Semmel",
-  "default_price_per_unit": 0.3,
-  "default_quantity": 4,
+  "default_price_per_unit": 0.36,
+  "default_quantity": 2.0,
   "product_class": "",
   "unknown": "",
   "display": true,
-  "notes": "Test entry 02",
+  "notes": "",
   "history": [
     {
       "date_time": "2021-04-12T10:23",
@@ -34,6 +34,34 @@
       "discount": -0.0,
       "price_final": 1.2,
       "price_final_per_unit": 0.3
+    },
+    {
+      "date_time": "2021-06-12T10:15",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 0.36,
+      "quantity": 2.0,
+      "price_quantity": 0.72,
+      "discount_class": "10",
+      "quantity_discount": -0.6,
+      "sale": 0.0,
+      "discount": -0.01,
+      "price_final": 0.11,
+      "price_final_per_unit": 0.06
+    },
+    {
+      "date_time": "2021-06-12T10:32",
+      "store": "Spar",
+      "payment": "Karte",
+      "price_single": 0.36,
+      "quantity": 3.0,
+      "price_quantity": 1.08,
+      "discount_class": "5",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.05,
+      "price_final": 1.03,
+      "price_final_per_unit": 0.34
     }
   ]
 }

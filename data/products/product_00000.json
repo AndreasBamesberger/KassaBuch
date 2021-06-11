@@ -1,9 +1,9 @@
 {
   "name": "Brot 1kg",
-  "default_price_per_unit": 1.5,
+  "default_price_per_unit": 2.0,
   "default_quantity": 1.0,
   "product_class": "",
-  "unknown": "",
+  "unknown": "l",
   "display": true,
   "notes": "",
   "history": [
@@ -34,6 +34,20 @@
       "discount": -0.0,
       "price_final": 1.5,
       "price_final_per_unit": 1.5
+    },
+    {
+      "date_time": "2021-06-12T10:32",
+      "store": "Spar",
+      "payment": "Karte",
+      "price_single": 2.0,
+      "quantity": "",
+      "price_quantity": 2.0,
+      "discount_class": "",
+      "quantity_discount": -0.56,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 1.44,
+      "price_final_per_unit": 1.44
     }
   ]
 }

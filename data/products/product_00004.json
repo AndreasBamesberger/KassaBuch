@@ -1,9 +1,9 @@
 {
   "name": "Salami 150g",
-  "default_price_per_unit": 2.54,
-  "default_quantity": 2.0,
+  "default_price_per_unit": 3.15,
+  "default_quantity": 3.0,
   "product_class": "",
-  "unknown": "",
+  "unknown": "n",
   "display": true,
   "notes": "",
   "history": [
@@ -34,6 +34,48 @@
       "discount": -0.0,
       "price_final": 5.08,
       "price_final_per_unit": 2.54
+    },
+    {
+      "date_time": "2021-06-12T10:15",
+      "store": "Billa",
+      "payment": "Karte",
+      "price_single": 3.15,
+      "quantity": 3.0,
+      "price_quantity": 9.45,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 9.45,
+      "price_final_per_unit": 3.15
+    },
+    {
+      "date_time": "2021-06-12T10:32",
+      "store": "Spar",
+      "payment": "Karte",
+      "price_single": 3.5,
+      "quantity": 3.0,
+      "price_quantity": 10.5,
+      "discount_class": "10",
+      "quantity_discount": 0.0,
+      "sale": -0.6,
+      "discount": -0.99,
+      "price_final": 8.91,
+      "price_final_per_unit": 2.97
+    },
+    {
+      "date_time": "2021-06-12T13:32",
+      "store": "Hofer",
+      "payment": "Bar",
+      "price_single": 3.15,
+      "quantity": 3.0,
+      "price_quantity": 9.45,
+      "discount_class": "10",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.94,
+      "price_final": 8.51,
+      "price_final_per_unit": 2.84
     }
   ]
 }

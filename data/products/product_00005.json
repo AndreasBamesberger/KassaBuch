@@ -20,6 +20,20 @@
       "discount": -1.42,
       "price_final": 4.25,
       "price_final_per_unit": 1.42
+    },
+    {
+      "date_time": "2021-06-12T13:32",
+      "store": "Hofer",
+      "payment": "Bar",
+      "price_single": 1.89,
+      "quantity": 4.0,
+      "price_quantity": 7.56,
+      "discount_class": "",
+      "quantity_discount": 0.0,
+      "sale": 0.0,
+      "discount": -0.0,
+      "price_final": 7.56,
+      "price_final_per_unit": 1.89
     }
   ]
 }
