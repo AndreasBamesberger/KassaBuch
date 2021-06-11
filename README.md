@@ -1,4 +1,4 @@
-# # KassaBuch
+## KassaBuch
 ## Introduction
 
 A Python program to write down your purchases. Type in a bill and save it as a CSV file. Product, store and payment information is saved in JSON files.
