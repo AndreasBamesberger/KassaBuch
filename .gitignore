@@ -638,3 +638,6 @@ venv/Scripts/unicodedata_d.pyd
 venv/Scripts/vcruntime140.dll
 venv/Scripts/winsound.pyd
 venv/Scripts/winsound_d.pyd
+libs/__pycache__/backend.cpython-39.pyc
+libs/__pycache__/gui.cpython-39.pyc
+libs/__pycache__/tkinter_objects.cpython-39.pyc
