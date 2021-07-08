@@ -1,13 +1,13 @@
 [FOLDERS]
-output = data/
-product folder = data/products/
+output = data\
+product folder = data\products\
 
 [FILES]
-product keys json = data/product_keys.json
-product templates json = data/product_templates.json
-stores json = data/stores.json
-payments json = data/payments.json
-discount classes json = data/discount_classes.json
+product keys json = data\product_keys.json
+product templates json = data\product_templates.json
+stores json = data\stores.json
+payments json = data\payments.json
+discount classes json = data\discount_classes.json
 
 [GRAPHICS]
 font size = 14
