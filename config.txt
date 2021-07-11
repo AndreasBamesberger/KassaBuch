@@ -1,6 +1,7 @@
 [FOLDERS]
 output = data/
 product folder = data/products/
+sql database = data/database_01.db
 
 [FILES]
 product keys json = data/product_keys.json

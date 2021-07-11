@@ -7,19 +7,20 @@ import csv  # To write the output into csv files
 import json  # To read from and write to update json files
 import os  # To walk through product json files
 import re  # To match user input with product templates
+import sqlite3
 
 # The product template json should be alphabetical product names
 from collections import OrderedDict
 
 # Global data structures which hold the information read from the json files
 
-# TEMPLATES key: product name
-# TEMPLATES field: Product object
-TEMPLATES = {}
+# # TEMPLATES key: product name
+# # TEMPLATES field: Product object
+# TEMPLATES = {}
 
-# STORES key: store name
-# STORES field: dict {"default_payment": str, "default_discount_class": str}
-STORES = {}
+# # STORES key: store name
+# # STORES field: dict {"default_payment": str, "default_discount_class": str}
+# STORES = {}
 
 # configparser.ConfigParser
 CONFIG: configparser.ConfigParser()
@@ -27,18 +28,21 @@ CONFIG: configparser.ConfigParser()
 # list of Bill objects
 BILLS = []
 
-# list of payment methods as str
-PAYMENTS = []
+# # list of payment methods as str
+# PAYMENTS = []
 
-# DISCOUNT_CLASSES key: discount letter
-# DISCOUNT_CLASSES field: dict {"discount": float/int, "text": str,
-#                               "store": str}
-DISCOUNT_CLASSES = {}
+# # DISCOUNT_CLASSES key: discount letter
+# # DISCOUNT_CLASSES field: dict {"discount": float/int, "text": str,
+# #                               "store": str}
+# DISCOUNT_CLASSES = {}
 
-# PRODUCT_KEYS key: product name
-# PRODUCT_KEYS field: str, "product_" + number corresponding to product name
-PRODUCT_KEYS = {}
+# # PRODUCT_KEYS key: product name
+# # PRODUCT_KEYS field: str, "product_" + number corresponding to product name
+# PRODUCT_KEYS = {}
 
+# sql objects
+C = None
+CONN = None
 
 class Bill:
     """
@@ -214,6 +218,13 @@ def read_json(file_path):
         out_dict = json.load(json_file)
         return out_dict
 
+
+def read_database():
+    global C, CONN
+
+    path = CONFIG["FOLDERS"]["sql database"]
+    CONN = sqlite3.connect(path)
+    C = CONN.cursor()
 
 def format_bill(bill):
     """
@@ -904,3 +915,22 @@ def create_bill(user_input: dict):
     if bill.products:
         BILLS.append(bill)
         backup_bill(bill)
+
+def get_stores():
+    C.execute("SELECT name FROM stores")
+    return [item[0] for item in C.fetchall()]
+
+def get_payments():
+    C.execute("SELECT name FROM payments")
+    return [item[0] for item in C.fetchall()]
+
+def get_product_names(condition_str):
+    if condition_str:
+        C.execute("SELECT name FROM products " +  condition_str)
+    else:
+        C.execute("SELECT name FROM products")
+    out_list = [item[0] for item in C.fetchall()]
+    return out_list
+
+
+

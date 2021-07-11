@@ -274,12 +274,12 @@ class ComboBoxContainer:
 
         box_list = list()
         if self.values == "templates":
-            box_list = sorted([key for key, field in backend.TEMPLATES.items()
-                               if field.display])
+            box_list = sorted(backend.get_product_names("WHERE display=1"))
         elif self.values == "stores":
-            box_list = sorted(backend.STORES)
+            backend.get_stores()
+            box_list = sorted(backend.get_stores())
         elif self.values == "payments":
-            box_list = sorted(backend.PAYMENTS)
+            box_list = sorted(backend.get_payments())
         self.object["values"] = box_list
         self.object["state"] = self.state
         self.object.grid(row=self.row, column=self.column, sticky=self.sticky)
